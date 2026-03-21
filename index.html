@@ -512,10 +512,10 @@ const towerTypes={
   speer:{range:90,rate:40,dmg:3.6,speed:3.2,cost:80,ultCost:800},
   boog:{range:130,rate:55,dmg:7,speed:2,cost:125,ultCost:1500},
   plaagdokter:{range:140,rate:40,dmg:8,speed:3.5,cost:300,ultCost:2000,slow:true},
-  geweer:{range:240,rate:12,dmg:4.8,speed:7,cost:550,ultCost:5000},
+  geweer:{range:240,rate:12,dmg:3.8,speed:7,cost:550,ultCost:5000},
   sniper:{range:550,rate:300,dmg:300,speed:10,cost:5000,ultCost:28000},
   tsjaadinator:{range:180,rate:4,dmg:4.8,speed:8,cost:2500,ultCost:15000,secretCost:500000},
-  atoom:{range:180,rate:130,dmg:9,speed:3,cost:600,bomb:true,ultCost:3500,
+  atoom:{range:180,rate:100,dmg:15,speed:3,cost:600,bomb:true,ultCost:4500},
   katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
   aap:{range:120,rate:70,dmg:1.9,speed:0,cost:400,ultCost:2500,monkey:true},
   fakkel:{range:95,rate:45,dmg:3,speed:3,cost:150,ultCost:4000,fire:true}
@@ -597,13 +597,13 @@ function getUpgradeCostForTower(tw){
   if(tw.key==='speer') return 50;
   if(tw.key==='boog') return 100;
   if(tw.key==='plaagdokter') return 250;
-  if(tw.key==='geweer') return 250;
+  if(tw.key==='geweer') return 300;
   if(tw.key==='atoom') return 300;
   if(tw.key==='sniper') return 1500;
   if(tw.key==='tsjaadinator') return 800;
   if(tw.key==='katoen') return 200;
   if(tw.key==='aap') return 200;
-  if(tw.key==='fakkel') return 400;
+  if(tw.key==='fakkel') return 125;
   return 200;
 }
 
@@ -640,7 +640,7 @@ function getNextLevelStats(tw){
     else if(tw.key==='sniper'){ dmg = 5000; }
     else if(tw.key==='plaagdokter'){ dmg = tw.dmg * 4; slow = null; plaagBonus = (tw.plaagDmgBonus||1.05) + 0.05; }
     else if(tw.key==='aap'){ dmg = tw.dmg * 2; }
-    else if(tw.key==='fakkel'){ dmg = tw.dmg * 3.4; }
+    else if(tw.key==='fakkel'){ dmg = tw.dmg * 1.4; }
   }
   return { dmg, rate, range: nextRange, slow, plaagBonus };
 }
