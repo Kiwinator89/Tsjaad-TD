@@ -555,10 +555,10 @@ const animalTypes=[
   {name:'Olifant',hp:20,speed:0.8,size:20,reward:25,type:'olifant'},
   {name:'Cheetah',hp:5.6,speed:1.485,size:14,reward:15,type:'cheetah',minRound:15},
   {name:'Nijlpaard',hp:28,speed:0.4,size:22,reward:30,type:'nijlpaard',minRound:12},
-  {name:'Kameel',hp:28,speed:0.4,size:20,reward:35,type:'kameel',minRound:18},
+  {name:'Kameel',hp:35,speed:0.4,size:20,reward:35,type:'kameel',minRound:18},
   {name:'Robo Leeuw',hp:20,speed:1.25,size:16,reward:40,type:'roboleeuw',minRound:16},
   {name:'Vogel',hp:10,speed:1.4,size:13,reward:30,type:'vogel',minRound:16},
-  {name:'Krokodil',hp:28,speed:0.75,size:20,reward:38,type:'krokodil',minRound:20},
+  {name:'Krokodil',hp:40,speed:0.75,size:20,reward:38,type:'krokodil',minRound:20},
 ];
 const bossType = {name:'Malaria Mug',hp:50000,speed:0.7,size:80,reward:1000,boss:true,type:'mug'};
 const mutatedBossType = {name:'Gemuteerde Malaria Mug',hp:5000000,speed:0.75,size:95,reward:2500,boss:true,type:'mutatedmug'};
@@ -640,7 +640,7 @@ function getNextLevelStats(tw){
     else if(tw.key==='sniper'){ dmg = 5000; }
     else if(tw.key==='plaagdokter'){ dmg = tw.dmg * 4; slow = null; plaagBonus = (tw.plaagDmgBonus||1.05) + 0.05; }
     else if(tw.key==='aap'){ dmg = tw.dmg * 2; }
-    else if(tw.key==='fakkel'){ dmg = tw.dmg * 2; }
+    else if(tw.key==='fakkel'){ dmg = tw.dmg * 1.4; }
   }
   return { dmg, rate, range: nextRange, slow, plaagBonus };
 }
