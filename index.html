@@ -564,7 +564,7 @@ const bossType = {name:'Malaria Mug',hp:50000,speed:0.7,size:80,reward:1000,boss
 const mutatedBossType = {name:'Gemuteerde Malaria Mug',hp:5000000,speed:0.75,size:95,reward:2500,boss:true,type:'mutatedmug'};
 const slowBossType = {name:'Malaria Mug',hp:6500000,speed:0.15,size:120,reward:1000,boss:true,type:'mug'};
 const hydraHydraBossType = {name:'Hydra Malaria Mug',hp:100000,speed:0.8,size:100,reward:2000,boss:true,type:'hydramug'};
-const zwangereMugBossType = {name:'🤰 Zwangere Malaria Mug',hp:200000,speed:0.6,size:110,reward:3000,boss:true,type:'zwangeremug'};
+const zwangereMugBossType = {name:'Zwangere Malaria Mug',hp:200000,speed:0.6,size:110,reward:3000,boss:true,type:'zwangeremug'};
 
 function selectTower(t2){ if(gameMode==='armoede'&&t2==='katoen') return; selectedTower=t2; }
 
@@ -597,12 +597,12 @@ function getUpgradeCostForTower(tw){
   if(tw.key==='speer') return 50;
   if(tw.key==='boog') return 100;
   if(tw.key==='plaagdokter') return 250;
-  if(tw.key==='geweer') return 300;
-  if(tw.key==='atoom') return 300;
-  if(tw.key==='sniper') return 1500;
+  if(tw.key==='geweer') return 225;
+  if(tw.key==='atoom') return 400;
+  if(tw.key==='sniper') return 1000;
   if(tw.key==='tsjaadinator') return 800;
   if(tw.key==='katoen') return 200;
-  if(tw.key==='aap') return 200;
+  if(tw.key==='aap') return 150;
   if(tw.key==='fakkel') return 125;
   return 200;
 }
@@ -635,7 +635,7 @@ function getNextLevelStats(tw){
     if(tw.key==='atoom'){ dmg = tw.dmg * 2.8; rate = tw.rate * 0.55; }
     else if(tw.key==='tsjaadinator'){ dmg = tw.dmg * 2; rate = tw.rate * 0.25; }
     else if(tw.key==='speer'){ dmg = tw.dmg * 3; rate = tw.rate * 1.2; }
-    else if(tw.key==='geweer'){ dmg = 10; rate = tw.rate * 0.45; }
+    else if(tw.key==='geweer'){ dmg = 25; rate = tw.rate * 0.45; }
     else if(tw.key==='boog'){ dmg = tw.dmg * 1.9; rate = tw.rate * 0.50; }
     else if(tw.key==='sniper'){ dmg = 5000; }
     else if(tw.key==='plaagdokter'){ dmg = tw.dmg * 4; slow = null; plaagBonus = (tw.plaagDmgBonus||1.05) + 0.05; }
