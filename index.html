@@ -359,6 +359,41 @@ function getMutationDisplayName(mutation1, mutation2, baseName) {
   return (prefix[mutation1]||'')+' '+baseName;
 }
 
+// ===== AUDIO =====
+const sounds = {
+  themeStandaard: new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'),
+  themePlaag:     new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'),
+  themeHard:      new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'),
+  themeSpeed:     new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'),
+  themeBoss:      new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'),
+  themeMutatie:   new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3'),
+  shoot:    Object.assign(new Audio(), {src:'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='}),
+  explode:  Object.assign(new Audio(), {src:'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='}),
+  sell:     Object.assign(new Audio(), {src:'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='}),
+};
+// Set music to loop at default volume
+['themeStandaard','themePlaag','themeHard','themeSpeed','themeBoss','themeMutatie'].forEach(k=>{
+  sounds[k].loop=true; sounds[k].volume=0.5;
+});
+let currentTheme=null, musicPlaying=false;
+
+function playMusic(themeKey) {
+  if(currentTheme) { currentTheme.pause(); currentTheme.currentTime=0; }
+  currentTheme = sounds[themeKey] || sounds.themeStandaard;
+  currentTheme.volume = 0.5;
+  currentTheme.play().catch(()=>{});
+  musicPlaying = true;
+}
+function stopMusic() {
+  if(currentTheme) { currentTheme.pause(); currentTheme.currentTime=0; }
+  musicPlaying = false;
+}
+function playSound(name, vol=0.7) {
+  const s = sounds[name];
+  if(!s) return;
+  try { const c=s.cloneNode(); c.volume=vol; c.play().catch(()=>{}); } catch(e){}
+}
+
 // ===== GAME MODE SELECTION =====
 function startGame(mode) {
   gameMode = mode;
@@ -379,6 +414,11 @@ function startGame(mode) {
 
   document.getElementById('lives').textContent=lives;
   document.getElementById('money').textContent=money;
+
+  // Start background music for the selected mode
+  const themeMap = {plaag:'themePlaag',hard:'themeHard',speed:'themeSpeed',boss:'themeBoss',mutatie:'themeMutatie'};
+  playMusic(themeMap[mode] || 'themeStandaard');
+
   loop();
 }
 
@@ -907,9 +947,10 @@ function makeEnemy(t2){
 }
 
 // ===== WIN & LOSS =====
-function winGame(){ gameWon=true; document.getElementById('finalRound').textContent=round; document.getElementById('finalMoney').textContent=totalMoneyEarned; document.getElementById('victoryScreen').style.display='flex'; }
+function winGame(){ gameWon=true; stopMusic(); document.getElementById('finalRound').textContent=round; document.getElementById('finalMoney').textContent=totalMoneyEarned; document.getElementById('victoryScreen').style.display='flex'; }
 function loseGame(){
   gameWon=true;
+  stopMusic();
   const modeKey='mode-'+gameMode; const modeName=t(modeKey)||'STANDAARD';
   let deathMsg, deathStat;
   if(currentLang==='de'){ deathMsg=`<strong>DU HAST ${round} RUNDEN IN ${modeName} ÜBERLEBT!</strong><br>DIE FEINDE WAREN ZU STARK...`; deathStat=`💀 Gefallen in Runde: <strong>${round}</strong><br>💰 Gesamtverdienst: <strong>€${totalMoneyEarned}</strong>`; }
