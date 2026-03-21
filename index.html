@@ -640,7 +640,7 @@ function getNextLevelStats(tw){
     else if(tw.key==='sniper'){ dmg = 5000; }
     else if(tw.key==='plaagdokter'){ dmg = tw.dmg * 4; slow = null; plaagBonus = (tw.plaagDmgBonus||1.05) + 0.05; }
     else if(tw.key==='aap'){ dmg = tw.dmg * 2; }
-    else if(tw.key==='fakkel'){ dmg = tw.dmg * 30; }
+    else if(tw.key==='fakkel'){ dmg = tw.dmg * 2; }
   }
   return { dmg, rate, range: nextRange, slow, plaagBonus };
 }
@@ -759,9 +759,9 @@ function updateTooltip(tw, cx, cy){
       html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — €${cost}</div>`;
     }
   } else if(tw.key==='tsjaadinator'){
-    const canAfford = money >= 300000;
-    html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">👁️ GOD MODE — €300,000</div>`;
-    html += `<div style="font-size:9px;color:#aaa;margin-top:2px;">⚠️ Haalt GEEN torens weg</div>`;
+    const canAfford = money >= 500000;
+    html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">👁️ GOD MODE — €500,000</div>`;
+    html += `<div style="font-size:9px;color:#aaa;margin-top:2px;">TSJAADINATOR ONTWAAKT!!!</div>`;
   }
 
   if(tw.ultimate){
