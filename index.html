@@ -67,11 +67,6 @@
   #settingsPanel h2 { font-size: 36px; color: #daa520; text-align: center; margin-bottom: 30px; text-shadow: 0 0 20px rgba(218,165,32,0.6); letter-spacing: 4px; }
   .settings-section { margin-bottom: 28px; }
   .settings-label { font-size: 14px; color: #cd853f; letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
-  .settings-label .vol-value { color: #daa520; font-size: 16px; font-weight: bold; min-width: 40px; text-align: right; }
-  .vol-slider { -webkit-appearance: none; width: 100%; height: 10px; border-radius: 5px; background: linear-gradient(to right, #daa520 0%, #daa520 50%, #3a2a0a 50%, #3a2a0a 100%); outline: none; cursor: pointer; border: 2px solid #5a3a00; }
-  .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffe082, #daa520 60%, #8b6000); border: 3px solid #fff8dc; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.5); transition: transform 0.15s; }
-  .vol-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
-  .settings-divider { border: none; border-top: 2px solid #5a3a00; margin: 24px 0; }
   .lang-grid { display: flex; gap: 12px; margin-top: 8px; }
   .lang-btn { flex: 1; padding: 14px 8px; border: 3px solid #5a3a00; border-radius: 12px; background: #1a0d00; color: #cd853f; font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.2s; text-align: center; letter-spacing: 1px; display: flex; flex-direction: column; align-items: center; gap: 6px; width: auto; margin: 0; }
   .lang-btn .flag { font-size: 26px; }
@@ -96,7 +91,6 @@
   @keyframes highlight { 0%, 100% { box-shadow: 0 0 10px #ffd700; } 50% { box-shadow: 0 0 20px #ffd700; } }
   .restartBtn { padding: 18px 50px; font-size: 28px; margin-top: 35px; border: 4px solid #fff; border-radius: 15px; cursor: pointer; font-weight: bold; background: rgba(0,0,0,0.6); color: #fff; transition: all 0.3s; }
   .restartBtn:hover { transform: scale(1.1); background: rgba(255,255,255,0.2); box-shadow: 0 0 30px rgba(255,255,255,0.5); }
-  /* Tower tooltip overlay */
   #towerTooltip { position: fixed; background: linear-gradient(160deg,rgba(18,12,2,0.98),rgba(30,20,5,0.97)); border: 2px solid #daa520; border-radius: 14px; padding: 13px 15px 10px; pointer-events: none; z-index: 500; display: none; min-width: 230px; max-width: 280px; box-shadow: 0 6px 28px rgba(0,0,0,0.9), 0 0 12px rgba(218,165,32,0.15); }
   #towerTooltip .tt-name { font-size: 14px; font-weight: bold; color: #ffd700; margin-bottom: 2px; letter-spacing: 1px; }
   #towerTooltip .tt-level { font-size: 11px; color: #cd853f; margin-bottom: 8px; letter-spacing: 0.5px; }
@@ -112,7 +106,6 @@
   #towerTooltip .tt-upgrade-header.max { color: #666; }
   #towerTooltip .tt-sell { font-size: 10px; color: #ff6b6b; margin-top: 6px; border-top: 1px solid rgba(255,100,100,0.2); padding-top: 6px; }
   #towerTooltip .tt-passive { font-size: 10px; color: #aaffcc; margin-top: 4px; border-top: 1px solid rgba(100,255,150,0.2); padding-top: 4px; font-style: italic; }
-  /* Sell flash */
   #sellFlash { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,200,0,0.18); pointer-events: none; z-index: 998; display: none; animation: sellFade 0.4s ease-out; }
   @keyframes sellFade { 0% { opacity: 1; } 100% { opacity: 0; } }
 </style>
@@ -132,15 +125,6 @@
   <div id="settingsPanel">
     <button id="closeSettings" onclick="closeSettings()">✕</button>
     <h2 id="stg-title">⚙️ INSTELLINGEN</h2>
-    <div class="settings-section">
-      <div class="settings-label"><span id="stg-music-label">🎵 MUZIEK VOLUME</span><span class="vol-value" id="musicVolDisplay">50%</span></div>
-      <input type="range" class="vol-slider" id="musicVol" min="0" max="100" value="50" oninput="updateMusicVol(this.value)">
-    </div>
-    <div class="settings-section">
-      <div class="settings-label"><span id="stg-sfx-label">🔊 GELUIDSEFFECTEN</span><span class="vol-value" id="sfxVolDisplay">50%</span></div>
-      <input type="range" class="vol-slider" id="sfxVol" min="0" max="100" value="50" oninput="updateSfxVol(this.value)">
-    </div>
-    <hr class="settings-divider">
     <div class="settings-section">
       <div class="settings-label" id="stg-lang-label">🌍 TAAL / LANGUAGE / SPRACHE</div>
       <div class="lang-grid">
@@ -218,7 +202,7 @@
 let currentLang = 'nl';
 const STRINGS = {
   nl: {
-    'stg-title': '⚙️ INSTELLINGEN','stg-music-label': '🎵 MUZIEK VOLUME','stg-sfx-label': '🔊 GELUIDSEFFECTEN',
+    'stg-title': '⚙️ INSTELLINGEN',
     'stg-lang-label': '🌍 TAAL / LANGUAGE / SPRACHE','title-subtitle': '⚔️ VECHT VOOR TSJAAD!!! ⚔️',
     'btn-standard': '🦟 STANDAARD MODUS','btn-plaag': '🌋 PLAAG MODUS 🦠','btn-hard': '💀 HARD MODUS ⚡',
     'btn-speed': '⚡ DUBBEL SNELHEID 🏎️','btn-armoede': '💀 ARMOEDE MODUS 💀','btn-boss': '👹 BOSS BATTLE 👹',
@@ -242,7 +226,7 @@ const STRINGS = {
     'btn-tsjaadplus': '💀☠️ TSJAAD MODUS PLUS ☠️💀','mode-tsjaadplus': 'TSJAAD MODUS PLUS',
   },
   en: {
-    'stg-title': '⚙️ SETTINGS','stg-music-label': '🎵 MUSIC VOLUME','stg-sfx-label': '🔊 SOUND EFFECTS',
+    'stg-title': '⚙️ SETTINGS',
     'stg-lang-label': '🌍 LANGUAGE','title-subtitle': '⚔️ FIGHT FOR CHAD!!! ⚔️',
     'btn-standard': '🦟 STANDARD MODE','btn-plaag': '🌋 PLAGUE MODE 🦠','btn-hard': '💀 HARD MODE ⚡',
     'btn-speed': '⚡ DOUBLE SPEED 🏎️','btn-armoede': '💀 POVERTY MODE 💀','btn-boss': '👹 BOSS BATTLE 👹',
@@ -266,7 +250,7 @@ const STRINGS = {
     'btn-tsjaadplus': '💀☠️ CHAD MODE PLUS ☠️💀','mode-tsjaadplus': 'CHAD MODE PLUS',
   },
   de: {
-    'stg-title': '⚙️ EINSTELLUNGEN','stg-music-label': '🎵 MUSIKLAUTSTÄRKE','stg-sfx-label': '🔊 SOUNDEFFEKTE',
+    'stg-title': '⚙️ EINSTELLUNGEN',
     'stg-lang-label': '🌍 SPRACHE','title-subtitle': '⚔️ KÄMPFE FÜR TSCHAD!!! ⚔️',
     'btn-standard': '🦟 STANDARD-MODUS','btn-plaag': '🌋 SEUCHEN-MODUS 🦠','btn-hard': '💀 HARD-MODUS ⚡',
     'btn-speed': '⚡ DOPPELTE GESCHWINDIGKEIT 🏎️','btn-armoede': '💀 ARMUTS-MODUS 💀','btn-boss': '👹 BOSS BATTLE 👹',
@@ -302,7 +286,7 @@ function setLang(lang) {
 }
 
 function applyTranslations() {
-  const ids = ['stg-title','stg-music-label','stg-sfx-label','stg-lang-label','title-subtitle','btn-standard','btn-plaag','btn-hard','btn-speed','btn-armoede','btn-boss','btn-mutatie','btn-dubbelhealth','btn-tsjaad','vs-title','vs-line1','vs-line2','vs-line3','vs-rounds-label','vs-money-label','vs-restart','ds-title','ds-restart','lb-title','ui-money-label','ui-lives-label','ui-round-label','tower-speer','tower-boog','tower-fakkel','tower-plaag','tower-aap','tower-geweer','tower-atoom','tower-katoen','tower-tsjaad','tower-sniper','btn-startround','ui-upgrade-hint'];
+  const ids = ['stg-title','stg-lang-label','title-subtitle','btn-standard','btn-plaag','btn-hard','btn-speed','btn-armoede','btn-boss','btn-mutatie','btn-dubbelhealth','btn-tsjaad','vs-title','vs-line1','vs-line2','vs-line3','vs-rounds-label','vs-money-label','vs-restart','ds-title','ds-restart','lb-title','ui-money-label','ui-lives-label','ui-round-label','tower-speer','tower-boog','tower-fakkel','tower-plaag','tower-aap','tower-geweer','tower-atoom','tower-katoen','tower-tsjaad','tower-sniper','btn-startround','ui-upgrade-hint'];
   for (const id of ids) { const el = document.getElementById(id); if (el) el.textContent = t(id); }
   const moneyEl = document.getElementById('ui-money-label');
   if (moneyEl) { const val = document.getElementById('money') ? document.getElementById('money').textContent : '500'; moneyEl.innerHTML = t('ui-money-label') + ' <strong><span id="money">' + val + '</span></strong>'; }
@@ -313,34 +297,13 @@ function applyTranslations() {
 }
 
 // ===== SETTINGS =====
-let musicVolume = 0.5, sfxVolume = 0.5;
 function openSettings() { document.getElementById('settingsOverlay').classList.add('open'); }
 function closeSettings() { document.getElementById('settingsOverlay').classList.remove('open'); }
 function handleOverlayClick(e) { if (e.target === document.getElementById('settingsOverlay')) closeSettings(); }
-function updateMusicVol(val) {
-  musicVolume = val / 100;
-  document.getElementById('musicVolDisplay').textContent = val + '%';
-  const slider = document.getElementById('musicVol');
-  slider.style.background = `linear-gradient(to right, #daa520 0%, #daa520 ${val}%, #3a2a0a ${val}%, #3a2a0a 100%)`;
-  for (const key of Object.keys(sounds)) { if (['mainTheme','volcanoTheme','hardTheme','doubleSpeed','armoede','bossMode','mutatieModus','dubbelHealthModus','tsjaadModus'].includes(key)) sounds[key].volume = musicVolume; }
-  localStorage.setItem('tsjaadTD_musicVol', val);
-}
-function updateSfxVol(val) {
-  sfxVolume = val / 100;
-  document.getElementById('sfxVolDisplay').textContent = val + '%';
-  const slider = document.getElementById('sfxVol');
-  slider.style.background = `linear-gradient(to right, #daa520 0%, #daa520 ${val}%, #3a2a0a ${val}%, #3a2a0a 100%)`;
-  localStorage.setItem('tsjaadTD_sfxVol', val);
-}
 
 (function loadSettings() {
   const savedLang = localStorage.getItem('tsjaadTD_lang');
-  if (savedLang) currentLang = savedLang;
-  const savedMusic = localStorage.getItem('tsjaadTD_musicVol');
-  if (savedMusic !== null) { document.getElementById('musicVol').value = savedMusic; updateMusicVol(savedMusic); }
-  const savedSfx = localStorage.getItem('tsjaadTD_sfxVol');
-  if (savedSfx !== null) { document.getElementById('sfxVol').value = savedSfx; updateSfxVol(savedSfx); }
-  if (savedLang) { document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active')); const btn = document.getElementById('lang-' + savedLang); if (btn) btn.classList.add('active'); applyTranslations(); }
+  if (savedLang) { currentLang = savedLang; document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active')); const btn = document.getElementById('lang-' + savedLang); if (btn) btn.classList.add('active'); applyTranslations(); }
 })();
 
 const canvas = document.getElementById('game');
@@ -381,27 +344,6 @@ let visualEffects = [];
 let nukeStrikes = [];
 let birdEggs = [];
 
-// ===== AUDIO =====
-const sounds = {
-  mainTheme: new Audio('Audio/MainTheme.mp3'), volcanoTheme: new Audio('Audio/VolcanoTheme.mp3'),
-  hardTheme: new Audio('Audio/HardTheme.mp3'), doubleSpeed: new Audio('Audio/DoubleSpeedMode.mp3'),
-  armoede: new Audio('Audio/ArmoedeModus.mp3'), bossMode: new Audio('Audio/BossMode.mp3'),
-  mutatieModus: new Audio('Audio/MutatieModus.mp3'), dubbelHealthModus: new Audio('Audio/DubbelHealthModus.mp3'),
-  tsjaadModus: new Audio('Audio/TsjaadModus.mp3'), explosion: new Audio('Audio/Explosion.mp3'),
-  round: new Audio('Audio/Round.mp3'), kill: new Audio('Audio/Kill.mp3'),
-  upgrade: new Audio('Audio/Upgrade.mp3'), placement: new Audio('Audio/Placement.mp3'),
-  sniper: new Audio('Audio/Sniper.mp3'), monkey: new Audio('Audio/Monkey.mp3'),
-  sell: new Audio('Audio/Sell.mp3')
-};
-for(const key of Object.keys(sounds)){
-  if(['mainTheme','volcanoTheme','hardTheme','doubleSpeed','armoede','bossMode','mutatieModus','dubbelHealthModus','tsjaadModus'].includes(key)){ sounds[key].loop=true; sounds[key].volume=musicVolume; }
-}
-let musicPlaying=false, currentTheme=null;
-function playMusic() { if(currentTheme&&!musicPlaying){ currentTheme.volume=musicVolume; currentTheme.play().then(()=>{ musicPlaying=true; }).catch(e=>{}); } }
-function playSound(soundName) {
-  if(sounds[soundName]){ const sound=sounds[soundName].cloneNode(); const baseVol=soundName==='sniper'?0.4:(soundName==='monkey'?0.6:0.5); sound.volume=baseVol*sfxVolume*2; sound.play().catch(e=>{}); }
-}
-
 // ===== MUTATIONS =====
 const MUTATIONS = ['ondode','snelle','hydra','random','dodelijke','radioactieve','metalen','kogelvrije','beschermde','terugkerende','arme','Nutteloze','verslomende','accelererende','genezende','elite','onstabiele'];
 function pickMutation(round, mode) {
@@ -424,20 +366,20 @@ function startGame(mode) {
   document.getElementById('settingsBtn').style.display='none';
   document.getElementById('ui').style.display='block';
 
-  if(mode==='plaag'){ path=volcanoPath; document.getElementById('gameTitle').innerHTML='🌋 <span style="color:#ff6b35">'+t('mode-plaag')+'</span> 🦠'; document.getElementById('roundMax').textContent=''; lives=12; money=700; autoStartRounds=false; currentTheme=sounds.volcanoTheme; }
-  else if(mode==='hard'){ path=hardPath; document.getElementById('gameTitle').innerHTML='💀 <span style="color:#c70039">'+t('mode-hard')+'</span> ⚡'; document.getElementById('roundMax').textContent='/50'; lives=20; money=300; autoStartRounds=true; autoRoundCountdown=0; document.getElementById('startRoundBtn').style.display='none'; document.getElementById('autoRoundMsg').textContent=t('auto-hard'); currentTheme=sounds.hardTheme; }
-  else if(mode==='speed'){ path=racePath; document.getElementById('gameTitle').innerHTML='⚡ <span style="color:#00ffff">'+t('mode-speed')+'</span> 🏎️'; document.getElementById('roundMax').textContent='/30'; lives=20; money=2000; autoStartRounds=false; currentTheme=sounds.doubleSpeed; }
-  else if(mode==='armoede'){ path=standardPath; document.getElementById('gameTitle').innerHTML='💀 <span style="color:#888">'+t('mode-armoede')+'</span> 💀'; document.getElementById('roundMax').textContent='/30'; lives=1; money=500; autoStartRounds=false; currentTheme=sounds.armoede; document.getElementById('katoenBtn').disabled=true; document.getElementById('katoenBtn').classList.add('crossed-out'); }
-  else if(mode==='boss'){ path=bossPath; document.getElementById('gameTitle').innerHTML='👹 <span style="color:#ff0000">'+t('mode-boss')+'</span> 👹'; document.getElementById('roundMax').textContent='/1'; lives=20; money=1000; autoStartRounds=false; currentTheme=sounds.bossMode; }
-  else if(mode==='mutatie'){ path=mutatiePath; document.getElementById('gameTitle').innerHTML='🧬 <span style="color:#00ff44">'+t('mode-mutatie')+'</span> 🧬'; document.getElementById('roundMax').textContent='/35'; lives=20; money=600; autoStartRounds=false; currentTheme=sounds.mutatieModus; }
-  else if(mode==='dubbelhealth'){ path=dubbelHealthPath; document.getElementById('gameTitle').innerHTML='💙 <span style="color:#4fc3f7">'+t('mode-dubbelhealth')+'</span> 💙'; document.getElementById('roundMax').textContent='/30'; lives=20; money=500; autoStartRounds=false; currentTheme=sounds.dubbelHealthModus; }
-  else if(mode==='tsjaadmodus'){ path=tsjaadPath; document.getElementById('gameTitle').innerHTML='🔥 <span style="color:#ff9800">'+t('mode-tsjaadmodus')+'</span> 🔥'; document.getElementById('roundMax').textContent='/50'; lives=1; money=800; autoStartRounds=true; autoRoundCountdown=0; document.getElementById('startRoundBtn').style.display='none'; document.getElementById('autoRoundMsg').textContent=t('auto-tsjaad'); currentTheme=sounds.tsjaadModus; }
-  else if(mode==='tsjaadplus'){ path=tsjaadPlusPath; document.getElementById('gameTitle').innerHTML='☠️ <span style="color:#ffd700;text-shadow:0 0 20px #ff0000,0 0 40px #ff4400">TSJAAD MODUS PLUS</span> ☠️'; document.getElementById('roundMax').textContent='/50'; lives=1; money=1000; autoStartRounds=false; currentTheme=sounds.tsjaadModus; }
-  else { path=standardPath; document.getElementById('gameTitle').textContent='🛡️ Tsjaad TD'; document.getElementById('roundMax').textContent='/30'; autoStartRounds=false; currentTheme=sounds.mainTheme; }
+  if(mode==='plaag'){ path=volcanoPath; document.getElementById('gameTitle').innerHTML='🌋 <span style="color:#ff6b35">'+t('mode-plaag')+'</span> 🦠'; document.getElementById('roundMax').textContent=''; lives=12; money=700; autoStartRounds=false; }
+  else if(mode==='hard'){ path=hardPath; document.getElementById('gameTitle').innerHTML='💀 <span style="color:#c70039">'+t('mode-hard')+'</span> ⚡'; document.getElementById('roundMax').textContent='/50'; lives=20; money=300; autoStartRounds=true; autoRoundCountdown=0; document.getElementById('startRoundBtn').style.display='none'; document.getElementById('autoRoundMsg').textContent=t('auto-hard'); }
+  else if(mode==='speed'){ path=racePath; document.getElementById('gameTitle').innerHTML='⚡ <span style="color:#00ffff">'+t('mode-speed')+'</span> 🏎️'; document.getElementById('roundMax').textContent='/30'; lives=20; money=2000; autoStartRounds=false; }
+  else if(mode==='armoede'){ path=standardPath; document.getElementById('gameTitle').innerHTML='💀 <span style="color:#888">'+t('mode-armoede')+'</span> 💀'; document.getElementById('roundMax').textContent='/30'; lives=1; money=500; autoStartRounds=false; document.getElementById('katoenBtn').disabled=true; document.getElementById('katoenBtn').classList.add('crossed-out'); }
+  else if(mode==='boss'){ path=bossPath; document.getElementById('gameTitle').innerHTML='👹 <span style="color:#ff0000">'+t('mode-boss')+'</span> 👹'; document.getElementById('roundMax').textContent='/1'; lives=20; money=1000; autoStartRounds=false; }
+  else if(mode==='mutatie'){ path=mutatiePath; document.getElementById('gameTitle').innerHTML='🧬 <span style="color:#00ff44">'+t('mode-mutatie')+'</span> 🧬'; document.getElementById('roundMax').textContent='/35'; lives=20; money=600; autoStartRounds=false; }
+  else if(mode==='dubbelhealth'){ path=dubbelHealthPath; document.getElementById('gameTitle').innerHTML='💙 <span style="color:#4fc3f7">'+t('mode-dubbelhealth')+'</span> 💙'; document.getElementById('roundMax').textContent='/30'; lives=20; money=500; autoStartRounds=false; }
+  else if(mode==='tsjaadmodus'){ path=tsjaadPath; document.getElementById('gameTitle').innerHTML='🔥 <span style="color:#ff9800">'+t('mode-tsjaadmodus')+'</span> 🔥'; document.getElementById('roundMax').textContent='/50'; lives=1; money=800; autoStartRounds=true; autoRoundCountdown=0; document.getElementById('startRoundBtn').style.display='none'; document.getElementById('autoRoundMsg').textContent=t('auto-tsjaad'); }
+  else if(mode==='tsjaadplus'){ path=tsjaadPlusPath; document.getElementById('gameTitle').innerHTML='☠️ <span style="color:#ffd700;text-shadow:0 0 20px #ff0000,0 0 40px #ff4400">TSJAAD MODUS PLUS</span> ☠️'; document.getElementById('roundMax').textContent='/50'; lives=1; money=1000; autoStartRounds=false; }
+  else { path=standardPath; document.getElementById('gameTitle').textContent='🛡️ Tsjaad TD'; document.getElementById('roundMax').textContent='/30'; autoStartRounds=false; }
 
   document.getElementById('lives').textContent=lives;
   document.getElementById('money').textContent=money;
-  playMusic(); loop();
+  loop();
 }
 
 // ===== TOWERS =====
@@ -451,9 +393,7 @@ const towerTypes={
   boog:{range:130,rate:55,dmg:7,speed:2,cost:125,ultCost:1500},
   plaagdokter:{range:140,rate:40,dmg:8,speed:3.5,cost:300,ultCost:2000,slow:true},
   geweer:{range:240,rate:12,dmg:3.8,speed:7,cost:550,ultCost:5000},
-  // CHANGED: sniper secretCost removed, cost stays same
   sniper:{range:550,rate:300,dmg:300,speed:10,cost:5000,ultCost:28000},
-  // CHANGED: secretCost is now 300000
   tsjaadinator:{range:180,rate:5,dmg:3.8,speed:8,cost:2500,ultCost:15000,secretCost:300000},
   atoom:{range:180,rate:100,dmg:15,speed:3,cost:600,bomb:true,ultCost:7500},
   katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
@@ -464,7 +404,6 @@ const towerTypes={
 function getTowerRange(tw) {
   const baseRange = towerBaseRanges[tw.key] || towerTypes[tw.key].range || 0;
   let range = baseRange * (1 + tw.level * 0.05);
-  // NEW: Apply speer ultimate range boost if active
   if(tw.speerRangeBoostUntil && Date.now() < tw.speerRangeBoostUntil){
     range *= 1.30;
   }
@@ -489,7 +428,6 @@ const animalTypes=[
   {name:'Kameel',hp:28,speed:0.4,size:20,reward:35,type:'kameel',minRound:18},
   {name:'Robo Leeuw',hp:20,speed:1.25,size:16,reward:40,type:'roboleeuw',minRound:16},
   {name:'Vogel',hp:10,speed:1.4,size:13,reward:30,type:'vogel',minRound:16},
-  // Krokodil: same HP as Nijlpaard, immune to Sniper & Soldier, spawns after round 20 in all modes
   {name:'Krokodil',hp:28,speed:0.75,size:20,reward:38,type:'krokodil',minRound:20},
 ];
 const bossType = {name:'Malaria Mug',hp:50000,speed:0.7,size:80,reward:1000,boss:true,type:'mug'};
@@ -562,15 +500,11 @@ function getNextLevelStats(tw){
     else if(tw.key==='fakkel'){ dmg = tw.dmg * 5.5; rate = tw.rate * 0.85; }
     else if(!tw.farm){ dmg = tw.dmg * 1.25; rate = tw.rate * 0.85; }
   } else if(!tw.ultimate){
-    const isUltNext = true;
-    // Ultimate upgrades
     if(tw.key==='atoom'){ dmg = tw.dmg * 2.8; rate = tw.rate * 0.55; }
     else if(tw.key==='tsjaadinator'){ dmg = tw.dmg * 2; rate = tw.rate * 0.25; }
-    // UPDATED: speer ultimate now shows range boost passive
     else if(tw.key==='speer'){ dmg = tw.dmg * 3; rate = tw.rate * 1.2; }
     else if(tw.key==='geweer'){ dmg = 10; rate = tw.rate * 0.45; }
     else if(tw.key==='boog'){ dmg = tw.dmg * 1.9; rate = tw.rate * 0.50; }
-    // UPDATED: sniper ultimate shows slow effect
     else if(tw.key==='sniper'){ dmg = 5000; }
     else if(tw.key==='plaagdokter'){ dmg = tw.dmg * 4; slow = null; plaagBonus = (tw.plaagDmgBonus||1.05) + 0.05; }
     else if(tw.key==='aap'){ dmg = tw.dmg * 2; }
@@ -658,13 +592,11 @@ function updateTooltip(tw, cx, cy){
       html += statRow('🔥 Brand dmg/s', burnDmg, nextBurnDmg !== burnDmg ? nextBurnDmg : null);
       html += statRow('⏱️ Brand duur', tw.ultimate ? '8s' : '8s', null);
     }
-    // UPDATED: Sniper ultimate - show slow passive
     if(tw.key==='sniper' && (tw.ultimate || isUltNext)){
       const curSlow = tw.ultimate ? '50% · 0.3s' : '—';
       const nextSlow2 = isUltNext ? '50% · 0.3s' : null;
       html += statRow('❄️ Raakshot slow', curSlow, !tw.ultimate ? nextSlow2 : null);
     }
-    // UPDATED: Speer ultimate - show range aura passive
     if(tw.key==='speer' && (tw.ultimate || isUltNext)){
       const curAura = tw.ultimate ? '+30% range' : '—';
       const nextAura = isUltNext ? '+30% range' : null;
@@ -672,7 +604,6 @@ function updateTooltip(tw, cx, cy){
     }
   }
 
-  // Upgrade section
   html += `<hr class="tt-divider">`;
   if(tw.secret){
     html += `<div class="tt-upgrade-header max">✅ GOD MODE ACTIEF</div>`;
@@ -685,22 +616,19 @@ function updateTooltip(tw, cx, cy){
   } else if(!tw.ultimate){
     const cost = cfg.ultCost;
     const canAfford = money >= cost;
-    // UPDATED: speer and sniper show their new passives in upgrade description
     if(tw.key==='speer'){
       html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — €${cost} | 📡 +30% range aura</div>`;
     } else if(tw.key==='sniper'){
       html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — €${cost} | ❄️ Shot slow 50%</div>`;
     } else {
-      html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#ف44'}">⭐ ULTIMATE — €${cost}</div>`;
+      html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — €${cost}</div>`;
     }
   } else if(tw.key==='tsjaadinator'){
-    // UPDATED: Secret cost is now 300000, no tower removal
     const canAfford = money >= 300000;
     html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">👁️ GOD MODE — €300,000</div>`;
     html += `<div style="font-size:9px;color:#aaa;margin-top:2px;">⚠️ Haalt GEEN torens weg</div>`;
   }
 
-  // Passive description section for active ultimates
   if(tw.ultimate){
     if(tw.key==='speer'){
       const activeBoost = tw.speerRangeBoostUntil && Date.now() < tw.speerRangeBoostUntil;
@@ -740,7 +668,6 @@ function sellTower(tw){
   towers = towers.filter(t3 => t3 !== tw);
   hoveredTower = null;
   tooltipEl.style.display = 'none';
-  playSound('sell');
   const flash = document.getElementById('sellFlash');
   flash.style.display = 'block';
   setTimeout(()=>{ flash.style.display='none'; }, 400);
@@ -774,7 +701,6 @@ canvas.onclick=e=>{
   if(selectedTower==='fakkel'){ newTower.fireChance=1.0; }
   if(selectedTower==='atoom'){ newTower.fireBonusMultiplier=1.20; }
   towers.push(newTower);
-  playSound('placement');
 };
 
 function distanceToLineSegment(px,py,x1,y1,x2,y2){
@@ -797,20 +723,18 @@ function handleUpgrade(t2){
     else if(t2.key==='fakkel'){ t2.dmg*=1.25; t2.rate*=0.85; }
     else if(!t2.farm){ t2.dmg*=1.25; t2.rate*=0.85; }
     if(t2.key==='atoom'){ t2.fireBonusMultiplier=(t2.fireBonusMultiplier||1.20)+0.10; }
-    t2.upText=90; playSound('upgrade'); return;
+    t2.upText=90; return;
   }
 
   if(t2.ultimate){
     if(t2.key==='tsjaadinator'&&!t2.secret){
-      // CHANGED: Now costs 300000, and does NOT remove other towers
       const sCost=300000;
       if(money<sCost) return;
       money-=sCost;
-      // NO tower removal - just empower the Tsjaadinator
-      const bonusMultiplier = 5.0; // Fixed large bonus since no removal mechanic
+      const bonusMultiplier = 5.0;
       t2.secretDmgBonus = bonusMultiplier;
       t2.secret=true; t2.level=5;
-      t2.upText=200; playSound('upgrade');
+      t2.upText=200;
     }
     return;
   }
@@ -822,22 +746,19 @@ function handleUpgrade(t2){
 
   if(t2.key==='atoom'){ t2.dmg*=3.8; t2.rate*=0.55; t2.nukeTimer=0; t2.fireBonusMultiplier=(t2.fireBonusMultiplier||1.20)+0.10; }
   else if(t2.key==='tsjaadinator'){ t2.dmg*=2; t2.rate*=0.25; }
-  // UPDATED: speer ultimate also buffs nearby towers range
   else if(t2.key==='speer'){ t2.dmg*=3; t2.rate*=1.2; t2.speerRangeBoostUntil=0; }
   else if(t2.key==='geweer'){ t2.dmg=10; t2.rate*=0.45; }
   else if(t2.key==='boog'){ t2.dmg*=1.9; t2.rate*=0.50; t2.poisonArrows=true; }
-  // UPDATED: sniper ultimate enables slow on hit
   else if(t2.key==='sniper'){ t2.dmg=5000; t2.sniperSlowOnHit=true; }
   else if(t2.key==='plaagdokter'){ t2.dmg*=4; t2.slowDuration=999999; t2.plaagDmgBonus=(t2.plaagDmgBonus||1.05)+0.05; }
   else if(t2.key==='aap'){ t2.dmg*=2; }
   else if(t2.key==='fakkel'){ t2.dmg*=30; t2.fireChance=1.0; }
-  t2.upText=140; playSound('upgrade');
+  t2.upText=140;
 }
 
 // ===== ROUND =====
 function startRound(){
   if(spawning||gameWon) return;
-  playSound('round');
   document.getElementById('round').textContent=round;
   let farmCash=0;
   for(const t2 of towers){ if(t2.farm){ const base=80+t2.level*40+(t2.ultimate?500:0); money+=base; farmCash+=base; } }
@@ -986,9 +907,9 @@ function makeEnemy(t2){
 }
 
 // ===== WIN & LOSS =====
-function winGame(){ gameWon=true; if(currentTheme) currentTheme.pause(); document.getElementById('finalRound').textContent=round; document.getElementById('finalMoney').textContent=totalMoneyEarned; document.getElementById('victoryScreen').style.display='flex'; }
+function winGame(){ gameWon=true; document.getElementById('finalRound').textContent=round; document.getElementById('finalMoney').textContent=totalMoneyEarned; document.getElementById('victoryScreen').style.display='flex'; }
 function loseGame(){
-  gameWon=true; if(currentTheme) currentTheme.pause();
+  gameWon=true;
   const modeKey='mode-'+gameMode; const modeName=t(modeKey)||'STANDAARD';
   let deathMsg, deathStat;
   if(currentLang==='de'){ deathMsg=`<strong>DU HAST ${round} RUNDEN IN ${modeName} ÜBERLEBT!</strong><br>DIE FEINDE WAREN ZU STARK...`; deathStat=`💀 Gefallen in Runde: <strong>${round}</strong><br>💰 Gesamtverdienst: <strong>€${totalMoneyEarned}</strong>`; }
@@ -1011,7 +932,6 @@ function saveAndShowLeaderboard(score,mode='plaag'){
 }
 
 function triggerEnemyNuclearExplosion(e, mega=false){
-  playSound('explosion');
   const range = mega ? 150 : 90;
   nuclearExplosions.push({x:e.x,y:e.y,range:range,t:120,maxT:120});
   visualEffects.push({type:'nuclear',x:e.x,y:e.y,r:5,maxR:range,t:60,maxT:60});
@@ -1036,10 +956,8 @@ function update(){
     }
   }
 
-  // Update bird eggs
   for(const egg of birdEggs){ egg.timer--; }
 
-  // Bird wind aura
   for(const bird of enemies){
     if(!bird.isBird || bird.hp <= 0) continue;
     const radius = bird.windRadius || 80;
@@ -1110,7 +1028,7 @@ function update(){
     if(tw.monkey&&tw.ultimate){
       tw.monkeyTimer++;
       if(tw.monkeyTimer>=1500){
-        tw.monkeyTimer=0; playSound('monkey');
+        tw.monkeyTimer=0;
         for(const other of towers){ if(other===tw||other.boosted) continue; if(Math.hypot(other.x-tw.x,other.y-tw.y)<=getTowerRange(tw)){ other.boosted=true; other.boostEndTime=500; } }
         tw.boosted=true; tw.boostEndTime=300;
       }
@@ -1118,7 +1036,6 @@ function update(){
     if(tw.boosted&&tw.boostEndTime>0){ tw.boostEndTime--; if(tw.boostEndTime<=0) tw.boosted=false; }
   }
 
-  // Egg hatching
   const eggsToHatch = birdEggs.filter(e=>e.timer<=0&&!e.destroyed);
   for(const egg of eggsToHatch){
     const childBird = makeEnemy({...animalTypes.find(a=>a.type==='vogel'), hp: Math.floor(animalTypes.find(a=>a.type==='vogel').hp*(1+round*0.14)), speed: 1.4*(1+round*0.02), reward:15});
@@ -1132,7 +1049,6 @@ function update(){
     enemies.push(childBird);
   }
 
-  // Handle projectile/egg collision
   for(const p of projectiles){
     for(let ei=0;ei<birdEggs.length;ei++){
       const egg = birdEggs[ei];
@@ -1182,7 +1098,6 @@ function update(){
       if(tw.key==='tsjaadinator'&&tw.secret){ if((e.mutation==='kogelvrije'||e.mutation2==='kogelvrije')) return false; return true; }
       if(Math.hypot(e.x-tw.x,e.y-tw.y)>=effectiveRange) return false;
       if(e.isRoboLeeuw && (tw.key==='geweer'||tw.key==='sniper')) return false;
-      // Krokodil: immune to sniper and soldier (thick scales)
       if(e.isKrokodil && (tw.key==='geweer'||tw.key==='sniper')) return false;
       if((e.mutation==='metalen'||e.mutation2==='metalen')&&tw.key!=='atoom') return false;
       if((e.mutation==='kogelvrije'||e.mutation2==='kogelvrije')&&(tw.key==='geweer'||tw.key==='sniper')) return false;
@@ -1206,14 +1121,11 @@ function update(){
       fire:tw.fire,
       fireBurnDmg: tw.fire ? (tw.ultimate ? 80 : 1) : 0,
       poisonArrow: tw.key==='boog' && tw.poisonArrows,
-      // NEW: pass sniper slow flag
       sniperSlowOnHit: tw.key==='sniper' && tw.sniperSlowOnHit,
-      // NEW: pass speer ultimate aura flag
       speerUltAura: tw.key==='speer' && tw.ultimate,
       speerTower: tw.key==='speer' ? tw : null,
     });
     tw.cool=tw.rate*rateMultiplier*verslomendeSlow;
-    if(tw.key==='sniper') playSound('sniper');
   }
 
   for(const p of projectiles){
@@ -1236,10 +1148,8 @@ function update(){
         p.target.burnDamagePerSec=Math.max(p.target.burnDamagePerSec||0, p.fireBurnDmg);
       }
 
-      // NEW: Sniper ultimate slow on hit (50% speed for 0.3s = 18 frames)
       if(p.sniperSlowOnHit && p.target.hp > 0){
         const slowFactor = 0.5;
-        // Only apply if not already slowed more
         if(!p.target.sniperSlowed){
           p.target.sniperSlowedPrevSpeed = p.target.speed;
           p.target.sniperSlowedPrevBaseSpeed = p.target.baseSpeed;
@@ -1247,14 +1157,13 @@ function update(){
           p.target.baseSpeed *= slowFactor;
           p.target.sniperSlowed = true;
         }
-        p.target.sniperSlowEndTime = 18; // 0.3s at 60fps
+        p.target.sniperSlowEndTime = 18;
       }
 
-      // NEW: Speer ultimate - give nearby towers +30% range for 3 seconds on shot hit
       if(p.speerUltAura && p.speerTower){
         const spTw = p.speerTower;
         const auraRange = getTowerRange(spTw);
-        const boostUntil = Date.now() + 3000; // 3 seconds
+        const boostUntil = Date.now() + 3000;
         for(const other of towers){
           if(Math.hypot(other.x-spTw.x,other.y-spTw.y) <= auraRange){
             other.speerRangeBoostUntil = Math.max(other.speerRangeBoostUntil||0, boostUntil);
@@ -1271,12 +1180,10 @@ function update(){
     } else { p.x+=dx/d*p.speed; p.y+=dy/d*p.speed; }
   }
 
-  // Update sniper slow timers
   for(const e of enemies){
     if(e.sniperSlowed && e.sniperSlowEndTime > 0){
       e.sniperSlowEndTime--;
       if(e.sniperSlowEndTime <= 0){
-        // Restore speed
         e.speed = e.sniperSlowedPrevSpeed || e.baseSpeed;
         e.baseSpeed = e.sniperSlowedPrevBaseSpeed || e.baseSpeed;
         e.sniperSlowed = false;
@@ -1312,7 +1219,6 @@ function update(){
 
       const isArme=(e.mutation==='arme'||e.mutation2==='arme');
       if(!isArme){ money+=e.reward; totalMoneyEarned+=e.reward; }
-      if(!e.mutation||e.mutation!=='ondode') playSound('kill');
       return false;
     }
     if(e.i>=path.length-1){
@@ -1334,7 +1240,6 @@ function update(){
 
 // ===== NUKE STRIKE =====
 function triggerNukeStrike(tower){
-  playSound('explosion');
   for(const e of enemies){ if(!e.beschermdActive) e.hp-=100; }
   const cx=canvas.width/2, cy=canvas.height/2;
   nukeStrikes.push({x:cx,y:cy,r:10,maxR:600,t:90,maxT:90,phase:'expand'});
@@ -1561,7 +1466,6 @@ function drawMutationEffects(e){
     if(mutation==='beschermde'&&e.beschermdActive){ ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=4; ctx.shadowBlur=15; ctx.shadowColor='#fff'; ctx.beginPath(); ctx.arc(0,0,e.size+6,0,Math.PI*2); ctx.stroke(); ctx.fillStyle='rgba(255,255,255,0.15)'; ctx.beginPath(); ctx.arc(0,0,e.size+6,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; }
   }
   if(e.slowEndTime>0){ ctx.strokeStyle='#9333ea'; ctx.lineWidth=2; ctx.globalAlpha=0.5; ctx.beginPath(); ctx.arc(0,0,e.size+3,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha=1; }
-  // Sniper slow indicator
   if(e.sniperSlowed && e.sniperSlowEndTime > 0){
     ctx.strokeStyle='rgba(150,220,255,0.9)'; ctx.lineWidth=3;
     ctx.shadowBlur=8; ctx.shadowColor='#88ccff';
@@ -1650,7 +1554,6 @@ function drawEnemyHUD(e){
   }
   if(e.burning&&e.burnDuration>0){ ctx.fillStyle='rgba(255,120,0,0.9)'; ctx.font='bold 8px Arial'; ctx.fillText('🔥'+(e.burnDamagePerSec||0).toFixed(1)+'/s',0,-48); }
   if(e.poisoned&&e.poisonTimer>0){ ctx.fillStyle='rgba(0,255,80,0.95)'; ctx.font='bold 8px Arial'; ctx.fillText('☠️10/s',e.burning?22:0,-48); }
-  // Sniper slow
   if(e.sniperSlowed&&e.sniperSlowEndTime>0){ ctx.fillStyle='rgba(150,220,255,0.95)'; ctx.font='bold 8px Arial'; ctx.fillText('❄️-50%',0,-56); }
   const hasOnstabiel = e.mutation==='onstabiele'||e.mutation2==='onstabiele';
   if(hasOnstabiel&&!e.onstabielExploded&&e.onstabielTimer>0){
@@ -1660,7 +1563,6 @@ function drawEnemyHUD(e){
     ctx.fillText('💥'+secsLeft+'s',0,-64);
   }
   if(e.plaagDebuffed){ ctx.fillStyle='rgba(233,30,99,0.8)'; ctx.font='7px Arial'; ctx.fillText('💉',barW/2+4,-24); }
-  // Krokodil: show immunity indicator under name
   if(e.isKrokodil){ ctx.fillStyle='rgba(255,215,0,0.9)'; ctx.font='bold 7px Arial'; ctx.textAlign='center'; ctx.fillText('🔫❌🎯❌',-barW/2+barW*0.5,-37); }
 }
 
@@ -1675,10 +1577,8 @@ function drawKrokodil(e, baseColor){
   const bodyCol = e.infected ? '#2a4a1a' : '#2d6a2d';
   const scaleCol = e.infected ? '#1a3a0a' : '#1e4d1e';
   const bellyCol = e.infected ? '#4a6a2a' : '#7aaa4a';
-  // Body
   ctx.fillStyle = bodyCol;
   ctx.beginPath(); ctx.ellipse(0, 2, 20, 10, 0, 0, Math.PI*2); ctx.fill();
-  // Back ridge spines
   ctx.fillStyle = scaleCol;
   for(let si = -3; si <= 3; si++){
     const sx = si * 5;
@@ -1689,31 +1589,22 @@ function drawKrokodil(e, baseColor){
     const sx=si*5;
     ctx.beginPath(); ctx.moveTo(sx-3,-6); ctx.lineTo(sx,-13); ctx.lineTo(sx+3,-6); ctx.stroke();
   }
-  // Belly
   ctx.fillStyle = bellyCol;
   ctx.beginPath(); ctx.ellipse(0, 6, 16, 5, 0, 0, Math.PI*2); ctx.fill();
-  // Head - flat snout
   ctx.fillStyle = bodyCol;
   ctx.beginPath(); ctx.moveTo(14,-4); ctx.lineTo(26,-2); ctx.lineTo(28,2); ctx.lineTo(26,4); ctx.lineTo(14,6); ctx.closePath(); ctx.fill();
-  // Teeth
   ctx.fillStyle = '#f0f0e0';
   ctx.fillRect(20,-2,2,3); ctx.fillRect(24,-1,2,3); ctx.fillRect(18,3,2,2); ctx.fillRect(22,3,2,2);
-  // Eye - slit pupil
   ctx.fillStyle='#d4aa00'; ctx.beginPath(); ctx.ellipse(16,-3,3,2,0,0,Math.PI*2); ctx.fill();
   ctx.fillStyle='#111'; ctx.beginPath(); ctx.ellipse(16,-3,1,2,0,0,Math.PI*2); ctx.fill();
-  // Nostril
   ctx.fillStyle='#1a4a1a'; ctx.beginPath(); ctx.arc(25,0,1.2,0,Math.PI*2); ctx.fill();
-  // Legs
   ctx.fillStyle = scaleCol;
   ctx.fillRect(-16,8,5,8); ctx.fillRect(-6,9,5,7); ctx.fillRect(4,9,5,7); ctx.fillRect(14,8,5,8);
-  // Tail
   ctx.strokeStyle=bodyCol; ctx.lineWidth=7; ctx.lineCap='round';
   ctx.beginPath(); ctx.moveTo(-20,2); ctx.quadraticCurveTo(-28,0,-30,6); ctx.stroke();
   ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(-28,1); ctx.lineTo(-36,5); ctx.stroke();
-  // Tail spines
   ctx.strokeStyle=scaleCol; ctx.lineWidth=1;
   for(let ri=0;ri<4;ri++){ const rx=-20-ri*4; ctx.beginPath(); ctx.moveTo(rx,-1); ctx.lineTo(rx+1,-5); ctx.lineTo(rx+2,-1); ctx.stroke(); }
-  // Immunity shield indicator
   ctx.fillStyle='rgba(255,215,0,0.9)'; ctx.font='bold 9px Arial'; ctx.textAlign='center';
   ctx.fillText('🛡️',0,-20);
 }
@@ -1735,7 +1626,6 @@ function drawTower(tw){
     ctx.beginPath(); ctx.arc(0,0,effRange,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
   }
 
-  // NEW: Show speer range boost aura circle when active
   if(tw.key==='speer' && tw.ultimate && tw.speerRangeBoostUntil && Date.now() < tw.speerRangeBoostUntil){
     const effRange = getTowerRange(tw) / scale;
     const timeLeft = tw.speerRangeBoostUntil - Date.now();
@@ -1779,7 +1669,6 @@ function drawAapTower(tw){ const isUltimate=tw.ultimate; const monkeyColor=isUlt
 function drawFakkelTower(tw){ ctx.fillStyle=tw.ultimate?'#ff6b35':'#8b4513'; ctx.fillRect(-8,-10,16,20); ctx.fillStyle='#d2b48c'; ctx.beginPath(); ctx.arc(0,-12,6,0,Math.PI*2); ctx.fill(); ctx.fillStyle=tw.ultimate?'#ff4500':'#8b7355'; ctx.fillRect(8,-8,3,12); ctx.fillStyle=tw.ultimate?'#ff0000':'#ff8800'; ctx.beginPath(); ctx.moveTo(9.5,-10); ctx.lineTo(7,-16); ctx.lineTo(9.5,-14); ctx.lineTo(12,-16); ctx.closePath(); ctx.fill(); if(tw.level>=2){ ctx.fillStyle='#ffeb3b'; ctx.beginPath(); ctx.arc(9.5,-13,2,0,Math.PI*2); ctx.fill(); } if(tw.level>=3){ ctx.fillStyle='#ff4500'; ctx.beginPath(); ctx.moveTo(9.5,-16); ctx.lineTo(6,-22); ctx.lineTo(9.5,-19); ctx.lineTo(13,-22); ctx.closePath(); ctx.fill(); } if(tw.ultimate){ ctx.strokeStyle='#ff0000'; ctx.lineWidth=2; ctx.globalAlpha=0.7; ctx.beginPath(); ctx.arc(0,0,15,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha=1; ctx.fillStyle='rgba(255,50,0,0.8)'; ctx.beginPath(); ctx.moveTo(9.5,-20); ctx.lineTo(5,-30); ctx.lineTo(9.5,-26); ctx.lineTo(14,-30); ctx.closePath(); ctx.fill(); } }
 
 function drawSpeerTower(tw){
-  // Draw range aura effect when boosted (pulsing purple glow for ultimate)
   if(tw.ultimate && tw.speerRangeBoostUntil && Date.now() < tw.speerRangeBoostUntil){
     ctx.fillStyle='rgba(180,150,255,0.25)'; ctx.beginPath(); ctx.arc(0,0,14,0,Math.PI*2); ctx.fill();
   }
@@ -1789,7 +1678,6 @@ function drawSpeerTower(tw){
   ctx.fillStyle=tw.ultimate?'#dcd6f7':'#ccc'; ctx.beginPath(); ctx.moveTo(12,0); ctx.lineTo(6,-4); ctx.lineTo(6,4); ctx.fill();
   if(tw.level>=2){ ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-8,-6); ctx.lineTo(8,-6); ctx.stroke(); ctx.fillStyle='#ccc'; ctx.beginPath(); ctx.moveTo(8,-6); ctx.lineTo(4,-9); ctx.lineTo(4,-3); ctx.fill(); }
   if(tw.level>=3){ ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-8,6); ctx.lineTo(8,6); ctx.stroke(); ctx.fillStyle='#ccc'; ctx.beginPath(); ctx.moveTo(8,6); ctx.lineTo(4,3); ctx.lineTo(4,9); ctx.fill(); }
-  // Ultimate: extra radiant rings
   if(tw.ultimate){
     ctx.strokeStyle='rgba(180,150,255,0.5)'; ctx.lineWidth=1.5;
     ctx.beginPath(); ctx.arc(0,0,11,0,Math.PI*2); ctx.stroke();
@@ -1808,7 +1696,6 @@ function drawSniperTower(tw){
   if(tw.level>=3){ ctx.fillStyle=tw.ultimate?'#ffd700':'#78909c'; ctx.fillRect(-7,6,3,6); ctx.fillRect(4,6,3,6); }
   if(tw.ultimate){
     ctx.strokeStyle='#00e5ff'; ctx.lineWidth=2; ctx.globalAlpha=0.7; ctx.strokeRect(-8,-7,16,14); ctx.globalAlpha=1;
-    // Sniper ultimate: ice/frost ring indicating slow ability
     ctx.strokeStyle='rgba(150,220,255,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([3,2]);
     ctx.beginPath(); ctx.arc(0,0,14,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
   }
@@ -1877,7 +1764,6 @@ function drawProjectiles(){
       ctx.beginPath(); ctx.moveTo(-4,0); ctx.quadraticCurveTo(0,-5,8,-2); ctx.quadraticCurveTo(12,0,8,2); ctx.quadraticCurveTo(0,5,-4,0); ctx.fill(); ctx.shadowBlur=0;
     } else if(p.towerKey==='plaagdokter'){ ctx.strokeStyle=p.gold?'#ffd700':'#e91e63'; ctx.fillStyle=p.gold?'#ffd700':'#f8bbd0'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-6,0); ctx.lineTo(6,0); ctx.stroke(); ctx.fillStyle=p.gold?'#ffd700':'#e91e63'; ctx.beginPath(); ctx.moveTo(6,0); ctx.lineTo(9,-2); ctx.lineTo(9,2); ctx.closePath(); ctx.fill(); ctx.fillRect(-8,-1,3,2); }
     else if(p.towerKey==='sniper'){
-      // Sniper ultimate projectile has ice/blue tint
       ctx.fillStyle=p.sniperSlowOnHit?'rgba(150,220,255,0.95)':(p.gold?'#ffd700':'#ffeb3b');
       ctx.beginPath(); ctx.ellipse(0,0,4,1.5,0,0,Math.PI*2); ctx.fill();
       if(p.sniperSlowOnHit){ ctx.shadowBlur=6; ctx.shadowColor='#88ddff'; ctx.strokeStyle='rgba(100,200,255,0.8)'; ctx.lineWidth=1; ctx.beginPath(); ctx.ellipse(0,0,4,1.5,0,0,Math.PI*2); ctx.stroke(); ctx.shadowBlur=0; }
@@ -1973,7 +1859,6 @@ function draw(){
 function loop(){ update(); draw(); if(!gameWon) requestAnimationFrame(loop); }
 
 console.log('🏜️ Tsjaad TD – Ultimate Edition v4 🐪');
-console.log('UPDATES: Speer Ultimate +30% range aura on shot | Sniper Ultimate 50% slow 0.3s on hit | Secret Tsjaadinator €300k (no tower removal) | UI tooltips updated');
 </script>
 </body>
 </html>
