@@ -60,11 +60,10 @@
   .modeBtn:hover { transform: scale(1.15) rotate(1deg) !important; box-shadow: 0 15px 50px rgba(139,69,19,0.6); }
   #settingsBtn { position: fixed; top: 20px; right: 20px; width: 60px; height: 60px; background: rgba(0,0,0,0.5); border: 3px solid #8b4513; border-radius: 50%; font-size: 28px; cursor: pointer; z-index: 1100; display: flex; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.4); animation: settingsPulse 4s ease-in-out infinite; }
   #timerDisplay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.75); border: 2px solid #ffd700; border-radius: 10px; padding: 6px 18px; color: #ffd700; font-size: 22px; font-family: monospace; font-weight: bold; z-index: 1100; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255,215,0,0.6); pointer-events: none; display: none; }
-  #timerToggleBtn { position: fixed; top: 90px; right: 20px; width: 60px; height: 60px; background: rgba(0,0,0,0.5); border: 3px solid #ffd700; border-radius: 50%; font-size: 22px; cursor: pointer; z-index: 1100; display: none; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-  #timerToggleBtn:hover { transform: scale(1.15); background: rgba(180,140,0,0.5); }
-  #antiLagBtn { position: fixed; top: 160px; right: 20px; width: 60px; height: 60px; background: rgba(0,0,0,0.5); border: 3px solid #00ff88; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 1100; display: none; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-  #antiLagBtn:hover { transform: scale(1.15); }
-  #antiLagBtn.active { background: rgba(0,180,80,0.4); border-color: #ff4444; box-shadow: 0 0 15px rgba(0,255,100,0.5); }
+  #utilBtns { display: none; gap: 6px; margin-top: 8px; }
+  .util-btn { flex: 1; padding: 5px 0; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: rgba(255,255,255,0.5); font-size: 11px; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .util-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); border-color: rgba(255,255,255,0.3); }
+  .util-btn.active { background: rgba(0,200,80,0.15); border-color: rgba(0,200,80,0.4); color: rgba(0,220,100,0.9); }
   #settingsBtn:hover { transform: rotate(45deg) scale(1.15); background: rgba(139,69,19,0.7); }
   @keyframes settingsPulse { 0%,100%{box-shadow:0 4px 15px rgba(0,0,0,0.4);} 50%{box-shadow:0 4px 25px rgba(218,165,32,0.5);} }
   #settingsOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(6px); }
@@ -120,8 +119,6 @@
 
 <button id="settingsBtn" onclick="openSettings()" title="Instellingen / Settings / Einstellungen">⚙️</button>
 <div id="timerDisplay">⏱ 00:00.0</div>
-<button id="timerToggleBtn" onclick="toggleTimer()" title="Timer tonen/verbergen">⏱️</button>
-<button id="antiLagBtn" onclick="toggleAntiLag()" title="Anti-Lag modus">🚀</button>
 <div id="sellFlash"></div>
 <div id="towerTooltip">
   <div class="tt-name" id="tt-name"></div>
@@ -200,6 +197,10 @@
   <hr style="margin:10px 0; border-color:#444;">
   <button id="startRoundBtn" onclick="startRound()" style="background:#4CAF50; border-color:#45a049;">▶️ Start Ronde</button>
   <p class="small" id="ui-upgrade-hint">💡 Hover toren = info & upgrade | Backspace = verkopen</p>
+  <div id="utilBtns">
+    <button class="util-btn" id="timerToggleBtn" onclick="toggleTimer()">⏱ Timer</button>
+    <button class="util-btn" id="antiLagBtn" onclick="toggleAntiLag()">🚀 Anti-Lag</button>
+  </div>
 </div>
 
 <div id="gameWrap">
@@ -328,15 +329,7 @@ let antiLagMode = false;
 function toggleAntiLag() {
   antiLagMode = !antiLagMode;
   const btn = document.getElementById('antiLagBtn');
-  if(antiLagMode) {
-    btn.classList.add('active');
-    btn.textContent = '⚡';
-    btn.title = 'Anti-Lag AAN — klik om uit te zetten';
-  } else {
-    btn.classList.remove('active');
-    btn.textContent = '🚀';
-    btn.title = 'Anti-Lag modus';
-  }
+  btn.classList.toggle('active', antiLagMode);
 }
 
 function formatTime(ms) {
@@ -369,17 +362,8 @@ function stopTimer() {
 
 function toggleTimer() {
   timerVisible = !timerVisible;
-  const disp = document.getElementById('timerDisplay');
-  const btn = document.getElementById('timerToggleBtn');
-  if(timerVisible) {
-    disp.style.display = 'block';
-    btn.style.border = '3px solid #00ff88';
-    btn.textContent = '⏹️';
-  } else {
-    disp.style.display = 'none';
-    btn.style.border = '3px solid #ffd700';
-    btn.textContent = '⏱️';
-  }
+  document.getElementById('timerDisplay').style.display = timerVisible ? 'block' : 'none';
+  document.getElementById('timerToggleBtn').classList.toggle('active', timerVisible);
 }
 let autoStartRounds = false;
 let autoRoundCountdown = 0;
@@ -412,6 +396,7 @@ let nuclearExplosions = [];
 let towersSlowedUntil = new Map();
 let visualEffects = [];
 let nukeStrikes = [];
+let critTexts = [];
 let birdEggs = [];
 
 // ===== MUTATIONS =====
@@ -512,8 +497,7 @@ function startGame(mode) {
 
   // Start speedrun timer
   startTimer();
-  document.getElementById('timerToggleBtn').style.display = 'flex';
-  document.getElementById('antiLagBtn').style.display = 'flex';
+  document.getElementById('utilBtns').style.display = 'flex';
 
   loop();
 }
@@ -530,7 +514,7 @@ const towerTypes={
   plaagdokter:{range:140,rate:40,dmg:8,speed:3.5,cost:300,ultCost:2000,slow:true},
   geweer:{range:240,rate:12,dmg:3.8,speed:7,cost:550,ultCost:5000},
   sniper:{range:550,rate:300,dmg:300,speed:10,cost:5000,ultCost:28000},
-  tsjaadinator:{range:180,rate:4,dmg:4.8,speed:8,cost:2500,ultCost:15000,secretCost:300000},
+  tsjaadinator:{range:180,rate:4,dmg:4.8,speed:8,cost:2500,ultCost:15000,secretCost:500000},
   atoom:{range:180,rate:100,dmg:15,speed:3,cost:600,bomb:true,ultCost:4500},
   katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
   aap:{range:120,rate:70,dmg:1.9,speed:0,cost:400,ultCost:2500,monkey:true},
@@ -786,6 +770,9 @@ function updateTooltip(tw, cx, cy){
       html += `<div class="tt-passive">📡 Range Aura: geeft alle torens in radius +30% range voor 3s bij schot${activeBoost?' <span style="color:#4fc3f7">[ACTIEF]</span>':''}</div>`;
     }
     if(tw.key==='sniper'){
+      const critPct = Math.round((0.10 + tw.level * 0.05) * 100);
+      const nextCritPct = next ? Math.round((0.10 + (isUltNext ? tw.level : tw.level+1) * 0.05) * 100) : null;
+      html += statRow('🎯 Crit kans', critPct+'%', nextCritPct && nextCritPct !== critPct ? nextCritPct+'%' : null);
       html += `<div class="tt-passive">❄️ Raakshot: vertraagt doel 50% voor 0.3 seconde</div>`;
     }
   }
@@ -900,7 +887,7 @@ function handleUpgrade(t2){
   t2.ultimate=true; t2.level=4;
 
   if(t2.key==='atoom'){ t2.dmg*=3.8; t2.rate*=0.55; t2.nukeTimer=0; t2.fireBonusMultiplier=(t2.fireBonusMultiplier||1.20)+0.10; }
-  else if(t2.key==='tsjaadinator'){ t2.dmg*=2; t2.rate*=0.20; }
+  else if(t2.key==='tsjaadinator'){ t2.dmg*=2; t2.rate*=0.25; }
   else if(t2.key==='speer'){ t2.dmg*=3; t2.rate*=1.2; t2.speerRangeBoostUntil=0; }
   else if(t2.key==='geweer'){ t2.dmg=10; t2.rate*=0.45; }
   else if(t2.key==='boog'){ t2.dmg*=1.9; t2.rate*=0.50; t2.poisonArrows=true; }
@@ -1175,7 +1162,7 @@ function update(){
     if(e.mutation==='beschermde'&&!e.beschermdShieldUsed&&e.hp<=e.max*0.5){ e.beschermdShieldUsed=true; e.beschermdActive=true; e.beschermdTimer=180; }
     if(e.beschermdActive){ e.beschermdTimer--; if(e.beschermdTimer<=0) e.beschermdActive=false; }
     if(e.mutation2==='beschermde'&&!e.beschermd2ShieldUsed&&e.hp<=e.max*0.3){ e.beschermd2ShieldUsed=true; e.beschermdActive=true; e.beschermdTimer=120; }
-    if(e.mutation===''genezende''||e.mutation2===''genezende''||e.mutation3===''genezende''){ e.healTimer=(e.healTimer||0)+1; if(e.healTimer>=60){ e.healTimer=0; e.hp=Math.min(e.max,e.hp+e.max*0.05); } }
+    if(e.mutation==='genezende'||e.mutation2==='genezende'||e.mutation3==='genezende'){ e.healTimer=(e.healTimer||0)+1; if(e.healTimer>=60){ e.healTimer=0; e.hp=Math.min(e.max,e.hp+e.max*0.05); } }
     if(e.slowEndTime>0){ e.slowEndTime--; if(e.slowEndTime<=0) e.speed=e.baseSpeed; }
 
     if(e.burning&&e.burnDuration>0){
@@ -1196,7 +1183,7 @@ function update(){
       }
     }
 
-    if(e.mutation===''accelererende''||e.mutation2===''accelererende''||e.mutation3===''accelererende''){ const progress=e.i/Math.max(1,path.length-1); e.speed=e.baseSpeedForAccel*(1+progress*3); }
+    if(e.mutation==='accelererende'||e.mutation2==='accelererende'||e.mutation3==='accelererende'){ const progress=e.i/Math.max(1,path.length-1); e.speed=e.baseSpeedForAccel*(1+progress*3); }
     if(e.type==='kameel'&&!e.kameelBoosted&&e.hp<=e.max*0.5){ e.kameelBoosted=true; e.kameelBoostTimer=60; e.speed*=4; e.baseSpeed*=4; }
     if(e.kameelBoosted&&e.kameelBoostTimer>0){ e.kameelBoostTimer--; if(e.kameelBoostTimer<=0){ e.kameelBoosted=false; e.speed/=4; e.baseSpeed/=4; } }
 
@@ -1268,6 +1255,7 @@ function update(){
   }
   nuclearExplosions=nuclearExplosions.filter(n=>n.t>0);
   nukeStrikes=nukeStrikes.filter(ns=>{ ns.t--; ns.r=ns.maxR*(1-(ns.t/ns.maxT)); return ns.t>0; });
+  critTexts=critTexts.filter(ct=>{ ct.t--; ct.y-=0.4; return ct.t>0; });
 
   for(const tw of towers){
     if(tw.farm) continue;
@@ -1287,16 +1275,16 @@ function update(){
     }
 
     let verslomendeSlow=1.0;
-    for(const e of enemies){ if((e.mutation===''verslomende''||e.mutation2===''verslomende''||e.mutation3===''verslomende'')&&Math.hypot(e.x-tw.x,e.y-tw.y)<120){ verslomendeSlow=0.6; break; } }
+    for(const e of enemies){ if((e.mutation==='verslomende'||e.mutation2==='verslomende'||e.mutation3==='verslomende')&&Math.hypot(e.x-tw.x,e.y-tw.y)<120){ verslomendeSlow=0.6; break; } }
 
     const target=enemies.find(e=>{
-      if(tw.key==='tsjaadinator'&&tw.secret){ if((e.mutation===''kogelvrije''||e.mutation2===''kogelvrije''||e.mutation3===''kogelvrije'')) return false; return true; }
+      if(tw.key==='tsjaadinator'&&tw.secret){ if((e.mutation==='kogelvrije'||e.mutation2==='kogelvrije'||e.mutation3==='kogelvrije')) return false; return true; }
       if(Math.hypot(e.x-tw.x,e.y-tw.y)>=effectiveRange) return false;
       if(e.isRoboLeeuw && (tw.key==='geweer'||tw.key==='sniper')) return false;
       if(e.isKrokodil && (tw.key==='geweer'||tw.key==='sniper')) return false;
-      if((e.mutation===''metalen''||e.mutation2===''metalen''||e.mutation3===''metalen'')&&tw.key!=='atoom') return false;
-      if((e.mutation===''kogelvrije''||e.mutation2===''kogelvrije''||e.mutation3===''kogelvrije'')&&(tw.key==='geweer'||tw.key==='sniper')) return false;
-      if(e.mutation===''onzichtbare''||e.mutation2===''onzichtbare''||e.mutation3===''onzichtbare''){ let inRange=false; for(const otw of towers){ if(Math.hypot(e.x-otw.x,e.y-otw.y)<getTowerRange(otw)){ inRange=true; break; } } if(!inRange) return false; }
+      if((e.mutation==='metalen'||e.mutation2==='metalen'||e.mutation3==='metalen')&&tw.key!=='atoom') return false;
+      if((e.mutation==='kogelvrije'||e.mutation2==='kogelvrije'||e.mutation3==='kogelvrije')&&(tw.key==='geweer'||tw.key==='sniper')) return false;
+      if(e.mutation==='onzichtbare'||e.mutation2==='onzichtbare'||e.mutation3==='onzichtbare'){ let inRange=false; for(const otw of towers){ if(Math.hypot(e.x-otw.x,e.y-otw.y)<getTowerRange(otw)){ inRange=true; break; } } if(!inRange) return false; }
       return true;
     });
     if(!target) continue;
@@ -1309,6 +1297,13 @@ function update(){
     if(tw.key==='plaagdokter' && target.plaagDebuffed){ finalDmg *= (tw.plaagDmgBonus||1.05); }
     if(tw.key==='atoom' && target.burning && target.burnDuration>0){ finalDmg *= (tw.fireBonusMultiplier||1.20); }
 
+    // Sniper crit: 10% base + 5% per upgrade level
+    let isCrit = false;
+    if(tw.key==='sniper'){
+      const critChance = 0.10 + tw.level * 0.05;
+      if(Math.random() < critChance){ isCrit = true; finalDmg *= 2; }
+    }
+
     projectiles.push({
       x:tw.x,y:tw.y,tx:target.x,ty:target.y,target,
       speed:tw.secret&&tw.key==='tsjaadinator'?20:cfg.speed,
@@ -1319,6 +1314,7 @@ function update(){
       sniperSlowOnHit: tw.key==='sniper' && tw.sniperSlowOnHit,
       speerUltAura: tw.key==='speer' && tw.ultimate,
       speerTower: tw.key==='speer' ? tw : null,
+      isCrit,
     });
     if(!antiLagMode){
       if(tw.key==='sniper') playSound('sniper', 0.5);
@@ -1331,6 +1327,7 @@ function update(){
     if(d<p.speed){
       if(p.target.beschermdActive){ p.dead=true; continue; }
       p.target.hp-=p.dmg;
+      if(p.isCrit) critTexts.push({x: p.target.x, y: p.target.y - p.target.size, t: 60});
       if(gameMode==='boss'&&p.target.boss){ money+=Math.floor(p.dmg); totalMoneyEarned+=Math.floor(p.dmg); }
       if(p.towerKey==='plaagdokter'){
         const tw2=p.tower;
@@ -1400,13 +1397,13 @@ function update(){
       const hasOnstabiel = e.mutation==='onstabiele' || e.mutation2==='onstabiele';
       if(hasOnstabiel && !e.onstabielExploded){ /* killed early, no explosion */ }
 
-      if(e.mutation===''radioactieve''||e.mutation2===''radioactieve''||e.mutation3===''radioactieve''){ triggerEnemyNuclearExplosion(e, false); }
+      if(e.mutation==='radioactieve'||e.mutation2==='radioactieve'||e.mutation3==='radioactieve'){ triggerEnemyNuclearExplosion(e, false); }
       if(e.isRoboLeeuw){ triggerEnemyNuclearExplosion(e, false); }
 
-      if(e.mutation===''ondode''||e.mutation2===''ondode''||e.mutation3===''ondode''){ toSpawn.push(makeGhostEnemy(e)); }
+      if(e.mutation==='ondode'||e.mutation2==='ondode'||e.mutation3==='ondode'){ toSpawn.push(makeGhostEnemy(e)); }
       if(e.mutation==='hydra'&&!e.isHydraChild){ const base2=animalTypes.find(a=>a.type===e.type)||animalTypes[0]; for(let h=0;h<4;h++){ const hpScale=1+round*0.14; const child=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale*0.7),speed:base2.speed*(1+round*0.02),reward:0}); child.i=Math.max(0,e.i-1); child.x=path[Math.max(0,e.i-1)].x+(Math.random()-0.5)*60; child.y=path[Math.max(0,e.i-1)].y+(Math.random()-0.5)*60; child.isHydraChild=true; toSpawn.push(child); } }
       if(e.mutation2==='hydra'&&!e.isHydraChild){ const base2=animalTypes.find(a=>a.type===e.type)||animalTypes[0]; for(let h=0;h<3;h++){ const hpScale=1+round*0.14; const child=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale*0.5),speed:base2.speed*(1+round*0.02),reward:0}); child.i=Math.max(0,e.i-1); child.x=path[Math.max(0,e.i-1)].x+(Math.random()-0.5)*50; child.y=path[Math.max(0,e.i-1)].y+(Math.random()-0.5)*50; child.isHydraChild=true; toSpawn.push(child); } }
-      if(e.mutation===''random''||e.mutation2===''random''||e.mutation3===''random''){ const base2=animalTypes[Math.floor(Math.random()*animalTypes.length)]; const hpScale=1+round*0.14; const newE=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale),speed:base2.speed*(1+round*0.02),reward:0}); newE.i=Math.max(0,e.i-1); newE.x=path[Math.max(0,e.i-1)].x; newE.y=path[Math.max(0,e.i-1)].y; toSpawn.push(newE); }
+      if(e.mutation==='random'||e.mutation2==='random'||e.mutation3==='random'){ const base2=animalTypes[Math.floor(Math.random()*animalTypes.length)]; const hpScale=1+round*0.14; const newE=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale),speed:base2.speed*(1+round*0.02),reward:0}); newE.i=Math.max(0,e.i-1); newE.x=path[Math.max(0,e.i-1)].x; newE.y=path[Math.max(0,e.i-1)].y; toSpawn.push(newE); }
       if(e.mutation==='terugkerende'&&e.terugkerendeCount>0){ e.terugkerendeCount--; e.i=0; e.x=path[0].x; e.y=path[0].y; e.hp=e.max; return true; }
       if(e.type==='kameel'&&!e.kameelLionsSpawned){ e.kameelLionsSpawned=true; const hpScale=1+round*0.14; for(let l=0;l<4;l++){ const lion=makeEnemy({...animalTypes.find(a=>a.type==='leeuw'),hp:Math.floor(6*hpScale),speed:1.25*(1+round*0.02),reward:8}); lion.i=Math.max(0,e.i-1); lion.x=path[Math.max(0,e.i-1)].x+(Math.random()-0.5)*50; lion.y=path[Math.max(0,e.i-1)].y+(Math.random()-0.5)*50; toSpawn.push(lion); } }
 
@@ -1415,13 +1412,13 @@ function update(){
         birdEggs.push({x:e.x,y:e.y,timer:180,destroyed:false,pathI:e.i});
       }
 
-      const isArme=(e.mutation===''arme''||e.mutation2===''arme''||e.mutation3===''arme'');
+      const isArme=(e.mutation==='arme'||e.mutation2==='arme'||e.mutation3==='arme');
       if(!isArme){ money+=e.reward; totalMoneyEarned+=e.reward; }
       if(!e.boss && !antiLagMode) playSound('kill', 0.4);
       return false;
     }
     if(e.i>=path.length-1){
-      if(e.mutation===''dodelijke''||e.mutation2===''dodelijke''||e.mutation3===''dodelijke'') lives-=5; else lives--;
+      if(e.mutation==='dodelijke'||e.mutation2==='dodelijke'||e.mutation3==='dodelijke') lives-=5; else lives--;
       if(e.mutation==='terugkerende'&&e.terugkerendeCount>0){ e.terugkerendeCount--; e.i=0; e.x=path[0].x; e.y=path[0].y; lives--; if(lives<=0){ loseGame(); return false; } return true; }
       if(lives<=0){ loseGame(); return false; }
       return false;
@@ -1542,7 +1539,7 @@ function drawPath(){
 }
 
 function drawEnemy(e){
-  if(e.mutation===''onzichtbare''||e.mutation2===''onzichtbare''||e.mutation3===''onzichtbare''){
+  if(e.mutation==='onzichtbare'||e.mutation2==='onzichtbare'||e.mutation3==='onzichtbare'){
     let inRange=false;
     for(const tw of towers){ if(Math.hypot(e.x-tw.x,e.y-tw.y)<getTowerRange(tw)){ inRange=true; break; } }
     if(!inRange) return;
@@ -1573,7 +1570,7 @@ function drawEnemy(e){
     ctx.restore();
   }
 
-  if(e.mutation===''metalen''||e.mutation2===''metalen''||e.mutation3===''metalen''){ drawMetalenEnemy(e); drawEnemyHUD(e); ctx.restore(); return; }
+  if(e.mutation==='metalen'||e.mutation2==='metalen'||e.mutation3==='metalen'){ drawMetalenEnemy(e); drawEnemyHUD(e); ctx.restore(); return; }
 
   if(e.isRoboLeeuw) drawRoboLeeuw(e);
   else if(e.isBird) drawVogel(e);
@@ -2132,6 +2129,23 @@ function draw(){
   drawExplosions();
   drawNuclearExplosions();
   drawNukeStrikes();
+  drawCritTexts();
+}
+
+function drawCritTexts(){
+  for(const ct of critTexts){
+    const alpha = ct.t / 60;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.font = 'bold 9px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ff4444';
+    ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+    ctx.lineWidth = 2;
+    ctx.strokeText('CRIT!', ct.x, ct.y);
+    ctx.fillText('CRIT!', ct.x, ct.y);
+    ctx.restore();
+  }
 }
 
 function loop(){ update(); draw(); if(!gameWon) requestAnimationFrame(loop); }
