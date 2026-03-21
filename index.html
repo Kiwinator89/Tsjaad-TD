@@ -59,6 +59,12 @@
   @keyframes tsjaadPulse { 0%, 100% { box-shadow: 0 10px 30px rgba(255,111,0,0.5); transform: scale(1); } 50% { box-shadow: 0 10px 60px rgba(255,152,0,0.9), 0 0 60px rgba(255,152,0,0.8); transform: scale(1.05); } }
   .modeBtn:hover { transform: scale(1.15) rotate(1deg) !important; box-shadow: 0 15px 50px rgba(139,69,19,0.6); }
   #settingsBtn { position: fixed; top: 20px; right: 20px; width: 60px; height: 60px; background: rgba(0,0,0,0.5); border: 3px solid #8b4513; border-radius: 50%; font-size: 28px; cursor: pointer; z-index: 1100; display: flex; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.4); animation: settingsPulse 4s ease-in-out infinite; }
+  #timerDisplay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.75); border: 2px solid #ffd700; border-radius: 10px; padding: 6px 18px; color: #ffd700; font-size: 22px; font-family: monospace; font-weight: bold; z-index: 1100; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255,215,0,0.6); pointer-events: none; display: none; }
+  #timerToggleBtn { position: fixed; top: 90px; right: 20px; width: 60px; height: 60px; background: rgba(0,0,0,0.5); border: 3px solid #ffd700; border-radius: 50%; font-size: 22px; cursor: pointer; z-index: 1100; display: none; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+  #timerToggleBtn:hover { transform: scale(1.15); background: rgba(180,140,0,0.5); }
+  #antiLagBtn { position: fixed; top: 160px; right: 20px; width: 60px; height: 60px; background: rgba(0,0,0,0.5); border: 3px solid #00ff88; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 1100; display: none; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+  #antiLagBtn:hover { transform: scale(1.15); }
+  #antiLagBtn.active { background: rgba(0,180,80,0.4); border-color: #ff4444; box-shadow: 0 0 15px rgba(0,255,100,0.5); }
   #settingsBtn:hover { transform: rotate(45deg) scale(1.15); background: rgba(139,69,19,0.7); }
   @keyframes settingsPulse { 0%,100%{box-shadow:0 4px 15px rgba(0,0,0,0.4);} 50%{box-shadow:0 4px 25px rgba(218,165,32,0.5);} }
   #settingsOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(6px); }
@@ -113,6 +119,9 @@
 <body>
 
 <button id="settingsBtn" onclick="openSettings()" title="Instellingen / Settings / Einstellungen">⚙️</button>
+<div id="timerDisplay">⏱ 00:00.0</div>
+<button id="timerToggleBtn" onclick="toggleTimer()" title="Timer tonen/verbergen">⏱️</button>
+<button id="antiLagBtn" onclick="toggleAntiLag()" title="Anti-Lag modus">🚀</button>
 <div id="sellFlash"></div>
 <div id="towerTooltip">
   <div class="tt-name" id="tt-name"></div>
@@ -156,7 +165,7 @@
 <div id="victoryScreen" class="endScreen">
   <h1 id="vs-title">🏆 OVERWINNING! 🏆</h1>
   <div class="message"><strong id="vs-line1">JE HEBT DE MALARIA MUG VERSLAGEN!</strong><br><span id="vs-line2">JE HEBT DE PLAAG IN TSJAAD OVERLEEFD!</span><br><em id="vs-line3">JE BENT TSJAADTASTISCH!!!</em></div>
-  <div class="stats"><span id="vs-rounds-label">⚔️ Rondes Overleefd:</span> <strong><span id="finalRound"></span></strong><br><span id="vs-money-label">💰 Totaal Verdiend:</span> <strong>€<span id="finalMoney"></span></strong></div>
+  <div class="stats"><span id="vs-rounds-label">⚔️ Rondes Overleefd:</span> <strong><span id="finalRound"></span></strong><br><span id="vs-money-label">💰 Totaal Verdiend:</span> <strong>€<span id="finalMoney"></span></strong><br><span id="vs-time-label">⏱️ Speedrun Tijd:</span> <strong><span id="finalTime">—</span></strong></div>
   <button class="restartBtn" onclick="location.reload()" id="vs-restart">🔄 Opnieuw Spelen</button>
 </div>
 
@@ -311,6 +320,67 @@ const ctx = canvas.getContext('2d');
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 
 let gameMode = null;
+
+// ===== SPEEDRUN TIMER =====
+let timerStartTime = null, timerElapsed = 0, timerRunning = false, timerVisible = false, timerRAF = null;
+let antiLagMode = false;
+
+function toggleAntiLag() {
+  antiLagMode = !antiLagMode;
+  const btn = document.getElementById('antiLagBtn');
+  if(antiLagMode) {
+    btn.classList.add('active');
+    btn.textContent = '⚡';
+    btn.title = 'Anti-Lag AAN — klik om uit te zetten';
+  } else {
+    btn.classList.remove('active');
+    btn.textContent = '🚀';
+    btn.title = 'Anti-Lag modus';
+  }
+}
+
+function formatTime(ms) {
+  const totalSecs = Math.floor(ms / 100);
+  const mins = Math.floor(totalSecs / 600);
+  const secs = Math.floor((totalSecs % 600) / 10);
+  const tenths = totalSecs % 10;
+  return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}.${tenths}`;
+}
+
+function tickTimer() {
+  if(!timerRunning) return;
+  timerElapsed = Date.now() - timerStartTime;
+  if(timerVisible) document.getElementById('timerDisplay').textContent = '⏱ ' + formatTime(timerElapsed);
+  timerRAF = requestAnimationFrame(tickTimer);
+}
+
+function startTimer() {
+  timerStartTime = Date.now();
+  timerElapsed = 0;
+  timerRunning = true;
+  timerRAF = requestAnimationFrame(tickTimer);
+}
+
+function stopTimer() {
+  timerRunning = false;
+  if(timerRAF) cancelAnimationFrame(timerRAF);
+  timerElapsed = Date.now() - timerStartTime;
+}
+
+function toggleTimer() {
+  timerVisible = !timerVisible;
+  const disp = document.getElementById('timerDisplay');
+  const btn = document.getElementById('timerToggleBtn');
+  if(timerVisible) {
+    disp.style.display = 'block';
+    btn.style.border = '3px solid #00ff88';
+    btn.textContent = '⏹️';
+  } else {
+    disp.style.display = 'none';
+    btn.style.border = '3px solid #ffd700';
+    btn.textContent = '⏱️';
+  }
+}
 let autoStartRounds = false;
 let autoRoundCountdown = 0;
 
@@ -353,26 +423,39 @@ function pickMutation(round, mode) {
   });
   return available[Math.floor(Math.random()*available.length)];
 }
-function getMutationDisplayName(mutation1, mutation2, baseName) {
+function getMutationDisplayName(mutation1, mutation2, baseName, mutation3) {
   const prefix = {ondode:'Ondode',snelle:'Snelle',hydra:'Hydra',random:'Random',dodelijke:'Dodelijke',radioactieve:'Radioactieve',metalen:'Metalen',kogelvrije:'Kogelvrije',beschermde:'Beschermde',terugkerende:'Terugkerende',arme:'Arme',onzichtbare:'Onzichtbare',verslomende:'Verslomende',accelererende:'Accelererende',genezende:'Genezende',elite:'ELITE',onstabiele:'ONSTABIELE'};
+  if(mutation3) return (prefix[mutation1]||'')+'-'+(prefix[mutation2]||'')+'-'+(prefix[mutation3]||'')+' '+baseName;
   if(mutation2) return (prefix[mutation1]||'')+'-'+(prefix[mutation2]||'')+' '+baseName;
   return (prefix[mutation1]||'')+' '+baseName;
 }
 
 // ===== AUDIO =====
+const BASE_AUDIO = 'https://raw.githubusercontent.com/Kiwinator89/Tsjaad-TD/main/Audio/';
 const sounds = {
-  themeStandaard: new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'),
-  themePlaag:     new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'),
-  themeHard:      new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'),
-  themeSpeed:     new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'),
-  themeBoss:      new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'),
-  themeMutatie:   new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3'),
-  shoot:    Object.assign(new Audio(), {src:'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='}),
-  explode:  Object.assign(new Audio(), {src:'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='}),
-  sell:     Object.assign(new Audio(), {src:'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='}),
+  // Music themes
+  themeStandaard:    new Audio(BASE_AUDIO + 'MainTheme.mp3'),
+  themePlaag:        new Audio(BASE_AUDIO + 'VolcanoTheme.mp3'),
+  themeHard:         new Audio(BASE_AUDIO + 'HardTheme.mp3'),
+  themeSpeed:        new Audio(BASE_AUDIO + 'DoubleSpeedMode.mp3'),
+  themeBoss:         new Audio(BASE_AUDIO + 'BossMode.mp3'),
+  themeMutatie:      new Audio(BASE_AUDIO + 'MutatieModus.mp3'),
+  themeTsjaad:       new Audio(BASE_AUDIO + 'TsjaadModus.mp3'),
+  themeDubbelHealth: new Audio(BASE_AUDIO + 'DubbelHealthModus.mp3'),
+  themeArmoede:      new Audio(BASE_AUDIO + 'ArmoedeModus.mp3'),
+  // SFX
+  explode:    new Audio(BASE_AUDIO + 'Explosion.mp3'),
+  kill:       new Audio(BASE_AUDIO + 'Kill.mp3'),
+  monkey:     new Audio(BASE_AUDIO + 'Monkey.mp3'),
+  placement:  new Audio(BASE_AUDIO + 'Placement.mp3'),
+  round:      new Audio(BASE_AUDIO + 'Round.mp3'),
+  sacrifice:  new Audio(BASE_AUDIO + 'Sacrifice.mp3'),
+  sell:       new Audio(BASE_AUDIO + 'Sell.mp3'),
+  sniper:     new Audio(BASE_AUDIO + 'Sniper.mp3'),
+  upgrade:    new Audio(BASE_AUDIO + 'Upgrade.mp3'),
 };
 // Set music to loop at default volume
-['themeStandaard','themePlaag','themeHard','themeSpeed','themeBoss','themeMutatie'].forEach(k=>{
+['themeStandaard','themePlaag','themeHard','themeSpeed','themeBoss','themeMutatie','themeTsjaad','themeDubbelHealth','themeArmoede'].forEach(k=>{
   sounds[k].loop=true; sounds[k].volume=0.5;
 });
 let currentTheme=null, musicPlaying=false;
@@ -391,7 +474,11 @@ function stopMusic() {
 function playSound(name, vol=0.7) {
   const s = sounds[name];
   if(!s) return;
-  try { const c=s.cloneNode(); c.volume=vol; c.play().catch(()=>{}); } catch(e){}
+  try {
+    const c = new Audio(s.src);
+    c.volume = vol;
+    c.play().catch(()=>{});
+  } catch(e){}
 }
 
 // ===== GAME MODE SELECTION =====
@@ -416,8 +503,17 @@ function startGame(mode) {
   document.getElementById('money').textContent=money;
 
   // Start background music for the selected mode
-  const themeMap = {plaag:'themePlaag',hard:'themeHard',speed:'themeSpeed',boss:'themeBoss',mutatie:'themeMutatie'};
+  const themeMap = {
+    plaag:'themePlaag', hard:'themeHard', speed:'themeSpeed',
+    boss:'themeBoss', mutatie:'themeMutatie', tsjaadmodus:'themeTsjaad',
+    tsjaadplus:'themeTsjaad', dubbelhealth:'themeDubbelHealth', armoede:'themeArmoede'
+  };
   playMusic(themeMap[mode] || 'themeStandaard');
+
+  // Start speedrun timer
+  startTimer();
+  document.getElementById('timerToggleBtn').style.display = 'flex';
+  document.getElementById('antiLagBtn').style.display = 'flex';
 
   loop();
 }
@@ -434,8 +530,8 @@ const towerTypes={
   plaagdokter:{range:140,rate:40,dmg:8,speed:3.5,cost:300,ultCost:2000,slow:true},
   geweer:{range:240,rate:12,dmg:3.8,speed:7,cost:550,ultCost:5000},
   sniper:{range:550,rate:300,dmg:300,speed:10,cost:5000,ultCost:28000},
-  tsjaadinator:{range:180,rate:5,dmg:3.8,speed:8,cost:2500,ultCost:15000,secretCost:300000},
-  atoom:{range:180,rate:100,dmg:15,speed:3,cost:600,bomb:true,ultCost:7500},
+  tsjaadinator:{range:180,rate:4,dmg:4.8,speed:8,cost:2500,ultCost:15000,secretCost:300000},
+  atoom:{range:180,rate:100,dmg:15,speed:3,cost:600,bomb:true,ultCost:4500},
   katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
   aap:{range:120,rate:70,dmg:1.9,speed:0,cost:400,ultCost:2500,monkey:true},
   fakkel:{range:95,rate:45,dmg:3,speed:3,cost:150,ultCost:4000,fire:true}
@@ -450,11 +546,21 @@ function getTowerRange(tw) {
   return range;
 }
 
+function getFakkelBurnDmg(level, ultimate) {
+  if(ultimate) return 80;
+  const byLevel = [3, 3, 5, 15]; // level 0,1,2,3
+  return byLevel[Math.min(level, 3)];
+}
+
 function getAtoomNukeCooldown(tw) {
-  let secs = 90 - (tw.level * 10);
-  if(tw.ultimate) secs -= 50;
-  secs = Math.max(5, secs);
-  return secs * 60;
+  if(tw.ultimate) return 10 * 60;
+  return 25 * 60;
+}
+
+function getAtoomNukeDamage(tw) {
+  if(tw.ultimate) return 40;
+  const dmgByLevel = [10, 20, 25, 30];
+  return dmgByLevel[Math.min(tw.level, 3)];
 }
 
 // ===== ENEMIES =====
@@ -474,6 +580,7 @@ const bossType = {name:'Malaria Mug',hp:50000,speed:0.7,size:80,reward:1000,boss
 const mutatedBossType = {name:'Gemuteerde Malaria Mug',hp:5000000,speed:0.75,size:95,reward:2500,boss:true,type:'mutatedmug'};
 const slowBossType = {name:'Malaria Mug',hp:6500000,speed:0.15,size:120,reward:1000,boss:true,type:'mug'};
 const hydraHydraBossType = {name:'Hydra Malaria Mug',hp:100000,speed:0.8,size:100,reward:2000,boss:true,type:'hydramug'};
+const zwangereMugBossType = {name:'🤰 Zwangere Malaria Mug',hp:200000,speed:0.6,size:110,reward:3000,boss:true,type:'zwangeremug'};
 
 function selectTower(t2){ if(gameMode==='armoede'&&t2==='katoen') return; selectedTower=t2; }
 
@@ -521,6 +628,7 @@ function getTowerTotalInvestedCost(tw){
   const upgradeCost = getUpgradeCostForTower(tw);
   let total = base + tw.level * upgradeCost;
   if(tw.ultimate) total += towerTypes[tw.key].ultCost || 0;
+  if(tw.secret) total += towerTypes[tw.key].secretCost || 0;
   return total;
 }
 
@@ -614,9 +722,12 @@ function updateTooltip(tw, cx, cy){
       html += statRow('🩸 Debuff dmg', curBonus, nextBonus);
     }
     if(tw.key==='atoom'){
-      const cooldownSecs = Math.max(5, 90 - tw.level*10 - (tw.ultimate?50:0));
-      const nextCooldownSecs = next ? Math.max(5, 90 - (tw.level+1)*10 - (isUltNext?50:0)) : null;
+      const cooldownSecs = tw.ultimate ? 10 : 25;
+      const nextCooldownSecs = next ? (isUltNext ? 10 : 25) : null;
       html += statRow('💥 Nuke cooldown', cooldownSecs+'s', nextCooldownSecs?nextCooldownSecs+'s':null);
+      const nukeDmg = getAtoomNukeDamage(tw);
+      const nextNukeDmg = next ? (isUltNext ? 40 : [10,20,25,30][Math.min((tw.level+1),3)]) : null;
+      html += statRow('💣 Nuke schade', nukeDmg, nextNukeDmg);
       const curFire = '+'+Math.round(((tw.fireBonusMultiplier||1.20)-1)*100)+'%';
       const nextFireBonus = next ? '+'+Math.round(((tw.fireBonusMultiplier||1.20)-1+0.10)*100)+'%' : null;
       html += statRow('🔥 Bonus vs brand', curFire, nextFireBonus);
@@ -627,8 +738,8 @@ function updateTooltip(tw, cx, cy){
       html += statRow('☠️ Vergif', curPoison, !tw.poisonArrows ? nextPoison : null);
     }
     if(tw.key==='fakkel'){
-      const burnDmg = tw.ultimate ? '80' : '1';
-      const nextBurnDmg = next ? (isUltNext ? '80' : '1') : null;
+      const burnDmg = getFakkelBurnDmg(tw.level, tw.ultimate);
+      const nextBurnDmg = next ? getFakkelBurnDmg(isUltNext ? 4 : tw.level+1, isUltNext) : null;
       html += statRow('🔥 Brand dmg/s', burnDmg, nextBurnDmg !== burnDmg ? nextBurnDmg : null);
       html += statRow('⏱️ Brand duur', tw.ultimate ? '8s' : '8s', null);
     }
@@ -711,6 +822,7 @@ function sellTower(tw){
   const flash = document.getElementById('sellFlash');
   flash.style.display = 'block';
   setTimeout(()=>{ flash.style.display='none'; }, 400);
+  playSound('sell', 0.7);
 }
 
 canvas.onclick=e=>{
@@ -741,6 +853,7 @@ canvas.onclick=e=>{
   if(selectedTower==='fakkel'){ newTower.fireChance=1.0; }
   if(selectedTower==='atoom'){ newTower.fireBonusMultiplier=1.20; }
   towers.push(newTower);
+  playSound('placement', 0.6);
 };
 
 function distanceToLineSegment(px,py,x1,y1,x2,y2){
@@ -763,6 +876,7 @@ function handleUpgrade(t2){
     else if(t2.key==='fakkel'){ t2.dmg*=1.25; t2.rate*=0.85; }
     else if(!t2.farm){ t2.dmg*=1.25; t2.rate*=0.85; }
     if(t2.key==='atoom'){ t2.fireBonusMultiplier=(t2.fireBonusMultiplier||1.20)+0.10; }
+    playSound('upgrade', 0.6);
     t2.upText=90; return;
   }
 
@@ -774,6 +888,7 @@ function handleUpgrade(t2){
       const bonusMultiplier = 5.0;
       t2.secretDmgBonus = bonusMultiplier;
       t2.secret=true; t2.level=5;
+      playSound('sacrifice', 0.8);
       t2.upText=200;
     }
     return;
@@ -785,7 +900,7 @@ function handleUpgrade(t2){
   t2.ultimate=true; t2.level=4;
 
   if(t2.key==='atoom'){ t2.dmg*=3.8; t2.rate*=0.55; t2.nukeTimer=0; t2.fireBonusMultiplier=(t2.fireBonusMultiplier||1.20)+0.10; }
-  else if(t2.key==='tsjaadinator'){ t2.dmg*=2; t2.rate*=0.25; }
+  else if(t2.key==='tsjaadinator'){ t2.dmg*=2; t2.rate*=0.20; }
   else if(t2.key==='speer'){ t2.dmg*=3; t2.rate*=1.2; t2.speerRangeBoostUntil=0; }
   else if(t2.key==='geweer'){ t2.dmg=10; t2.rate*=0.45; }
   else if(t2.key==='boog'){ t2.dmg*=1.9; t2.rate*=0.50; t2.poisonArrows=true; }
@@ -793,12 +908,14 @@ function handleUpgrade(t2){
   else if(t2.key==='plaagdokter'){ t2.dmg*=4; t2.slowDuration=999999; t2.plaagDmgBonus=(t2.plaagDmgBonus||1.05)+0.05; }
   else if(t2.key==='aap'){ t2.dmg*=2; }
   else if(t2.key==='fakkel'){ t2.dmg*=30; t2.fireChance=1.0; }
+  playSound('upgrade', 0.7);
   t2.upText=140;
 }
 
 // ===== ROUND =====
 function startRound(){
   if(spawning||gameWon) return;
+  playSound('round', 0.7);
   document.getElementById('round').textContent=round;
   let farmCash=0;
   for(const t2 of towers){ if(t2.farm){ const base=80+t2.level*40+(t2.ultimate?500:0); money+=base; farmCash+=base; } }
@@ -868,7 +985,7 @@ function spawnEnemy(){
   }
 
   if(round===maxRound){
-    if(gameMode==='mutatie'){ enemies.push(makeEnemy({...hydraHydraBossType})); return; }
+    if(gameMode==='mutatie'){ enemies.push(makeEnemy({...zwangereMugBossType})); return; }
     if(gameMode==='standard'||gameMode==='speed'||gameMode==='armoede'){ enemies.push(makeEnemy({...bossType})); return; }
     if(gameMode==='hard'){ enemies.push(makeEnemy({...mutatedBossType})); return; }
     if(gameMode==='boss'){ enemies.push(makeEnemy({...slowBossType})); return; }
@@ -880,7 +997,7 @@ function spawnEnemy(){
   const availableAnimals=animalTypes.filter(a=>!a.minRound||round>=a.minRound);
   let base=availableAnimals[Math.floor(Math.random()*availableAnimals.length)];
   let hpScale=1+round*0.14, speedScale=1+round*0.02;
-  if(gameMode==='plaag'){ hpScale*=1.60; speedScale*=1.20; }
+  if(gameMode==='plaag'){ hpScale*=1.80; speedScale*=1.35; }
   else if(gameMode==='hard'){ hpScale*=1.5; speedScale*=1.15; }
   else if(gameMode==='speed'){ speedScale*=2.0; }
   else if(gameMode==='dubbelhealth'){ hpScale*=2.0; }
@@ -888,18 +1005,27 @@ function spawnEnemy(){
   else if(gameMode==='tsjaadplus'){ hpScale*=2.5; speedScale*=2.5; }
   if(round>8){ hpScale*=1+0.08*(round-8); speedScale*=1+0.01*(round-8); }
   if(round>20){ hpScale*=1.70; speedScale*=1.3; }
+  if(gameMode==='plaag'&&round>20){ hpScale*=1+0.06*(round-20); speedScale*=1+0.015*(round-20); }
   if(round>30){ const increments=Math.floor((round-30)/5); if(increments>0){ hpScale*=Math.pow(1.40,increments); speedScale*=(1+0.01*increments); } }
 
   const baseHp=Math.floor(base.hp*hpScale), baseSpeed=base.speed*speedScale;
-  let mutationChance=0, doubleMutationChance=0;
+  let mutationChance=0, doubleMutationChance=0, tripleMutationChance=0;
   if(gameMode==='mutatie'){ mutationChance=0.20; if(round>15) doubleMutationChance=0.40; }
   else if(gameMode==='tsjaadmodus'){ mutationChance=0.02; if(round>15) doubleMutationChance=0.50; }
   else if(gameMode==='tsjaadplus'){ mutationChance=1.0; doubleMutationChance=0.50; }
+  else if(gameMode==='plaag'){
+    if(round>=60){ mutationChance=1.0; doubleMutationChance=1.0; tripleMutationChance=1.0; }
+    else if(round>=50){ mutationChance=1.0; doubleMutationChance=1.0; }
+    else if(round>=40){ mutationChance=1.0; doubleMutationChance=0.50; }
+    else if(round>=30){ mutationChance=1.0; }
+    else if(round>=20){ mutationChance=0.10; }
+  }
 
-  let mutation=null, mutation2=null;
+  let mutation=null, mutation2=null, mutation3=null;
   if(mutationChance>0&&Math.random()<mutationChance){
     mutation=pickMutation(round,gameMode);
     if(doubleMutationChance>0&&Math.random()<doubleMutationChance){ let s=pickMutation(round,gameMode); let tries=0; while(s===mutation&&tries<10){s=pickMutation(round,gameMode);tries++;} if(s!==mutation) mutation2=s; }
+    if(mutation2&&tripleMutationChance>0&&Math.random()<tripleMutationChance){ let s=pickMutation(round,gameMode); let tries=0; while((s===mutation||s===mutation2)&&tries<10){s=pickMutation(round,gameMode);tries++;} if(s!==mutation&&s!==mutation2) mutation3=s; }
   }
 
   let finalHp=baseHp, finalSpeed=baseSpeed;
@@ -907,9 +1033,11 @@ function spawnEnemy(){
   if(mutation==='elite'){ finalSpeed*=1.5; finalHp=Math.floor(finalHp*4.0); }
   if(mutation2==='snelle'){ finalSpeed*=3.0; finalHp=Math.floor(finalHp*0.6); }
   if(mutation2==='elite'){ finalSpeed*=1.5; finalHp=Math.floor(finalHp*4.0); }
+  if(mutation3==='snelle'){ finalSpeed*=3.0; finalHp=Math.floor(finalHp*0.6); }
+  if(mutation3==='elite'){ finalSpeed*=1.5; finalHp=Math.floor(finalHp*4.0); }
 
   const enemy=makeEnemy({...base,hp:finalHp,speed:finalSpeed,reward:Math.floor(base.reward*(1+round*0.15)),infected:gameMode==='plaag'});
-  if(mutation){ enemy.mutation=mutation; enemy.mutation2=mutation2||null; enemy.name=getMutationDisplayName(mutation,mutation2,base.name); applyMutationToEnemy(enemy,mutation,finalHp,finalSpeed,base); if(mutation2) applyMutationToEnemy(enemy,mutation2,finalHp,finalSpeed,base); }
+  if(mutation){ enemy.mutation=mutation; enemy.mutation2=mutation2||null; enemy.mutation3=mutation3||null; enemy.name=getMutationDisplayName(mutation,mutation2,base.name,mutation3); applyMutationToEnemy(enemy,mutation,finalHp,finalSpeed,base); if(mutation2) applyMutationToEnemy(enemy,mutation2,finalHp,finalSpeed,base); if(mutation3) applyMutationToEnemy(enemy,mutation3,finalHp,finalSpeed,base); }
   enemies.push(enemy);
 }
 
@@ -942,15 +1070,25 @@ function makeEnemy(t2){
     isKrokodil: t2.type==='krokodil',
     onstabielTimer: 0,
     onstabielExploded: false,
+    lastSpawnHp: t2.hp, // for zwangeremug: track hp at last spawn
   };
   return e;
 }
 
 // ===== WIN & LOSS =====
-function winGame(){ gameWon=true; stopMusic(); document.getElementById('finalRound').textContent=round; document.getElementById('finalMoney').textContent=totalMoneyEarned; document.getElementById('victoryScreen').style.display='flex'; }
+function winGame(){
+  gameWon=true;
+  stopMusic();
+  stopTimer();
+  document.getElementById('finalRound').textContent=round;
+  document.getElementById('finalMoney').textContent=totalMoneyEarned;
+  document.getElementById('finalTime').textContent=formatTime(timerElapsed);
+  document.getElementById('victoryScreen').style.display='flex';
+}
 function loseGame(){
   gameWon=true;
   stopMusic();
+  stopTimer();
   const modeKey='mode-'+gameMode; const modeName=t(modeKey)||'STANDAARD';
   let deathMsg, deathStat;
   if(currentLang==='de'){ deathMsg=`<strong>DU HAST ${round} RUNDEN IN ${modeName} ÜBERLEBT!</strong><br>DIE FEINDE WAREN ZU STARK...`; deathStat=`💀 Gefallen in Runde: <strong>${round}</strong><br>💰 Gesamtverdienst: <strong>€${totalMoneyEarned}</strong>`; }
@@ -1013,6 +1151,21 @@ function update(){
     if(e.birdWindTimer > 0) e.birdWindTimer--;
     else e.birdWindBoosted = false;
 
+    // Zwangere Mug: spawn a random enemy every 1000 damage taken
+    if(e.type==='zwangeremug' && e.hp < e.lastSpawnHp - 1000){
+      const spawnsNeeded = Math.floor((e.lastSpawnHp - e.hp) / 1000);
+      e.lastSpawnHp -= spawnsNeeded * 1000;
+      const availableAnimals = animalTypes.filter(a => !a.minRound || round >= a.minRound);
+      for(let s=0; s<spawnsNeeded; s++){
+        const base = availableAnimals[Math.floor(Math.random()*availableAnimals.length)];
+        const hpScale = 1 + round * 0.14;
+        const speedScale = 1 + round * 0.02;
+        const child = makeEnemy({...base, hp: Math.floor(base.hp*hpScale), speed: base.speed*speedScale, reward: Math.floor(base.reward*0.5)});
+        child.i = 0; child.x = path[0].x; child.y = path[0].y;
+        toSpawn.push(child);
+      }
+    }
+
     const hasOnstabiel = e.mutation==='onstabiele' || e.mutation2==='onstabiele';
     if(hasOnstabiel && !e.onstabielExploded && e.onstabielTimer > 0){
       e.onstabielTimer--;
@@ -1022,7 +1175,7 @@ function update(){
     if(e.mutation==='beschermde'&&!e.beschermdShieldUsed&&e.hp<=e.max*0.5){ e.beschermdShieldUsed=true; e.beschermdActive=true; e.beschermdTimer=180; }
     if(e.beschermdActive){ e.beschermdTimer--; if(e.beschermdTimer<=0) e.beschermdActive=false; }
     if(e.mutation2==='beschermde'&&!e.beschermd2ShieldUsed&&e.hp<=e.max*0.3){ e.beschermd2ShieldUsed=true; e.beschermdActive=true; e.beschermdTimer=120; }
-    if(e.mutation==='genezende'||e.mutation2==='genezende'){ e.healTimer=(e.healTimer||0)+1; if(e.healTimer>=60){ e.healTimer=0; e.hp=Math.min(e.max,e.hp+e.max*0.05); } }
+    if(e.mutation===''genezende''||e.mutation2===''genezende''||e.mutation3===''genezende''){ e.healTimer=(e.healTimer||0)+1; if(e.healTimer>=60){ e.healTimer=0; e.hp=Math.min(e.max,e.hp+e.max*0.05); } }
     if(e.slowEndTime>0){ e.slowEndTime--; if(e.slowEndTime<=0) e.speed=e.baseSpeed; }
 
     if(e.burning&&e.burnDuration>0){
@@ -1043,7 +1196,7 @@ function update(){
       }
     }
 
-    if(e.mutation==='accelererende'||e.mutation2==='accelererende'){ const progress=e.i/Math.max(1,path.length-1); e.speed=e.baseSpeedForAccel*(1+progress*3); }
+    if(e.mutation===''accelererende''||e.mutation2===''accelererende''||e.mutation3===''accelererende''){ const progress=e.i/Math.max(1,path.length-1); e.speed=e.baseSpeedForAccel*(1+progress*3); }
     if(e.type==='kameel'&&!e.kameelBoosted&&e.hp<=e.max*0.5){ e.kameelBoosted=true; e.kameelBoostTimer=60; e.speed*=4; e.baseSpeed*=4; }
     if(e.kameelBoosted&&e.kameelBoostTimer>0){ e.kameelBoostTimer--; if(e.kameelBoostTimer<=0){ e.kameelBoosted=false; e.speed/=4; e.baseSpeed/=4; } }
 
@@ -1072,6 +1225,7 @@ function update(){
         tw.monkeyTimer=0;
         for(const other of towers){ if(other===tw||other.boosted) continue; if(Math.hypot(other.x-tw.x,other.y-tw.y)<=getTowerRange(tw)){ other.boosted=true; other.boostEndTime=500; } }
         tw.boosted=true; tw.boostEndTime=300;
+        if(!antiLagMode) playSound('monkey', 0.7);
       }
     }
     if(tw.boosted&&tw.boostEndTime>0){ tw.boostEndTime--; if(tw.boostEndTime<=0) tw.boosted=false; }
@@ -1133,16 +1287,16 @@ function update(){
     }
 
     let verslomendeSlow=1.0;
-    for(const e of enemies){ if((e.mutation==='verslomende'||e.mutation2==='verslomende')&&Math.hypot(e.x-tw.x,e.y-tw.y)<120){ verslomendeSlow=0.6; break; } }
+    for(const e of enemies){ if((e.mutation===''verslomende''||e.mutation2===''verslomende''||e.mutation3===''verslomende'')&&Math.hypot(e.x-tw.x,e.y-tw.y)<120){ verslomendeSlow=0.6; break; } }
 
     const target=enemies.find(e=>{
-      if(tw.key==='tsjaadinator'&&tw.secret){ if((e.mutation==='kogelvrije'||e.mutation2==='kogelvrije')) return false; return true; }
+      if(tw.key==='tsjaadinator'&&tw.secret){ if((e.mutation===''kogelvrije''||e.mutation2===''kogelvrije''||e.mutation3===''kogelvrije'')) return false; return true; }
       if(Math.hypot(e.x-tw.x,e.y-tw.y)>=effectiveRange) return false;
       if(e.isRoboLeeuw && (tw.key==='geweer'||tw.key==='sniper')) return false;
       if(e.isKrokodil && (tw.key==='geweer'||tw.key==='sniper')) return false;
-      if((e.mutation==='metalen'||e.mutation2==='metalen')&&tw.key!=='atoom') return false;
-      if((e.mutation==='kogelvrije'||e.mutation2==='kogelvrije')&&(tw.key==='geweer'||tw.key==='sniper')) return false;
-      if(e.mutation==='onzichtbare'||e.mutation2==='onzichtbare'){ let inRange=false; for(const otw of towers){ if(Math.hypot(e.x-otw.x,e.y-otw.y)<getTowerRange(otw)){ inRange=true; break; } } if(!inRange) return false; }
+      if((e.mutation===''metalen''||e.mutation2===''metalen''||e.mutation3===''metalen'')&&tw.key!=='atoom') return false;
+      if((e.mutation===''kogelvrije''||e.mutation2===''kogelvrije''||e.mutation3===''kogelvrije'')&&(tw.key==='geweer'||tw.key==='sniper')) return false;
+      if(e.mutation===''onzichtbare''||e.mutation2===''onzichtbare''||e.mutation3===''onzichtbare''){ let inRange=false; for(const otw of towers){ if(Math.hypot(e.x-otw.x,e.y-otw.y)<getTowerRange(otw)){ inRange=true; break; } } if(!inRange) return false; }
       return true;
     });
     if(!target) continue;
@@ -1160,12 +1314,15 @@ function update(){
       speed:tw.secret&&tw.key==='tsjaadinator'?20:cfg.speed,
       dmg:finalDmg,bomb:cfg.bomb,gold:tw.ultimate,secret:tw.secret||false,towerKey:tw.key,tower:tw,
       fire:tw.fire,
-      fireBurnDmg: tw.fire ? (tw.ultimate ? 80 : 1) : 0,
+      fireBurnDmg: tw.fire ? getFakkelBurnDmg(tw.level, tw.ultimate) : 0,
       poisonArrow: tw.key==='boog' && tw.poisonArrows,
       sniperSlowOnHit: tw.key==='sniper' && tw.sniperSlowOnHit,
       speerUltAura: tw.key==='speer' && tw.ultimate,
       speerTower: tw.key==='speer' ? tw : null,
     });
+    if(!antiLagMode){
+      if(tw.key==='sniper') playSound('sniper', 0.5);
+    }
     tw.cool=tw.rate*rateMultiplier*verslomendeSlow;
   }
 
@@ -1243,13 +1400,13 @@ function update(){
       const hasOnstabiel = e.mutation==='onstabiele' || e.mutation2==='onstabiele';
       if(hasOnstabiel && !e.onstabielExploded){ /* killed early, no explosion */ }
 
-      if(e.mutation==='radioactieve'||e.mutation2==='radioactieve'){ triggerEnemyNuclearExplosion(e, false); }
+      if(e.mutation===''radioactieve''||e.mutation2===''radioactieve''||e.mutation3===''radioactieve''){ triggerEnemyNuclearExplosion(e, false); }
       if(e.isRoboLeeuw){ triggerEnemyNuclearExplosion(e, false); }
 
-      if(e.mutation==='ondode'||e.mutation2==='ondode'){ toSpawn.push(makeGhostEnemy(e)); }
+      if(e.mutation===''ondode''||e.mutation2===''ondode''||e.mutation3===''ondode''){ toSpawn.push(makeGhostEnemy(e)); }
       if(e.mutation==='hydra'&&!e.isHydraChild){ const base2=animalTypes.find(a=>a.type===e.type)||animalTypes[0]; for(let h=0;h<4;h++){ const hpScale=1+round*0.14; const child=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale*0.7),speed:base2.speed*(1+round*0.02),reward:0}); child.i=Math.max(0,e.i-1); child.x=path[Math.max(0,e.i-1)].x+(Math.random()-0.5)*60; child.y=path[Math.max(0,e.i-1)].y+(Math.random()-0.5)*60; child.isHydraChild=true; toSpawn.push(child); } }
       if(e.mutation2==='hydra'&&!e.isHydraChild){ const base2=animalTypes.find(a=>a.type===e.type)||animalTypes[0]; for(let h=0;h<3;h++){ const hpScale=1+round*0.14; const child=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale*0.5),speed:base2.speed*(1+round*0.02),reward:0}); child.i=Math.max(0,e.i-1); child.x=path[Math.max(0,e.i-1)].x+(Math.random()-0.5)*50; child.y=path[Math.max(0,e.i-1)].y+(Math.random()-0.5)*50; child.isHydraChild=true; toSpawn.push(child); } }
-      if(e.mutation==='random'||e.mutation2==='random'){ const base2=animalTypes[Math.floor(Math.random()*animalTypes.length)]; const hpScale=1+round*0.14; const newE=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale),speed:base2.speed*(1+round*0.02),reward:0}); newE.i=Math.max(0,e.i-1); newE.x=path[Math.max(0,e.i-1)].x; newE.y=path[Math.max(0,e.i-1)].y; toSpawn.push(newE); }
+      if(e.mutation===''random''||e.mutation2===''random''||e.mutation3===''random''){ const base2=animalTypes[Math.floor(Math.random()*animalTypes.length)]; const hpScale=1+round*0.14; const newE=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale),speed:base2.speed*(1+round*0.02),reward:0}); newE.i=Math.max(0,e.i-1); newE.x=path[Math.max(0,e.i-1)].x; newE.y=path[Math.max(0,e.i-1)].y; toSpawn.push(newE); }
       if(e.mutation==='terugkerende'&&e.terugkerendeCount>0){ e.terugkerendeCount--; e.i=0; e.x=path[0].x; e.y=path[0].y; e.hp=e.max; return true; }
       if(e.type==='kameel'&&!e.kameelLionsSpawned){ e.kameelLionsSpawned=true; const hpScale=1+round*0.14; for(let l=0;l<4;l++){ const lion=makeEnemy({...animalTypes.find(a=>a.type==='leeuw'),hp:Math.floor(6*hpScale),speed:1.25*(1+round*0.02),reward:8}); lion.i=Math.max(0,e.i-1); lion.x=path[Math.max(0,e.i-1)].x+(Math.random()-0.5)*50; lion.y=path[Math.max(0,e.i-1)].y+(Math.random()-0.5)*50; toSpawn.push(lion); } }
 
@@ -1258,12 +1415,13 @@ function update(){
         birdEggs.push({x:e.x,y:e.y,timer:180,destroyed:false,pathI:e.i});
       }
 
-      const isArme=(e.mutation==='arme'||e.mutation2==='arme');
+      const isArme=(e.mutation===''arme''||e.mutation2===''arme''||e.mutation3===''arme'');
       if(!isArme){ money+=e.reward; totalMoneyEarned+=e.reward; }
+      if(!e.boss && !antiLagMode) playSound('kill', 0.4);
       return false;
     }
     if(e.i>=path.length-1){
-      if(e.mutation==='dodelijke'||e.mutation2==='dodelijke') lives-=5; else lives--;
+      if(e.mutation===''dodelijke''||e.mutation2===''dodelijke''||e.mutation3===''dodelijke'') lives-=5; else lives--;
       if(e.mutation==='terugkerende'&&e.terugkerendeCount>0){ e.terugkerendeCount--; e.i=0; e.x=path[0].x; e.y=path[0].y; lives--; if(lives<=0){ loseGame(); return false; } return true; }
       if(lives<=0){ loseGame(); return false; }
       return false;
@@ -1281,7 +1439,9 @@ function update(){
 
 // ===== NUKE STRIKE =====
 function triggerNukeStrike(tower){
-  for(const e of enemies){ if(!e.beschermdActive) e.hp-=100; }
+  const dmg = getAtoomNukeDamage(tower);
+  for(const e of enemies){ if(!e.beschermdActive) e.hp -= dmg; }
+  if(!antiLagMode) playSound('explode', 0.8);
   const cx=canvas.width/2, cy=canvas.height/2;
   nukeStrikes.push({x:cx,y:cy,r:10,maxR:600,t:90,maxT:90,phase:'expand'});
   for(const e of enemies){ explosions.push({x:e.x,y:e.y,r:8,t:30,gold:true}); }
@@ -1382,7 +1542,7 @@ function drawPath(){
 }
 
 function drawEnemy(e){
-  if(e.mutation==='onzichtbare'||e.mutation2==='onzichtbare'){
+  if(e.mutation===''onzichtbare''||e.mutation2===''onzichtbare''||e.mutation3===''onzichtbare''){
     let inRange=false;
     for(const tw of towers){ if(Math.hypot(e.x-tw.x,e.y-tw.y)<getTowerRange(tw)){ inRange=true; break; } }
     if(!inRange) return;
@@ -1413,7 +1573,7 @@ function drawEnemy(e){
     ctx.restore();
   }
 
-  if(e.mutation==='metalen'||e.mutation2==='metalen'){ drawMetalenEnemy(e); drawEnemyHUD(e); ctx.restore(); return; }
+  if(e.mutation===''metalen''||e.mutation2===''metalen''||e.mutation3===''metalen''){ drawMetalenEnemy(e); drawEnemyHUD(e); ctx.restore(); return; }
 
   if(e.isRoboLeeuw) drawRoboLeeuw(e);
   else if(e.isBird) drawVogel(e);
@@ -1428,6 +1588,7 @@ function drawEnemy(e){
   else if(e.type==='mug') drawMug(e);
   else if(e.type==='mutatedmug') drawMutatedMug(e);
   else if(e.type==='hydramug') drawHydraMug(e);
+  else if(e.type==='zwangeremug') drawZwangereMug(e);
 
   ctx.globalAlpha=1;
   drawMutationEffects(e);
@@ -1655,6 +1816,81 @@ function drawMug(e){ ctx.fillStyle='#1a1a1a'; ctx.beginPath(); ctx.ellipse(0,0,1
 function drawMutatedMug(e){ ctx.save(); const pulseScale=1+Math.sin(Date.now()*0.005)*0.1; ctx.scale(pulseScale,pulseScale); ctx.shadowBlur=25; ctx.shadowColor='#ff0080'; ctx.fillStyle='#0a0a0a'; ctx.beginPath(); ctx.ellipse(0,0,15,7,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='rgba(0,255,0,0.3)'; ctx.beginPath(); ctx.ellipse(-5,0,4,2,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(5,0,4,2,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='rgba(138,43,226,0.4)'; ctx.shadowColor='#8a2be2'; ctx.shadowBlur=20; ctx.beginPath(); ctx.ellipse(-12,-6,14,8,-0.3,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(12,-6,14,8,0.3,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; ctx.strokeStyle='#2a0a0a'; ctx.lineWidth=2.5; for(let i=-2;i<=2;i++){ ctx.beginPath(); ctx.moveTo(i*6,5); ctx.lineTo(i*8,15); ctx.stroke(); } ctx.strokeStyle='#c70039'; ctx.lineWidth=3; ctx.shadowBlur=15; ctx.shadowColor='#ff0080'; ctx.beginPath(); ctx.moveTo(15,0); ctx.lineTo(28,-2); ctx.stroke(); ctx.fillStyle='#ff0080'; ctx.beginPath(); ctx.moveTo(28,-2); ctx.lineTo(32,-3); ctx.lineTo(30,0); ctx.fill(); ctx.shadowBlur=0; ctx.restore(); }
 function drawHydraMug(e){ ctx.save(); const t2=Date.now()*0.003; ctx.fillStyle='#4a0000'; ctx.beginPath(); ctx.ellipse(0,5,20,10,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='rgba(100,0,150,0.5)'; ctx.beginPath(); ctx.ellipse(-18,-5,15,8,-0.4,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(18,-5,15,8,0.4,0,Math.PI*2); ctx.fill(); const headPositions=[{x:-12,y:-8},{x:0,y:-14},{x:12,y:-8}]; for(let hi=0;hi<headPositions.length;hi++){ const hp2=headPositions[hi]; const wobble=Math.sin(t2+hi*2)*3; ctx.fillStyle='#8b0000'; ctx.beginPath(); ctx.arc(hp2.x,hp2.y+wobble,7,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#ff0000'; ctx.beginPath(); ctx.arc(hp2.x,hp2.y+wobble-1,4,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#ffff00'; ctx.beginPath(); ctx.arc(hp2.x-2,hp2.y+wobble-1,1.5,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(hp2.x+2,hp2.y+wobble-1,1.5,0,Math.PI*2); ctx.fill(); } ctx.strokeStyle='rgba(255,0,0,0.5)'; ctx.lineWidth=3; ctx.shadowBlur=20; ctx.shadowColor='#ff0000'; ctx.beginPath(); ctx.arc(0,0,22,0,Math.PI*2); ctx.stroke(); ctx.shadowBlur=0; ctx.restore(); }
 
+function drawZwangereMug(e){
+  ctx.save();
+  const t2 = Date.now() * 0.003;
+  const pulse = 1 + Math.sin(t2 * 1.5) * 0.06;
+
+  // Glow aura - green/purple pregnant
+  ctx.shadowBlur = 30; ctx.shadowColor = 'rgba(0,200,80,0.6)';
+
+  // Main body - larger, rounder (pregnant)
+  ctx.fillStyle = '#1a0a2e';
+  ctx.beginPath();
+  ctx.ellipse(0, 2, 22 * pulse, 13, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Big pregnant belly bulge below
+  ctx.fillStyle = '#2a1040';
+  ctx.beginPath();
+  ctx.ellipse(2, 10, 16 * pulse, 12 * pulse, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Belly glow - babies inside
+  const bellyGrad = ctx.createRadialGradient(2, 10, 2, 2, 10, 13);
+  bellyGrad.addColorStop(0, 'rgba(0,255,120,0.35)');
+  bellyGrad.addColorStop(0.6, 'rgba(0,180,80,0.15)');
+  bellyGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = bellyGrad;
+  ctx.beginPath();
+  ctx.ellipse(2, 10, 14, 11, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Small baby silhouettes visible through belly
+  ctx.globalAlpha = 0.25 + Math.sin(t2 * 2) * 0.1;
+  ctx.fillStyle = '#00ff88';
+  for(let b = 0; b < 3; b++){
+    const bx = -6 + b * 6 + Math.sin(t2 + b * 2) * 2;
+    const by = 10 + Math.cos(t2 * 1.3 + b) * 2;
+    ctx.beginPath(); ctx.ellipse(bx, by, 3, 2, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1.0;
+
+  // Wings - large, purple-tinted
+  ctx.fillStyle = 'rgba(140,0,200,0.45)';
+  ctx.beginPath(); ctx.ellipse(-16, -7, 16, 9, -0.35, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(16, -7, 16, 9, 0.35, 0, Math.PI * 2); ctx.fill();
+
+  // Eyes - glowing red
+  ctx.shadowBlur = 12; ctx.shadowColor = '#ff0040';
+  ctx.fillStyle = '#ff0040';
+  ctx.beginPath(); ctx.arc(-7, -1, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(7, -1, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ffcccc';
+  ctx.beginPath(); ctx.arc(-6, -2, 1.2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(8, -2, 1.2, 0, Math.PI * 2); ctx.fill();
+
+  // Proboscis
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = '#880000'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(18, 0); ctx.lineTo(30, 2); ctx.stroke();
+
+  // Legs
+  ctx.strokeStyle = '#330033'; ctx.lineWidth = 1.5;
+  for(let i = -2; i <= 2; i++){
+    ctx.beginPath(); ctx.moveTo(i * 5, 12); ctx.lineTo(i * 7, 22); ctx.stroke();
+  }
+
+  // Belly outline
+  ctx.strokeStyle = 'rgba(0,255,100,0.4)'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(2, 10, 16 * pulse, 12 * pulse, 0.2, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
 function drawTower(tw){
   const cfg=towerTypes[tw.key];
   const scale=1+tw.level*0.05;
@@ -1796,6 +2032,7 @@ function drawBirdEggs(){
 }
 
 function drawProjectiles(){
+  if(antiLagMode) return;
   for(const p of projectiles){
     ctx.save(); ctx.translate(p.x,p.y);
     const angle=Math.atan2(p.ty-p.y,p.tx-p.x); ctx.rotate(angle);
