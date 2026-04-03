@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🏜️ Tsjaad TD – Ultimate Edition</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #ffd700;
+      --gold-dim: #b8860b;
+      --red: #c70039;
+      --green: #4caf50;
+      --blue: #00bcd4;
+      --bg-dark: #0a0a0a;
+      --panel: rgba(10,10,10,0.92);
+      --border: rgba(255,215,0,0.3);
+      --text: #e8e0d0;
+      --text-dim: #8a8070;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #111;
+      overflow: hidden;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      color: var(--text);
+      user-select: none;
+    }
+
+    /* ===== CANVAS ===== */
+    #game {
+      display: block;
+      position: absolute;
+      top: 0; left: 0;
+      width: 1220px; height: 680px;
+      cursor: crosshair;
+    }
+
+    /* Responsive scaling wrapper */
+    #gameWrapper {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #gameContainer {
+      position: relative;
+      width: 1220px;
+      height: 680px;
+      transform-origin: top left;
+    }
+
+    /* ===== TITLE SCREEN ===== */
+    #titleScreen {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 40%, #1a0800 0%, #0a0500 60%, #000 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      gap: 10px;
+    }
+
+    #titleScreen h1 {
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: var(--gold);
+      text-shadow: 0 0 40px #ff6600, 0 0 80px #ff4400, 0 2px 0 #8b4400;
+      animation: titlePulse 2.5s ease-in-out infinite;
+      margin-bottom: 4px;
+    }
+
+    @keyframes titlePulse {
+      0%, 100% { text-shadow: 0 0 40px #ff6600, 0 0 80px #ff4400; }
+      50%       { text-shadow: 0 0 60px #ffaa00, 0 0 120px #ff6600, 0 0 180px #ff2200; }
+    }
+
+    #title-subtitle {
+      font-size: 16px;
+      color: #ff8844;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      opacity: 0.85;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 260px);
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .mode-btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 2px solid rgba(255,215,0,0.4);
+      border-radius: 8px;
+      background: rgba(30,15,0,0.85);
+      color: var(--gold);
+      cursor: pointer;
+      transition: all 0.18s;
+      letter-spacing: 0.5px;
+    }
+    .mode-btn:hover {
+      background: rgba(80,40,0,0.9);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(255,150,0,0.4);
+    }
+    .mode-btn.danger {
+      border-color: rgba(200,0,57,0.5);
+      color: #ff4466;
+    }
+    .mode-btn.danger:hover {
+      border-color: #c70039;
+      background: rgba(60,0,20,0.9);
+      box-shadow: 0 4px 20px rgba(200,0,57,0.5);
+    }
+    .mode-btn.boss-btn {
+      grid-column: span 2;
+      border-color: rgba(255,0,0,0.5);
+      color: #ff2233;
+      background: rgba(40,0,0,0.9);
+    }
+    .mode-btn.boss-btn:hover {
+      border-color: #ff0000;
+      box-shadow: 0 4px 30px rgba(255,0,0,0.5);
+    }
+
+    /* ===== UI PANEL ===== */
+    #ui {
+      position: absolute;
+      top: 0; right: 0;
+      width: 200px;
+      height: 100%;
+      background: var(--panel);
+      border-left: 2px solid var(--border);
+      display: none;
+      flex-direction: column;
+      padding: 8px 6px;
+      gap: 5px;
+      z-index: 10;
+      overflow-y: auto;
+    }
+
+    #gameTitle {
+      font-size: 14px;
+      font-weight: 900;
+      text-align: center;
+      color: var(--gold);
+      text-shadow: 0 0 10px #ff6600;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 3px 6px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 5px;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .stat-bar strong { color: var(--gold); }
+
+    #ui-money-label, #ui-lives-label, #ui-round-label { font-size: 12px; }
+
+    .tower-section-title {
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-align: center;
+      padding: 3px 0 1px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .tower-btn {
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 6px;
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    .tower-btn:hover {
+      background: rgba(255,215,0,0.12);
+      border-color: rgba(255,215,0,0.5);
+    }
+    .tower-btn.active {
+      background: rgba(255,215,0,0.2);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .tower-btn:disabled, .tower-btn.crossed-out {
+      opacity: 0.35;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
+    #startRoundBtn {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #1a5c00, #2e8b00);
+      border: 2px solid #4caf50;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: all 0.15s;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      margin-top: 4px;
+    }
+    #startRoundBtn:hover {
+      background: linear-gradient(135deg, #2e8b00, #4caf50);
+      box-shadow: 0 0 20px rgba(76,175,80,0.5);
+      transform: translateY(-1px);
+    }
+
+    #autoRoundMsg {
+      font-size: 10px;
+      text-align: center;
+      color: #ff9800;
+      font-weight: 700;
+    }
+
+    /* ===== UTIL BUTTONS ===== */
+    #utilBtns {
+      display: none;
+      flex-direction: row;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .util-btn {
+      flex: 1;
+      padding: 5px 3px;
+      font-size: 9px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 5px;
+      color: var(--text-dim);
+      cursor: pointer;
+      text-align: center;
+      letter-spacing: 0.5px;
+      transition: all 0.15s;
+      min-width: 55px;
+    }
+    .util-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .util-btn.active { background: rgba(255,215,0,0.15); border-color: var(--gold); color: var(--gold); }
+
+    /* ===== ROUND MESSAGE ===== */
+    #roundMsg {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--gold);
+      text-shadow: 0 0 15px #ff6600;
+      pointer-events: none;
+      z-index: 20;
+      white-space: nowrap;
+    }
+
+    /* ===== TIMER ===== */
+    #timerDisplay {
+      position: absolute;
+      top: 40px;
+      left: 10px;
+      font-size: 18px;
+      font-weight: 900;
+      color: #00ffcc;
+      text-shadow: 0 0 10px #00ffaa;
+      display: none;
+      pointer-events: none;
+      z-index: 20;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ===== SELL FLASH ===== */
+    #sellFlash {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      font-weight: 900;
+      color: #ffd700;
+      text-shadow: 0 0 20px #ff8800;
+      pointer-events: none;
+      display: none;
+      z-index: 30;
+      animation: fadeUp 0.4s ease forwards;
+    }
+    @keyframes fadeUp { 0% { opacity:1; transform:translate(-50%,-50%); } 100% { opacity:0; transform:translate(-50%,-120%); } }
+
+    /* ===== TOWER TOOLTIP ===== */
+    #towerTooltip {
+      position: fixed;
+      width: 280px;
+      background: rgba(5,5,5,0.97);
+      border: 1.5px solid rgba(255,215,0,0.5);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: none;
+      z-index: 200;
+      pointer-events: none;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+      font-size: 11.5px;
+    }
+    #tt-name {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--gold);
+      margin-bottom: 2px;
+    }
+    #tt-level { font-size: 11px; margin-bottom: 6px; }
+    .tt-stats-title { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+    .tt-stat-row { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; font-size: 11px; }
+    .tt-stat-label { color: var(--text-dim); min-width: 90px; }
+    .tt-stat-val { color: #fff; font-weight: 700; }
+    .tt-stat-arrow { color: #888; font-size: 9px; }
+    .tt-stat-next { color: #4fc3f7; font-weight: 700; }
+    .tt-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 6px 0; }
+    .tt-upgrade-header { font-size: 11px; font-weight: 800; color: #4fc3f7; }
+    .tt-upgrade-header.ult { color: var(--gold); }
+    .tt-upgrade-header.max { color: #4caf50; }
+    .tt-passive { font-size: 9.5px; color: #aaa; margin-top: 3px; }
+    #tt-sell { font-size: 10px; color: #ff7043; margin-top: 5px; opacity: 0.85; }
+
+    /* ===== WIN / DEATH SCREENS ===== */
+    #victoryScreen, #deathScreen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 150;
+      gap: 14px;
+    }
+    #victoryScreen {
+      background: radial-gradient(ellipse at center, rgba(0,50,0,0.95) 0%, rgba(0,20,0,0.98) 100%);
+    }
+    #deathScreen {
+      background: radial-gradient(ellipse at center, rgba(50,0,0,0.95) 0%, rgba(20,0,0,0.98) 100%);
+    }
+
+    .end-title {
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: 3px;
+    }
+    #vs-title { color: var(--gold); text-shadow: 0 0 40px #ffd700, 0 0 80px #ff8800; }
+    #ds-title { color: #ff2233; text-shadow: 0 0 40px #ff0000; }
+
+    .end-line { font-size: 15px; color: #ccc; text-align: center; letter-spacing: 1px; }
+    .end-stats { font-size: 18px; color: var(--gold); text-align: center; line-height: 1.8; }
+
+    .end-btn {
+      padding: 14px 40px;
+      font-size: 16px;
+      font-weight: 900;
+      border-radius: 10px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      transition: all 0.15s;
+      margin-top: 8px;
+    }
+    #vs-restart {
+      background: linear-gradient(135deg, #1a5c00, #4caf50);
+      border: 2px solid #76ff03;
+      color: #fff;
+    }
+    #vs-restart:hover { box-shadow: 0 0 30px rgba(76,175,80,0.7); transform: scale(1.03); }
+    #ds-restart {
+      background: linear-gradient(135deg, #5c0000, #c70039);
+      border: 2px solid #ff0000;
+      color: #fff;
+    }
+    #ds-restart:hover { box-shadow: 0 0 30px rgba(200,0,57,0.7); transform: scale(1.03); }
+
+    /* ===== LEADERBOARD ===== */
+    #leaderboard { display: none; margin-top: 8px; text-align: center; }
+    #lb-title { font-size: 16px; font-weight: 900; color: var(--gold); margin-bottom: 8px; }
+    #leaderboardList { font-size: 13px; color: #ccc; line-height: 2; }
+    .leaderboard-entry { display: flex; justify-content: space-between; gap: 20px; padding: 2px 8px; border-radius: 4px; }
+    .leaderboard-entry.player { background: rgba(255,215,0,0.15); color: var(--gold); }
+
+    /* ===== SETTINGS OVERLAY ===== */
+    #settingsOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    #settingsOverlay.open { opacity: 1; pointer-events: all; }
+
+    #settingsPanel {
+      background: #0d0d0d;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 36px;
+      min-width: 320px;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.8);
+    }
+
+    #stg-title { font-size: 22px; font-weight: 900; color: var(--gold); margin-bottom: 20px; text-align: center; }
+    #stg-lang-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+
+    .lang-btns { display: flex; gap: 10px; }
+    .lang-btn {
+      padding: 8px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      color: #aaa;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .lang-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .lang-btn.active { background: rgba(255,215,0,0.15); border-color: var(--gold); color: var(--gold); }
+
+    #closeSettingsBtn {
+      width: 100%;
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      color: #aaa;
+      cursor: pointer;
+    }
+    #closeSettingsBtn:hover { border-color: #fff; color: #fff; }
+
+    /* ===== SETTINGS BUTTON ===== */
+    #settingsBtn {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      padding: 8px 14px;
+      font-size: 18px;
+      background: rgba(20,10,0,0.9);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 400;
+      color: var(--gold);
+      transition: all 0.15s;
+    }
+    #settingsBtn:hover { box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+
+    /* ===== HINT BAR ===== */
+    #ui-upgrade-hint {
+      font-size: 9px;
+      color: var(--text-dim);
+      text-align: center;
+      padding: 3px 4px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      line-height: 1.4;
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 768px) {
+      #ui { width: 160px; }
+      .mode-grid { grid-template-columns: 200px; }
+      #titleScreen h1 { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Responsive scaling wrapper -->
+<div id="gameWrapper">
+  <div id="gameContainer">
+
+    <!-- Game Canvas -->
+    <canvas id="game" width="1020" height="680"></canvas>
+
+    <!-- Title Screen -->
+    <div id="titleScreen">
+      <h1>🏜️ TSJAAD TD</h1>
+      <div id="title-subtitle">⚔️ VECHT VOOR TSJAAD!!! ⚔️</div>
+
+      <div class="mode-grid">
+        <button class="mode-btn" id="btn-standard" onclick="startGame('standard')">🦟 STANDAARD MODUS</button>
+        <button class="mode-btn" id="btn-plaag"    onclick="startGame('plaag')">🌋 PLAAG MODUS 🦠</button>
+        <button class="mode-btn" id="btn-hard"     onclick="startGame('hard')">💀 HARD MODUS ⚡</button>
+        <button class="mode-btn" id="btn-speed"    onclick="startGame('speed')">⚡ DUBBEL SNELHEID 🏎️</button>
+        <button class="mode-btn" id="btn-armoede"  onclick="startGame('armoede')">Slechte oogst🌾</button>
+        <button class="mode-btn" id="btn-mutatie"  onclick="startGame('mutatie')">🧬 MUTATIE MODUS 🧬</button>
+        <button class="mode-btn" id="btn-dubbelhealth" onclick="startGame('dubbelhealth')">💙 DUBBEL HEALTH 💙</button>
+        <button class="mode-btn" id="btn-tsjaad"   onclick="startGame('tsjaadmodus')">🔥 TSJAAD MODUS 🔥</button>
+        <button class="mode-btn boss-btn" id="btn-boss" onclick="startGame('boss')">👹 BOSS BATTLE 👹</button>
+        <button class="mode-btn danger" id="btn-tsjaadplus" onclick="startGame('tsjaadplus')">💀☠️ TSJAAD MODUS PLUS ☠️💀</button>
+      </div>
+    </div>
+
+    <!-- Round Message -->
+    <div id="roundMsg"></div>
+
+    <!-- Timer Display -->
+    <div id="timerDisplay"></div>
+
+    <!-- Sell Flash -->
+    <div id="sellFlash">💰 VERKOCHT!</div>
+
+    <!-- UI Side Panel -->
+    <div id="ui" style="display:none; flex-direction:column;">
+      <div id="gameTitle">🛡️ Tsjaad TD</div>
+
+      <div class="stat-bar">
+        <span id="ui-money-label">💰 Geld: <strong><span id="money">500</span></strong></span>
+      </div>
+      <div class="stat-bar">
+        <span id="ui-lives-label">❤️ Levens: <strong><span id="lives">20</span></strong></span>
+      </div>
+      <div class="stat-bar">
+        <span id="ui-round-label">🌊 Ronde: <strong><span id="round">1</span><span id="roundMax">/30</span></strong></span>
+      </div>
+
+      <div class="tower-section-title">TORENS</div>
+
+      <button class="tower-btn" id="speerBtn"        onclick="selectTower('speer')">        <span id="tower-speer">⚔️ Speer Werper (€80)</span></button>
+      <button class="tower-btn" id="boogBtn"         onclick="selectTower('boog')">          <span id="tower-boog">🏹 Boog Schutter (€125)</span></button>
+      <button class="tower-btn" id="fakkelBtn"       onclick="selectTower('fakkel')">       <span id="tower-fakkel">🔥 Fakkel Drager (€150)</span></button>
+      <button class="tower-btn" id="plaagdokterBtn"  onclick="selectTower('plaagdokter')">  <span id="tower-plaag">💉 Plaag Dokter (€300)</span></button>
+      <button class="tower-btn" id="aapBtn"          onclick="selectTower('aap')">          <span id="tower-aap">🐵 Wilde Aap (€400)</span></button>
+      <button class="tower-btn" id="geweerBtn"       onclick="selectTower('geweer')">       <span id="tower-geweer">🔫 Soldaat (€550)</span></button>
+      <button class="tower-btn" id="atoomBtn"        onclick="selectTower('atoom')">        <span id="tower-atoom">💣 Atoombommenwerper (€600)</span></button>
+      <button class="tower-btn" id="katoenBtn"       onclick="selectTower('katoen')">       <span id="tower-katoen">🌾 Katoen Plantage (€950)</span></button>
+      <button class="tower-btn" id="tsjaadBtn"       onclick="selectTower('tsjaadinator')"> <span id="tower-tsjaad">⚡ Tsjaadinator (€2500)</span></button>
+      <button class="tower-btn" id="sniperBtn"       onclick="selectTower('sniper')">       <span id="tower-sniper">🎯 Sniper (€5000)</span></button>
+
+      <button id="startRoundBtn" onclick="startRound()">▶️ Start Ronde</button>
+      <div id="autoRoundMsg"></div>
+
+      <div id="utilBtns">
+        <button class="util-btn" id="timerToggleBtn" onclick="toggleTimer()">⏱ TIMER</button>
+        <button class="util-btn" id="antiLagBtn"     onclick="toggleAntiLag()">🚀 ANTI-LAG</button>
+      </div>
+
+      <div id="ui-upgrade-hint">💡 Hover toren = info & upgrade | Backspace = verkopen</div>
+    </div>
+
+    <!-- Tower Tooltip -->
+    <div id="towerTooltip">
+      <div id="tt-name"></div>
+      <div id="tt-level"></div>
+      <div id="tt-stats-section"></div>
+      <div id="tt-sell"></div>
+    </div>
+
+    <!-- Victory Screen -->
+    <div id="victoryScreen">
+      <div class="end-title" id="vs-title">🏆 OVERWINNING! 🏆</div>
+      <div class="end-line" id="vs-line1">JE HEBT DE MALARIA MUG VERSLAGEN!</div>
+      <div class="end-line" id="vs-line2">JE HEBT DE PLAAG IN TSJAAD OVERLEEFD!</div>
+      <div class="end-line" id="vs-line3">JE BENT TSJAADTASTISCH!!!</div>
+      <div class="end-stats">
+        <span id="vs-rounds-label">⚔️ Rondes Overleefd:</span> <strong id="finalRound">—</strong><br>
+        <span id="vs-money-label">💰 Totaal Verdiend:</span> <strong id="finalMoney">—</strong><br>
+        <span id="vs-time-label">⏱️ Speedrun Tijd:</span> <strong id="finalTime">—</strong>
+      </div>
+      <button class="end-btn" id="vs-restart" onclick="location.reload()">🔄 Opnieuw Spelen</button>
+    </div>
+
+    <!-- Death Screen -->
+    <div id="deathScreen">
+      <div class="end-title" id="ds-title">💀 GAME OVER LOSER 💀</div>
+      <div class="end-line" id="deathMessage"></div>
+      <div class="end-stats" id="deathStats"></div>
+      <div id="leaderboard">
+        <div id="lb-title">🏆 LEADERBOARD 🏆</div>
+        <div id="leaderboardList"></div>
+      </div>
+      <button class="end-btn" id="ds-restart" onclick="location.reload()">🔄 Opnieuw Proberen</button>
+    </div>
+
+  </div><!-- end gameContainer -->
+</div><!-- end gameWrapper -->
+
+<!-- Settings Button (outside gameContainer so it stays fixed) -->
+<button id="settingsBtn" onclick="openSettings()">⚙️</button>
+
+<!-- Settings Overlay -->
+<div id="settingsOverlay" onclick="handleOverlayClick(event)">
+  <div id="settingsPanel">
+    <div id="stg-title">⚙️ INSTELLINGEN</div>
+    <div id="stg-lang-label">🌍 TAAL / LANGUAGE / SPRACHE</div>
+    <div class="lang-btns" style="margin-top:8px;">
+      <button class="lang-btn active" id="lang-nl" onclick="setLang('nl')">🇳🇱 NL</button>
+      <button class="lang-btn"        id="lang-en" onclick="setLang('en')">🇬🇧 EN</button>
+      <button class="lang-btn"        id="lang-de" onclick="setLang('de')">🇩🇪 DE</button>
+    </div>
+    <button id="closeSettingsBtn" onclick="closeSettings()">✕ Sluiten</button>
+  </div>
+</div>
+
+<!-- ===== SCRIPTS — ORDER MATTERS ===== -->
+<script src="maps.js"></script>
+<script src="game.js"></script>
+<script src="ui.js"></script>
+
+<script>
+  // ===== RESPONSIVE SCALING =====
+  function scaleGame() {
+    const container = document.getElementById('gameContainer');
+    const W = 1220, H = 680;
+    const scaleX = window.innerWidth  / W;
+    const scaleY = window.innerHeight / H;
+    const scale  = Math.min(scaleX, scaleY);
+    const offsetX = Math.max(0, (window.innerWidth  - W * scale) / 2);
+    const offsetY = Math.max(0, (window.innerHeight - H * scale) / 2);
+    container.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+  }
+  window.addEventListener('resize', scaleGame);
+  scaleGame();
+
+  // ===== CANVAS SIZE — match the game area (1020px wide, sidebar is 200px) =====
+  // The canvas should cover the full 1220×680 area so paths & towers align
+  const canvas = document.getElementById('game');
+  canvas.width  = 1020;
+  canvas.height = 680;
+
+  // ===== TOWER BUTTON ACTIVE STATE =====
+  const towerBtnMap = {
+    speer:'speerBtn', boog:'boogBtn', fakkel:'fakkelBtn', plaagdokter:'plaagdokterBtn',
+    aap:'aapBtn', geweer:'geweerBtn', atoom:'atoomBtn', katoen:'katoenBtn',
+    tsjaadinator:'tsjaadBtn', sniper:'sniperBtn'
+  };
+  const _origSelectTower = selectTower;
+  selectTower = function(key) {
+    _origSelectTower(key);
+    Object.values(towerBtnMap).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    });
+    if (towerBtnMap[key]) {
+      const el = document.getElementById(towerBtnMap[key]);
+      if (el) el.classList.add('active');
+    }
+  };
+
+  // Deselect tower on right-click
+  document.getElementById('game').addEventListener('contextmenu', e => {
+    e.preventDefault();
+    selectedTower = null;
+    Object.values(towerBtnMap).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    });
+  });
+</script>
+
+</body>
+</html>
