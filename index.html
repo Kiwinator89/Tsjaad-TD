@@ -513,7 +513,7 @@ const towerTypes={
   boog:{range:130,rate:55,dmg:7,speed:2,cost:125,ultCost:1500},
   plaagdokter:{range:140,rate:40,dmg:8,speed:3.5,cost:300,ultCost:2000,slow:true},
   geweer:{range:240,rate:12,dmg:3.8,speed:7,cost:550,ultCost:5000},
-  sniper:{range:550,rate:300,dmg:300,speed:10,cost:5000,ultCost:28000},
+  sniper:{range:550,rate:300,dmg:300,speed:10,cost:3000,ultCost:28000},
   tsjaadinator:{range:180,rate:4,dmg:4.8,speed:8,cost:2500,ultCost:15000,secretCost:500000},
   atoom:{range:180,rate:100,dmg:15,speed:3,cost:600,bomb:true,ultCost:4500},
   katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
@@ -563,7 +563,6 @@ const animalTypes=[
 const bossType = {name:'Malaria Mug',hp:50000,speed:0.7,size:80,reward:1000,boss:true,type:'mug'};
 const mutatedBossType = {name:'Gemuteerde Malaria Mug',hp:5000000,speed:0.75,size:95,reward:2500,boss:true,type:'mutatedmug'};
 const slowBossType = {name:'Malaria Mug',hp:6500000,speed:0.15,size:120,reward:1000,boss:true,type:'mug'};
-const hydraHydraBossType = {name:'Hydra Malaria Mug',hp:100000,speed:0.8,size:100,reward:2000,boss:true,type:'hydramug'};
 const zwangereMugBossType = {name:'Zwangere Malaria Mug',hp:200000,speed:0.6,size:110,reward:3000,boss:true,type:'zwangeremug'};
 
 function selectTower(t2){ if(gameMode==='armoede'&&t2==='katoen') return; selectedTower=t2; }
