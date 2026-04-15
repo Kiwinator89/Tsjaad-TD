@@ -1138,9 +1138,9 @@ function update(){
     else e.birdWindBoosted = false;
 
     // Zwangere Mug: spawn a random enemy every 1000 damage taken
-    if(e.type==='zwangeremug' && e.hp < e.lastSpawnHp - 1000){
-      const spawnsNeeded = Math.floor((e.lastSpawnHp - e.hp) / 1000);
-      e.lastSpawnHp -= spawnsNeeded * 1000;
+    if(e.type==='zwangeremug' && e.hp < e.lastSpawnHp - 30000){
+      const spawnsNeeded = Math.floor((e.lastSpawnHp - e.hp) / 30000);
+      e.lastSpawnHp -= spawnsNeeded * 30000;
       const availableAnimals = animalTypes.filter(a => !a.minRound || round >= a.minRound);
       for(let s=0; s<spawnsNeeded; s++){
         const base = availableAnimals[Math.floor(Math.random()*availableAnimals.length)];
