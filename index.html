@@ -563,7 +563,7 @@ const animalTypes=[
 const bossType = {name:'Malaria Mug',hp:50000,speed:0.7,size:80,reward:1000,boss:true,type:'mug'};
 const mutatedBossType = {name:'Gemuteerde Malaria Mug',hp:5000000,speed:0.75,size:95,reward:2500,boss:true,type:'mutatedmug'};
 const slowBossType = {name:'Malaria Mug',hp:6500000,speed:0.15,size:120,reward:1000,boss:true,type:'mug'};
-const zwangereMugBossType = {name:'Zwangere Malaria Mug',hp:200000,speed:0.6,size:110,reward:3000,boss:true,type:'zwangeremug'};
+const zwangereMugBossType = {name:'ULTRA Malaria Mug',hp:300000,speed:0.6,size:110,reward:3000,boss:true,type:'zwangeremug'};
 
 function selectTower(t2){ if(gameMode==='armoede'&&t2==='katoen') return; selectedTower=t2; }
 
@@ -1138,9 +1138,9 @@ function update(){
     else e.birdWindBoosted = false;
 
     // Zwangere Mug: spawn a random enemy every 1000 damage taken
-    if(e.type==='zwangeremug' && e.hp < e.lastSpawnHp - 30000){
-      const spawnsNeeded = Math.floor((e.lastSpawnHp - e.hp) / 30000);
-      e.lastSpawnHp -= spawnsNeeded * 30000;
+    if(e.type==='zwangeremug' && e.hp < e.lastSpawnHp - 30000000000000000000){
+      const spawnsNeeded = Math.floor((e.lastSpawnHp - e.hp) / 30000000000000000);
+      e.lastSpawnHp -= spawnsNeeded * 3000000000000000000000000;
       const availableAnimals = animalTypes.filter(a => !a.minRound || round >= a.minRound);
       for(let s=0; s<spawnsNeeded; s++){
         const base = availableAnimals[Math.floor(Math.random()*availableAnimals.length)];
