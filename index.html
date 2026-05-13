@@ -625,13 +625,12 @@ function getTowerTotalInvestedCost(tw){
 function applyParagonStats(tw){
   const cfg = towerTypes[tw.key];
   const pl = tw.paragonLevel || 0;
-  const dmgMult = 8 + pl * 0.08;
-  const rateMult = 0.12 + Math.max(0, 1 - pl * 0.002) * 0.03;
+  const dmgMult = 2.5 + pl * 0.01;
+  const rateMult = 0.5;
   tw.dmg *= dmgMult;
-  tw.rate = Math.max(2, Math.floor(tw.rate * rateMult));
-  if(tw.key==='katoen') tw.rate = 9999;
-  if(tw.key==='aap') tw.rate = Math.max(15, tw.rate);
-  tw.speed = Math.min(20, (cfg.speed||5) * 2);
+  tw.rate = Math.max(6, Math.floor(tw.rate * rateMult));
+  if(tw.key==='katoen'||tw.key==='aap') tw.rate = Math.max(15, tw.rate);
+  tw.speed = Math.min(12, (cfg.speed||5) * 1.2);
 }
 
 function getNextLevelStats(tw){
@@ -701,10 +700,11 @@ function updateTooltip(tw, cx, cy){
   let html = '';
 
   if(tw.farm){
-    const curIncome = 80 + tw.level*40 + (tw.ultimate?500:0) + (tw.paragon?2000+tw.paragonLevel*50:0);
+    const curIncome = 80 + tw.level*40 + (tw.ultimate?500:0) + (tw.paragon?300+tw.paragonLevel*10:0);
+    const curLabel = tw.paragon ? `€${curIncome}/ronde (€${Math.floor(curIncome/5)}×5)` : `€${curIncome}`;
     const nextIncome = next ? (80 + (tw.level+1)*40 + (isUltNext?500:0)) : null;
     html += `<div class="tt-stats-title">📊 Huidige Stats</div>`;
-    html += statRow('💰 Inkomen/ronde', `€${curIncome}`, nextIncome?`€${nextIncome}`:null);
+    html += statRow('💰 Inkomen/ronde', curLabel, nextIncome?`€${nextIncome}`:null);
     html += statRow('📏 Range', fmtRange(effRange), next?fmtRange(next.range):null);
   } else if(tw.monkey){
     html += `<div class="tt-stats-title">📊 Huidige Stats</div>`;
@@ -726,7 +726,7 @@ function updateTooltip(tw, cx, cy){
       html += statRow('🩸 Debuff dmg', curBonus, nextBonus);
     }
     if(tw.key==='atoom'){
-      const cooldownSecs = tw.ultimate ? 10 : 25;
+      const cooldownSecs = tw.paragon ? 3 : (tw.ultimate ? 10 : 25);
       const nextCooldownSecs = next ? (isUltNext ? 10 : 25) : null;
       html += statRow('💥 Nuke cooldown', cooldownSecs+'s', nextCooldownSecs?nextCooldownSecs+'s':null);
       const nukeDmg = getAtoomNukeDamage(tw);
@@ -762,28 +762,54 @@ function updateTooltip(tw, cx, cy){
   html += `<hr class="tt-divider">`;
   if(tw.secret){
     html += `<div class="tt-upgrade-header max">✅ GOD MODE ACTIEF</div>`;
-  } else if(tw.paragon){
+  } else   if(tw.paragon){
     html += `<div class="tt-upgrade-header max">✅ PARAGON LEVEL ${tw.paragonLevel}/100</div>`;
-    html += `<div style="font-size:9px;color:#ff00ff;margin-top:2px;">⭐ ${tw.paragonLevel*8}% extra kracht!</div>`;
+    html += `<div style="font-size:9px;color:#ff00ff;margin-top:2px;">⭐ +${(tw.paragonLevel*1).toFixed(0)}% extra schade</div>`;
+    const specTexts={
+      speer:'🔄 Schiet in alle richtingen tegelijk',
+      boog:'☠️ Gif schade 50/s · 5s',
+      fakkel:'🔥 Zet vijanden in de fik (500/s)',
+      plaagdokter:'💚 +1 leven elke 5 rondes',
+      aap:'🐵 +35% aanvalssnelheid voor torens in radius',
+      geweer:'🔫 Laser doorboort metalen vijanden',
+      atoom:'☢️ Straling verspreid bij elke hit',
+      katoen:'🌾 5 uitbetalingen/ronde · -30% ult kosten aura',
+      sniper:'💥 Explosieve kogels verdoven 1s',
+    };
+    if(specTexts[tw.key]) html += `<div style="font-size:9px;color:#88ddff;margin-top:2px;">${specTexts[tw.key]}</div>`;
   } else if(tw.ultimate && tw.key!=='tsjaadinator'){
     const cost = cfg.paragonCost;
     const canAfford = money >= cost;
+    const specTexts2={
+      speer:'🔄 Schiet 360°',
+      boog:'☠️ Super gif',
+      fakkel:'🔥 Mega brand',
+      plaagdokter:'💚 Extra levens',
+      aap:'🐵 +35% speed boost',
+      geweer:'🔫 Laser kanon',
+      atoom:'☢️ Straling',
+      katoen:'🌾 5× uitbetaling/ronde, ult korting aura',
+      sniper:'💥 Explosieve verdoving',
+    };
     html += `<div class="tt-upgrade-header ult" style="color:${canAfford&&!paragonActive?'#ff00ff':'#f44'}">⭐ PARAGON — €${cost}${paragonActive?' ⚠️':''}</div>`;
     if(paragonActive) html += `<div style="font-size:9px;color:#ff6b35;margin-top:2px;">⚠️ Verkoop andere Paragon eerst!</div>`;
     html += `<div style="font-size:9px;color:#aaa;margin-top:2px;">Verteert torens van zelfde type voor bonus!</div>`;
+    if(specTexts2[tw.key]) html += `<div style="font-size:9px;color:#88ddff;margin-top:2px;">✨ ${specTexts2[tw.key]}</div>`;
   } else if(tw.level < 3){
     const cost = getUpgradeCostForTower(tw);
     const canAfford = money >= cost;
     html += `<div class="tt-upgrade-header" style="color:${canAfford?'#4fc3f7':'#f44'}">⬆️ Upgrade Lvl ${tw.level+1} — €${cost}</div>`;
   } else if(!tw.ultimate){
-    const cost = cfg.ultCost;
-    const canAfford = money >= cost;
+    let cost = cfg.ultCost;
+    const hasKatoenPara=towers.some(t=>t.key==='katoen'&&t.paragon&&Math.hypot(t.x-tw.x,t.y-tw.y)<=getTowerRange(t));
+    const costStr=hasKatoenPara?`<span style="text-decoration:line-through;opacity:0.5">€${cost}</span> €${Math.floor(cost*0.7)}`:`€${cost}`;
+    const canAfford = money >= (hasKatoenPara?Math.floor(cost*0.7):cost);
     if(tw.key==='speer'){
-      html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — €${cost} | 📡 +30% range aura</div>`;
+      html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — ${costStr} | 📡 +30% range aura</div>`;
     } else if(tw.key==='sniper'){
-      html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — €${cost} | ❄️ Shot slow 50%</div>`;
+      html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — ${costStr} | ❄️ Shot slow 50%</div>`;
     } else {
-      html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — €${cost}</div>`;
+      html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — ${costStr}</div>`;
     }
   } else if(tw.key==='tsjaadinator'){
     const canAfford = money >= 500000;
@@ -937,7 +963,12 @@ function handleUpgrade(t2){
     return;
   }
 
-  const cost=towerTypes[t2.key].ultCost;
+  let cost=towerTypes[t2.key].ultCost;
+  const hasKatoenPara=towers.some(t=>t.key==='katoen'&&t.paragon&&Math.hypot(t.x-t2.x,t.y-t2.y)<=getTowerRange(t));
+  if(hasKatoenPara){
+    cost=Math.floor(cost*0.7);
+    showRoundMsg('🌾 Katoen Paragon korting! -30%');
+  }
   if(money<cost) return;
   money-=cost;
   t2.ultimate=true; t2.level=4;
@@ -960,8 +991,18 @@ function startRound(){
   if(spawning||gameWon) return;
   playSound('round', 0.7);
   document.getElementById('round').textContent=round;
+  for(const tw of towers){
+    if(tw.key==='plaagdokter'&&tw.paragon){
+      const cooldown=Math.max(1,5-Math.floor(tw.paragonLevel/20));
+      if(round>0&&round%cooldown===0){
+        lives++;
+        document.getElementById('lives').textContent=lives;
+        showRoundMsg('💚 PlaagDokter Paragon gaf +1 leven!');
+      }
+    }
+  }
   let farmCash=0;
-  for(const t2 of towers){ if(t2.farm){ const base=80+t2.level*40+(t2.ultimate?500:0)+(t2.paragon?2000+t2.paragonLevel*50:0); money+=base; farmCash+=base; } }
+  for(const t2 of towers){ if(t2.farm&&!t2.paragon){ const base=80+t2.level*40+(t2.ultimate?500:0); money+=base; farmCash+=base; } }
   showRoundMsg(farmCash>0? t('round-farms')+farmCash : t('round-label')+round);
   const maxRound=getMaxRound();
   if(round===maxRound){ if(gameMode==='mutatie'){ spawnLeft=3; } else { spawnLeft=1; } spawning=true; return; }
@@ -1256,6 +1297,17 @@ function update(){
   for(const tw of towers){
     if(tw.upText>0) tw.upText--;
 
+    if(tw.farm&&tw.paragon){
+      tw.farmTimer=(tw.farmTimer||0)+1;
+      const farmPerTick=Math.floor((80+tw.level*40+500+300+tw.paragonLevel*10)/5);
+      if(tw.farmTimer>=300){
+        tw.farmTimer=0;
+        money+=farmPerTick;
+        totalMoneyEarned+=farmPerTick;
+        document.getElementById('money').textContent=money;
+      }
+    }
+
     if(tw.key==='atoom'){
       tw.nukeTimer=(tw.nukeTimer||0)+1;
       const cooldown=getAtoomNukeCooldown(tw);
@@ -1264,7 +1316,8 @@ function update(){
 
     if(tw.monkey&&tw.ultimate){
       tw.monkeyTimer++;
-      if(tw.monkeyTimer>=1500){
+      const monkeyInterval=tw.paragon?900:1500;
+      if(tw.monkeyTimer>=monkeyInterval){
         tw.monkeyTimer=0;
         for(const other of towers){ if(other===tw||other.boosted) continue; if(Math.hypot(other.x-tw.x,other.y-tw.y)<=getTowerRange(tw)){ other.boosted=true; other.boostEndTime=500; } }
         tw.boosted=true; tw.boostEndTime=300;
@@ -1317,7 +1370,8 @@ function update(){
     if(tw.farm) continue;
     const isNuclearSlowed=tw.nuclearSlowUntil&&Date.now()<tw.nuclearSlowUntil;
     if(isNuclearSlowed) continue;
-    const rateMultiplier=tw.boosted?0.7:1.0;
+    const hasAapPara=towers.some(t=>t.key==='aap'&&t.paragon);
+    const rateMultiplier=tw.boosted?(hasAapPara?0.65:0.7):1.0;
     tw.cool--;
     if(tw.cool>0) continue;
     const cfg=towerTypes[tw.key];
@@ -1333,46 +1387,57 @@ function update(){
     let verslomendeSlow=1.0;
     for(const e of enemies){ if((e.mutation==='verslomende'||e.mutation2==='verslomende'||e.mutation3==='verslomende')&&Math.hypot(e.x-tw.x,e.y-tw.y)<120){ verslomendeSlow=0.6; break; } }
 
-    const target=enemies.find(e=>{
+    const canTarget = e => {
       if(tw.key==='tsjaadinator'&&tw.secret){ if((e.mutation==='kogelvrije'||e.mutation2==='kogelvrije'||e.mutation3==='kogelvrije')) return false; return true; }
       if(Math.hypot(e.x-tw.x,e.y-tw.y)>=effectiveRange) return false;
-      if(e.isRoboLeeuw && (tw.key==='geweer'||tw.key==='sniper')) return false;
-      if(e.isKrokodil && (tw.key==='geweer'||tw.key==='sniper')) return false;
-      if((e.mutation==='metalen'||e.mutation2==='metalen'||e.mutation3==='metalen')&&tw.key!=='atoom') return false;
+      if(!tw.paragon&&e.isRoboLeeuw&&(tw.key==='geweer'||tw.key==='sniper')) return false;
+      if(!tw.paragon&&e.isKrokodil&&(tw.key==='geweer'||tw.key==='sniper')) return false;
+      if(!tw.paragon&&(e.mutation==='metalen'||e.mutation2==='metalen'||e.mutation3==='metalen')&&tw.key!=='atoom') return false;
       if((e.mutation==='kogelvrije'||e.mutation2==='kogelvrije'||e.mutation3==='kogelvrije')&&(tw.key==='geweer'||tw.key==='sniper')) return false;
       if(e.mutation==='onzichtbare'||e.mutation2==='onzichtbare'||e.mutation3==='onzichtbare'){ let inRange=false; for(const otw of towers){ if(Math.hypot(e.x-otw.x,e.y-otw.y)<getTowerRange(otw)){ inRange=true; break; } } if(!inRange) return false; }
       return true;
-    });
-    if(!target) continue;
+    };
 
-    let finalDmg=tw.dmg;
-    if(tw.key==='tsjaadinator'&&tw.secret){
-      finalDmg=tw.dmg*11.0;
-      if(tw.secretDmgBonus) finalDmg*=tw.secretDmgBonus;
+    let targets;
+    if(tw.paragon&&tw.key==='speer'){
+      targets=enemies.filter(canTarget);
+    } else {
+      const t=enemies.find(canTarget);
+      targets=t?[t]:[];
     }
-    if(tw.key==='plaagdokter' && target.plaagDebuffed){ finalDmg *= (tw.plaagDmgBonus||1.05); }
-    if(tw.key==='atoom' && target.burning && target.burnDuration>0){ finalDmg *= (tw.fireBonusMultiplier||1.20); }
+    if(targets.length===0) continue;
 
-    // Sniper crit: 10% base + 5% per upgrade level
-    let isCrit = false;
-    if(tw.key==='sniper'){
-      const critChance = 0.10 + tw.level * 0.05;
-      if(Math.random() < critChance){ isCrit = true; finalDmg *= 2; }
+    for(const target of targets){
+      let finalDmg=tw.dmg;
+      if(tw.key==='tsjaadinator'&&tw.secret){
+        finalDmg=tw.dmg*11.0;
+        if(tw.secretDmgBonus) finalDmg*=tw.secretDmgBonus;
+      }
+      if(tw.key==='plaagdokter' && target.plaagDebuffed){ finalDmg *= (tw.plaagDmgBonus||1.05); }
+      if(tw.key==='atoom' && target.burning && target.burnDuration>0){ finalDmg *= (tw.fireBonusMultiplier||1.20); }
+
+      let isCrit = false;
+      if(tw.key==='sniper'){
+        const critChance = 0.10 + tw.level * 0.05;
+        if(Math.random() < critChance){ isCrit = true; finalDmg *= 2; }
+      }
+
+      let pSpeed = tw.secret&&tw.key==='tsjaadinator'?20:(tw.paragon?cfg.speed*3:cfg.speed);
+      projectiles.push({
+        x:tw.x,y:tw.y,tx:target.x,ty:target.y,target,
+        speed:pSpeed,
+        dmg:finalDmg,bomb:cfg.bomb||(tw.paragon&&tw.key==='sniper'),gold:tw.ultimate||tw.paragon,secret:tw.secret||false,towerKey:tw.key,tower:tw,
+        fire:tw.fire,
+        fireBurnDmg: tw.fire ? getFakkelBurnDmg(tw.level, tw.ultimate, tw.paragon) : 0,
+        poisonArrow: (tw.key==='boog' && tw.poisonArrows)||(tw.paragon&&tw.key==='boog'),
+        sniperSlowOnHit: tw.key==='sniper' && tw.sniperSlowOnHit,
+        speerUltAura: tw.key==='speer' && tw.ultimate,
+        speerTower: tw.key==='speer' ? tw : null,
+        isCrit,
+        paragon: tw.paragon||false,
+        radiationRadius: tw.paragon&&tw.key==='atoom'?60:0,
+      });
     }
-
-    projectiles.push({
-      x:tw.x,y:tw.y,tx:target.x,ty:target.y,target,
-      speed:tw.secret&&tw.key==='tsjaadinator'?20:(tw.paragon?cfg.speed*3:cfg.speed),
-      dmg:finalDmg,bomb:cfg.bomb,gold:tw.ultimate||tw.paragon,secret:tw.secret||false,towerKey:tw.key,tower:tw,
-      fire:tw.fire,
-      fireBurnDmg: tw.fire ? getFakkelBurnDmg(tw.level, tw.ultimate, tw.paragon) : 0,
-      poisonArrow: tw.key==='boog' && tw.poisonArrows,
-      sniperSlowOnHit: tw.key==='sniper' && tw.sniperSlowOnHit,
-      speerUltAura: tw.key==='speer' && tw.ultimate,
-      speerTower: tw.key==='speer' ? tw : null,
-      isCrit,
-      paragon: tw.paragon||false,
-    });
     if(!antiLagMode){
       if(tw.key==='sniper') playSound('sniper', 0.5);
     }
@@ -1392,8 +1457,10 @@ function update(){
         p.target.plaagDebuffed = true;
       }
       if(p.poisonArrow){
-        p.target.poisoned=true; p.target.poisonTimer=180; p.target.poisonDmgPerSec=10;
-        if(!p.target.poisonSlowApplied){ p.target.speed*=0.90; p.target.baseSpeed*=0.90; p.target.poisonSlowApplied=true; }
+        const poisonDmg=p.paragon?50:10;
+        const poisonDur=p.paragon?300:180;
+        p.target.poisoned=true; p.target.poisonTimer=poisonDur; p.target.poisonDmgPerSec=poisonDmg;
+        if(!p.target.poisonSlowApplied){ const slow=0.90; p.target.speed*=slow; p.target.baseSpeed*=slow; p.target.poisonSlowApplied=true; }
       }
       if(p.fire){
         p.target.burning=true; p.target.burnDuration=480; p.target.burnTickTimer=0;
@@ -1410,6 +1477,21 @@ function update(){
           p.target.sniperSlowed = true;
         }
         p.target.sniperSlowEndTime = 18;
+        if(p.paragon){
+          explosions.push({x:p.target.x,y:p.target.y,r:20,t:30,gold:true});
+          for(const e2 of enemies){
+            if(e2!==p.target&&Math.hypot(e2.x-p.target.x,e2.y-p.target.y)<60){
+              if(!e2.sniperSlowed){
+                e2.sniperSlowedPrevSpeed=e2.speed;
+                e2.sniperSlowedPrevBaseSpeed=e2.baseSpeed;
+                e2.speed=0;
+                e2.baseSpeed=0;
+                e2.sniperSlowed=true;
+              }
+              e2.sniperSlowEndTime=Math.max(e2.sniperSlowEndTime||0,60);
+            }
+          }
+        }
       }
 
       if(p.speerUltAura && p.speerTower){
@@ -1423,7 +1505,18 @@ function update(){
         }
       }
 
-      if(p.bomb) explosions.push({x:p.target.x,y:p.target.y,r:12,t:22,gold:p.gold});
+      if(p.bomb){
+        explosions.push({x:p.target.x,y:p.target.y,r:12,t:22,gold:p.gold});
+      }
+      if(p.radiationRadius>0){
+        for(const e2 of enemies){
+          if(e2!==p.target&&Math.hypot(e2.x-p.target.x,e2.y-p.target.y)<p.radiationRadius){
+            e2.hp-=p.dmg*0.3;
+            if(!e2.burning){ e2.burning=true; e2.burnDuration=120; e2.burnTickTimer=0; e2.burnDamagePerSec=Math.max(e2.burnDamagePerSec||0,30); }
+          }
+        }
+        visualEffects.push({type:'radiation',x:p.target.x,y:p.target.y,r:5,maxR:p.radiationRadius,t:30,maxT:30});
+      }
       if(p.secret&&p.towerKey==='tsjaadinator'){
         explosions.push({x:p.target.x,y:p.target.y,r:5,t:20,gold:true,subtle:true});
         for(const e2 of enemies){ if(e2!==p.target&&Math.hypot(e2.x-p.target.x,e2.y-p.target.y)<80){ e2.hp-=p.dmg*0.5; } }
@@ -2342,7 +2435,19 @@ function drawProjectiles(){
       if(p.secret){ ctx.fillStyle='rgba(255,215,0,0.85)'; ctx.strokeStyle='rgba(255,102,0,0.7)'; ctx.lineWidth=2; ctx.shadowBlur=8; ctx.shadowColor='rgba(255,215,0,0.5)'; ctx.beginPath(); ctx.moveTo(14,0); ctx.lineTo(6,-4); ctx.lineTo(-8,-3); ctx.lineTo(-10,0); ctx.lineTo(-8,3); ctx.lineTo(6,4); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.shadowBlur=0; }
       else { ctx.strokeStyle=p.gold?'#ffd700':'#00bcd4'; ctx.fillStyle=p.gold?'#ffd700':'#00e5ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-9,0); ctx.lineTo(7,0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(7,0); ctx.lineTo(12,-3); ctx.lineTo(12,3); ctx.closePath(); ctx.fill(); }
     }
-    else if(p.towerKey==='geweer'){ ctx.fillStyle=p.gold?'#ffd700':'#ffeb3b'; ctx.beginPath(); ctx.ellipse(0,0,3.5,1.5,0,0,Math.PI*2); ctx.fill(); }
+    else if(p.towerKey==='geweer'){
+      if(p.paragon){
+        ctx.shadowBlur=15; ctx.shadowColor='#ff0000';
+        ctx.strokeStyle='rgba(255,50,50,0.9)'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.moveTo(-12,0); ctx.lineTo(12,0); ctx.stroke();
+        ctx.strokeStyle='rgba(255,200,100,0.6)'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(-10,0); ctx.lineTo(10,0); ctx.stroke();
+        ctx.fillStyle='#ff4400'; ctx.beginPath(); ctx.arc(12,0,3,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+      } else {
+        ctx.fillStyle=p.gold?'#ffd700':'#ffeb3b'; ctx.beginPath(); ctx.ellipse(0,0,3.5,1.5,0,0,Math.PI*2); ctx.fill();
+      }
+    }
     else { ctx.fillStyle=p.gold?'#ffd700':'black'; ctx.beginPath(); ctx.arc(0,0,2.5,0,Math.PI*2); ctx.fill(); }
     ctx.restore();
   }
@@ -2364,6 +2469,22 @@ function drawExplosions(){
     }
     ctx.beginPath(); ctx.arc(ex.x,ex.y,ex.r,0,Math.PI*2); ctx.fill();
     ctx.globalAlpha=1;
+  }
+}
+
+function drawRadiationEffects(){
+  for(const vf of visualEffects){
+    if(vf.type==='radiation'){
+      const t=Date.now()*0.005;
+      ctx.globalAlpha=vf.t/vf.maxT*0.4;
+      const grad=ctx.createRadialGradient(vf.x,vf.y,0,vf.x,vf.y,vf.r);
+      grad.addColorStop(0,'rgba(0,255,0,0.6)'); grad.addColorStop(0.5,'rgba(100,255,0,0.3)'); grad.addColorStop(1,'rgba(0,255,0,0)');
+      ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(vf.x,vf.y,vf.r,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='rgba(0,255,0,0.4)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.arc(vf.x+Math.sin(t)*3,vf.y+Math.cos(t*1.3)*3,vf.r*0.7,0,Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha=1;
+    }
   }
 }
 
@@ -2411,6 +2532,7 @@ function draw(){
   drawProjectiles();
   drawExplosions();
   drawNuclearExplosions();
+  drawRadiationEffects();
   drawNukeStrikes();
   drawCritTexts();
 }
