@@ -429,6 +429,7 @@ let paragonActive = false;
 let paragonTower = null;
 let pendingParagonTower = null;
 let sacrificeEffects = [];
+let monkeyRageTimer = 0;
 
 // ===== MUTATIONS =====
 const MUTATIONS = ['ondode','snelle','hydra','random','dodelijke','radioactieve','metalen','kogelvrije','beschermde','terugkerende','arme','Nutteloze','verslomende','accelererende','genezende','elite','onstabiele','zwakke'];
@@ -548,8 +549,8 @@ const towerTypes={
   tsjaadinator:{range:180,rate:4,dmg:4.8,speed:8,cost:2500,ultCost:15000,secretCost:500000},
   atoom:{range:180,rate:100,dmg:15,speed:3,cost:600,bomb:true,ultCost:4500},
   katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
-  aap:{range:120,rate:70,dmg:1.4,speed:0,cost:400,ultCost:2500},
-  fakkel:{range:95,rate:45,dmg:3,speed:3,cost:150,ultCost:4000}
+  aap:{range:120,rate:70,dmg:1.4,speed:0,cost:400,ultCost:2500,monkey:true},
+  fakkel:{range:95,rate:45,dmg:3,speed:3,cost:150,ultCost:4000,fire:true}
 };
 
 function getTowerRange(tw) {
@@ -672,6 +673,7 @@ function applyParagonStats(tw){
   tw.dmg *= dmgMult;
   tw.rate = Math.max(6, Math.floor(tw.rate * rateMult));
   if(tw.key==='katoen'||tw.key==='aap') tw.rate = Math.max(15, tw.rate);
+  if(tw.key==='sniper') tw.rate = 300;
   tw.speed = Math.min(12, (cfg.speed||5) * 1.2);
   tw.paragonSpiritLevel = spiritLvl;
 }
@@ -752,7 +754,11 @@ function updateTooltip(tw, cx, cy){
   } else if(tw.monkey){
     html += `<div class="tt-stats-title">📊 Huidige Stats</div>`;
     html += statRow('🍌 Dmg/banaan', fmtDmg(tw.dmg*3), next?fmtDmg(next.dmg*3):null);
+    html += statRow('🔁 Gooisnelheid', fmtRate(tw.rate), next?fmtRate(next.rate):null);
     html += statRow('📏 Gebiedsradius', fmtRange(effRange), next?fmtRange(next.range):null);
+    html += statRow('💥 Totale schade', Math.floor(tw.totalDamage||0)+'', null);
+    html += `<div class="tt-passive">🐵 Kan geen metalen vijanden raken</div>`;
+    html += `<div class="tt-passive">💢 Bij levensverlies: dubbele aanvalsnelheid 10s + bananen blijven</div>`;
   } else {
     html += `<div class="tt-stats-title">📊 Huidige Stats</div>`;
     html += statRow('⚔️ Schade', fmtDmg(tw.dmg), next?fmtDmg(next.dmg):null);
@@ -825,7 +831,7 @@ function updateTooltip(tw, cx, cy){
       geweer:'🔫 Laser doorboort metalen vijanden',
       atoom:'☢️ Straling verspreid bij elke hit',
       katoen:'🌾 5 uitbetalingen/ronde · -30% ult kosten aura',
-      sniper:'💥 Explosieve kogels verdoven 1s',
+      sniper:'💥 Elke 5s: explosie verdooft alle vijanden in radius 2s',
     };
     if(specTexts[tw.key]) html += `<div style="font-size:9px;color:#88ddff;margin-top:2px;">${specTexts[tw.key]}</div>`;
   } else if(tw.ultimate && tw.key!=='tsjaadinator'){
@@ -840,7 +846,7 @@ function updateTooltip(tw, cx, cy){
       geweer:'🔫 Laser kanon',
       atoom:'☢️ Straling',
       katoen:'🌾 5× uitbetaling/ronde, ult korting aura',
-      sniper:'💥 Explosieve verdoving',
+      sniper:'💥 Explosie verdooft alle vijanden in radius',
     };
     const sameTypeCount = towers.filter(t => t !== tw && t.key === tw.key).length;
     html += `<div class="tt-upgrade-header ult" style="color:${canAfford&&!paragonActive?'#ff00ff':'#f44'}">⭐ PARAGON — €${cost}${paragonActive?' ⚠️':''}</div>`;
@@ -892,7 +898,11 @@ function updateTooltip(tw, cx, cy){
       const critPct = Math.round((0.10 + tw.level * 0.05) * 100);
       const nextCritPct = next ? Math.round((0.10 + (isUltNext ? tw.level : tw.level+1) * 0.05) * 100) : null;
       html += statRow('🎯 Crit kans', critPct+'%', nextCritPct && nextCritPct !== critPct ? nextCritPct+'%' : null);
-      html += `<div class="tt-passive">❄️ Raakshot: vertraagt doel 50% voor 0.3 seconde</div>`;
+      if(tw.paragon){
+        html += `<div class="tt-passive">💥 Elke 5s: explosie (80px) verdooft alle vijanden 2s</div>`;
+      } else {
+        html += `<div class="tt-passive">❄️ Raakshot: vertraagt doel 50% voor 0.3 seconde</div>`;
+      }
     }
   }
 
@@ -1497,9 +1507,10 @@ function update(){
   birdEggs = birdEggs.filter(e=>e.timer>0&&!e.destroyed);
 
   for(const banana of bananas){
-    banana.lifetime--;
+    if(monkeyRageTimer<=0) banana.lifetime--;
     for(const e of enemies){
       if(e.isBird) continue;
+      if(e.mutation==='metalen'||e.mutation2==='metalen'||e.mutation3==='metalen') continue;
       if(Math.hypot(e.x-banana.x,e.y-banana.y)<e.size+10){ e.hp-=banana.dmg; banana.dead=true; break; }
     }
   }
@@ -1528,7 +1539,7 @@ function update(){
     if(tw.monkey){
       let pathPoints=[];
       for(let i=0;i<path.length-1;i++){ const p1=path[i],p2=path[i+1]; for(let t3=0;t3<=1;t3+=0.05){ const px=p1.x+(p2.x-p1.x)*t3,py=p1.y+(p2.y-p1.y)*t3; if(Math.hypot(px-tw.x,py-tw.y)<effectiveRange) pathPoints.push({x:px,y:py}); } }
-      if(pathPoints.length>0){ const rp=pathPoints[Math.floor(Math.random()*pathPoints.length)]; bananas.push({x:rp.x+(Math.random()-0.5)*40,y:rp.y+(Math.random()-0.5)*40,dmg:tw.dmg*3,lifetime:1800,dead:false}); tw.cool=tw.rate*rateMultiplier; }
+      if(pathPoints.length>0){ const rp=pathPoints[Math.floor(Math.random()*pathPoints.length)]; bananas.push({x:rp.x+(Math.random()-0.5)*40,y:rp.y+(Math.random()-0.5)*40,dmg:tw.dmg*3,lifetime:1800,dead:false}); const rage=monkeyRageTimer>0?0.5:1; tw.cool=tw.rate*rateMultiplier*rage; }
       continue;
     }
 
@@ -1538,6 +1549,7 @@ function update(){
     const canTarget = e => {
       if(tw.key==='tsjaadinator'&&tw.secret){ if((e.mutation==='kogelvrije'||e.mutation2==='kogelvrije'||e.mutation3==='kogelvrije')) return false; return true; }
       if(Math.hypot(e.x-tw.x,e.y-tw.y)>=effectiveRange) return false;
+      if(tw.key==='aap'&&(e.mutation==='metalen'||e.mutation2==='metalen'||e.mutation3==='metalen')) return false;
       if(!tw.paragon&&e.isRoboLeeuw&&(tw.key==='geweer'||tw.key==='sniper')) return false;
       if(!tw.paragon&&e.isKrokodil&&(tw.key==='geweer'||tw.key==='sniper')) return false;
       if(!tw.paragon&&(e.mutation==='metalen'||e.mutation2==='metalen'||e.mutation3==='metalen')&&tw.key!=='atoom') return false;
@@ -1589,7 +1601,7 @@ function update(){
     if(!antiLagMode){
       if(tw.key==='sniper') playSound('sniper', 0.5);
     }
-    tw.cool=tw.rate*rateMultiplier*verslomendeSlow;
+    const rageMult=tw.key==='aap'&&monkeyRageTimer>0?0.5:1; tw.cool=tw.rate*rateMultiplier*verslomendeSlow*rageMult;
   }
 
   for(const p of projectiles){
@@ -1626,19 +1638,10 @@ function update(){
       }
 
       if(p.sniperSlowOnHit && p.target.hp > 0){
-        const slowFactor = 0.5;
-        if(!p.target.sniperSlowed){
-          p.target.sniperSlowedPrevSpeed = p.target.speed;
-          p.target.sniperSlowedPrevBaseSpeed = p.target.baseSpeed;
-          p.target.speed *= slowFactor;
-          p.target.baseSpeed *= slowFactor;
-          p.target.sniperSlowed = true;
-        }
-        p.target.sniperSlowEndTime = 18;
         if(p.paragon){
-          explosions.push({x:p.target.x,y:p.target.y,r:20,t:30,gold:true});
+          explosions.push({x:p.target.x,y:p.target.y,r:60,t:40,gold:true});
           for(const e2 of enemies){
-            if(e2!==p.target&&Math.hypot(e2.x-p.target.x,e2.y-p.target.y)<60){
+            if(Math.hypot(e2.x-p.target.x,e2.y-p.target.y)<80){
               if(!e2.sniperSlowed){
                 e2.sniperSlowedPrevSpeed=e2.speed;
                 e2.sniperSlowedPrevBaseSpeed=e2.baseSpeed;
@@ -1646,9 +1649,19 @@ function update(){
                 e2.baseSpeed=0;
                 e2.sniperSlowed=true;
               }
-              e2.sniperSlowEndTime=Math.max(e2.sniperSlowEndTime||0,60);
+              e2.sniperSlowEndTime=Math.max(e2.sniperSlowEndTime||0,120);
             }
           }
+        } else {
+          const slowFactor = 0.5;
+          if(!p.target.sniperSlowed){
+            p.target.sniperSlowedPrevSpeed = p.target.speed;
+            p.target.sniperSlowedPrevBaseSpeed = p.target.baseSpeed;
+            p.target.speed *= slowFactor;
+            p.target.baseSpeed *= slowFactor;
+            p.target.sniperSlowed = true;
+          }
+          p.target.sniperSlowEndTime = 18;
         }
       }
 
@@ -1727,6 +1740,7 @@ function update(){
     }
     if(e.i>=path.length-1){
       if(e.mutation==='dodelijke'||e.mutation2==='dodelijke'||e.mutation3==='dodelijke') lives-=5; else lives--;
+      if(towers.some(t=>t.key==='aap')){ monkeyRageTimer=600; if(!antiLagMode) playSound('monkey', 0.8); }
       if(e.mutation==='terugkerende'&&e.terugkerendeCount>0){ e.terugkerendeCount--; e.i=0; e.x=path[0].x; e.y=path[0].y; lives--; if(lives<=0){ loseGame(); return false; } return true; }
       if(lives<=0){ loseGame(); return false; }
       return false;
@@ -1753,6 +1767,7 @@ function update(){
     if(se.timer <= 0) sacrificeEffects.splice(si, 1);
   }
 
+  if(monkeyRageTimer>0) monkeyRageTimer--;
   for(const vf of visualEffects){ vf.t--; vf.r=vf.maxR*(1-(vf.t/vf.maxT)); }
   visualEffects=visualEffects.filter(v=>v.t>0);
   projectiles=projectiles.filter(p=>!p.dead);
