@@ -412,7 +412,7 @@ const tsjaadPlusPath = [
 let path = standardPath;
 let money=500, lives=20, round=1;
 let selectedTower=null;
-let enemies=[], towers=[], projectiles=[], explosions=[], bananas=[];
+let enemies=[], towers=[], projectiles=[], explosions=[], bananas=[], landmines=[];
 let spawning=false, spawnLeft=0, spawnTimer=0;
 let gameWon=false;
 let totalMoneyEarned = 0;
@@ -490,9 +490,9 @@ function stopMusic() {
 }
 function playSound(name, vol=0.7) {
   const s = sounds[name];
-  if(!s) return;
   try {
-    const c = new Audio(s.src);
+    const src = s ? s.src : BASE_AUDIO + name.charAt(0).toUpperCase() + name.slice(1) + '.mp3';
+    const c = new Audio(src);
     c.volume = vol;
     c.play().catch(()=>{});
   } catch(e){}
@@ -554,7 +554,7 @@ const towerTypes={
 };
 
 function getTowerRange(tw) {
-  if(tw.key === 'speer' && tw.paragon) return 99999;
+  if(tw.key === 'speer' && tw.paragon) return 300;
   const baseRange = towerBaseRanges[tw.key] || towerTypes[tw.key].range || 0;
   let range = baseRange * (1 + tw.level * 0.05);
   if(tw.paragon) range *= 2.0;
@@ -1516,99 +1516,18 @@ function update(){
   }
   bananas=bananas.filter(b=>!b.dead&&b.lifetime>0);
 
-  for(const ne of nuclearExplosions){
-    ne.t--;
-    if(ne.t<=0) continue;
-    for(const tw of towers){ if(Math.hypot(tw.x-ne.x,tw.y-ne.y)<ne.range){ tw.nuclearSlowUntil=Math.max(tw.nuclearSlowUntil||0,Date.now()+2000); } }
+  for(const mine of landmines){
+    for(const e of enemies){
+      if(Math.hypot(e.x-mine.x,e.y-mine.y)<e.size+15){ e.hp-=mine.dmg; mine.dead=true; if(!antiLagMode) playSound('landmine',0.7); break; }
+    }
   }
-  nuclearExplosions=nuclearExplosions.filter(n=>n.t>0);
-  nukeStrikes=nukeStrikes.filter(ns=>{ ns.t--; ns.r=ns.maxR*(1-(ns.t/ns.maxT)); return ns.t>0; });
-  critTexts=critTexts.filter(ct=>{ ct.t--; ct.y-=0.4; return ct.t>0; });
-
-  for(const tw of towers){
-    if(tw.farm) continue;
-    const isNuclearSlowed=tw.nuclearSlowUntil&&Date.now()<tw.nuclearSlowUntil;
-    if(isNuclearSlowed) continue;
-    const hasAapPara=towers.some(t=>t.key==='aap'&&t.paragon);
-    const rateMultiplier=tw.boosted?(hasAapPara?0.65:0.7):1.0;
-    tw.cool--;
-    if(tw.cool>0) continue;
-    const cfg=towerTypes[tw.key];
-    const effectiveRange = getTowerRange(tw);
-
-    if(tw.monkey){
-      let pathPoints=[];
-      for(let i=0;i<path.length-1;i++){ const p1=path[i],p2=path[i+1]; for(let t3=0;t3<=1;t3+=0.05){ const px=p1.x+(p2.x-p1.x)*t3,py=p1.y+(p2.y-p1.y)*t3; if(Math.hypot(px-tw.x,py-tw.y)<effectiveRange) pathPoints.push({x:px,y:py}); } }
-      if(pathPoints.length>0){ const rp=pathPoints[Math.floor(Math.random()*pathPoints.length)]; bananas.push({x:rp.x+(Math.random()-0.5)*40,y:rp.y+(Math.random()-0.5)*40,dmg:tw.dmg*3,lifetime:1800,dead:false}); const rage=monkeyRageTimer>0?0.5:1; tw.cool=tw.rate*rateMultiplier*rage; }
-      continue;
-    }
-
-    let verslomendeSlow=1.0;
-    for(const e of enemies){ if((e.mutation==='verslomende'||e.mutation2==='verslomende'||e.mutation3==='verslomende')&&Math.hypot(e.x-tw.x,e.y-tw.y)<120){ verslomendeSlow=0.6; break; } }
-
-    const canTarget = e => {
-      if(tw.key==='tsjaadinator'&&tw.secret){ if((e.mutation==='kogelvrije'||e.mutation2==='kogelvrije'||e.mutation3==='kogelvrije')) return false; return true; }
-      if(Math.hypot(e.x-tw.x,e.y-tw.y)>=effectiveRange) return false;
-      if(tw.key==='aap'&&(e.mutation==='metalen'||e.mutation2==='metalen'||e.mutation3==='metalen')) return false;
-      if(!tw.paragon&&e.isRoboLeeuw&&(tw.key==='geweer'||tw.key==='sniper')) return false;
-      if(!tw.paragon&&e.isKrokodil&&(tw.key==='geweer'||tw.key==='sniper')) return false;
-      if(!tw.paragon&&(e.mutation==='metalen'||e.mutation2==='metalen'||e.mutation3==='metalen')&&tw.key!=='atoom') return false;
-      if((e.mutation==='kogelvrije'||e.mutation2==='kogelvrije'||e.mutation3==='kogelvrije')&&(tw.key==='geweer'||tw.key==='sniper')) return false;
-      if(e.mutation==='onzichtbare'||e.mutation2==='onzichtbare'||e.mutation3==='onzichtbare'){ let inRange=false; for(const otw of towers){ if(Math.hypot(e.x-otw.x,e.y-otw.y)<getTowerRange(otw)){ inRange=true; break; } } if(!inRange) return false; }
-      return true;
-    };
-
-    let targets;
-    if(tw.paragon&&tw.key==='speer'){
-      targets=enemies.filter(canTarget);
-    } else {
-      const t=enemies.find(canTarget);
-      targets=t?[t]:[];
-    }
-    if(targets.length===0) continue;
-
-    for(const target of targets){
-      let finalDmg=tw.dmg;
-      if(tw.key==='tsjaadinator'&&tw.secret){
-        finalDmg=tw.dmg*11.0;
-        if(tw.secretDmgBonus) finalDmg*=tw.secretDmgBonus;
-      }
-      if(tw.key==='plaagdokter' && target.plaagDebuffed){ finalDmg *= (tw.plaagDmgBonus||1.05); }
-      if(tw.key==='atoom' && target.burning && target.burnDuration>0){ finalDmg *= (tw.fireBonusMultiplier||1.20); }
-
-      let isCrit = false;
-      if(tw.key==='sniper'){
-        const critChance = 0.10 + tw.level * 0.05;
-        if(Math.random() < critChance){ isCrit = true; finalDmg *= 2; }
-      }
-
-      let pSpeed = tw.secret&&tw.key==='tsjaadinator'?20:(tw.paragon?cfg.speed*3:cfg.speed);
-      projectiles.push({
-        x:tw.x,y:tw.y,tx:target.x,ty:target.y,target,
-        speed:pSpeed,
-        dmg:finalDmg,bomb:cfg.bomb||(tw.paragon&&tw.key==='sniper'),gold:tw.ultimate||tw.paragon,secret:tw.secret||false,towerKey:tw.key,tower:tw,
-        fire:tw.fire,
-        fireBurnDmg: tw.fire ? getFakkelBurnDmg(tw.level, tw.ultimate, tw.paragon) : 0,
-        poisonArrow: (tw.key==='boog' && tw.poisonArrows)||(tw.paragon&&tw.key==='boog'),
-        sniperSlowOnHit: tw.key==='sniper' && tw.sniperSlowOnHit,
-        speerUltAura: tw.key==='speer' && tw.ultimate,
-        speerTower: tw.key==='speer' ? tw : null,
-        isCrit,
-        paragon: tw.paragon||false,
-        radiationRadius: tw.paragon&&tw.key==='atoom'?60:0,
-      });
-    }
-    if(!antiLagMode){
-      if(tw.key==='sniper') playSound('sniper', 0.5);
-    }
-    const rageMult=tw.key==='aap'&&monkeyRageTimer>0?0.5:1; tw.cool=tw.rate*rateMultiplier*verslomendeSlow*rageMult;
-  }
+  landmines=landmines.filter(m=>!m.dead);
 
   for(const p of projectiles){
     const dx=p.tx-p.x,dy=p.ty-p.y,d=Math.hypot(dx,dy);
     if(d<p.speed){
       if(p.target.beschermdActive){ p.dead=true; continue; }
-      const dmgDealt = Math.min(p.dmg, p.target.hp);
+      const dmgDealt = Math.max(0, Math.min(p.dmg, p.target.hp));
       p.target.hp-=p.dmg;
       if(p.tower) p.tower.totalDamage += dmgDealt;
       if(p.isCrit) critTexts.push({x: p.target.x, y: p.target.y - p.target.size, t: 60});
