@@ -111,8 +111,22 @@
   #towerTooltip .tt-upgrade-header.max { color: #666; }
   #towerTooltip .tt-sell { font-size: 10px; color: #ff6b6b; margin-top: 6px; border-top: 1px solid rgba(255,100,100,0.2); padding-top: 6px; }
   #towerTooltip .tt-passive { font-size: 10px; color: #aaffcc; margin-top: 4px; border-top: 1px solid rgba(100,255,150,0.2); padding-top: 4px; font-style: italic; }
-  #sellFlash { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,200,0,0.18); pointer-events: none; z-index: 998; display: none; animation: sellFade 0.4s ease-out; }
-  @keyframes sellFade { 0% { opacity: 1; } 100% { opacity: 0; } }
+#sellFlash { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,200,0,0.18); pointer-events: none; z-index: 998; display: none; animation: sellFade 0.4s ease-out; }
+@keyframes sellFade { 0% { opacity: 1; } 100% { opacity: 0; } }
+#paragonOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 3000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); animation: paragonFadeIn 0.5s ease; }
+#paragonOverlay.open { display: flex; }
+@keyframes paragonFadeIn { from { opacity: 0; } to { opacity: 1; } }
+#paragonPanel { background: linear-gradient(160deg, #2a0020 0%, #4a0020 30%, #1a0010 100%); border: 4px solid #ff00ff; border-radius: 24px; padding: 40px 45px; min-width: 520px; max-width: 90vw; box-shadow: 0 0 80px rgba(255,0,255,0.4), 0 20px 60px rgba(0,0,0,0.9); text-align: center; position: relative; animation: paragonPulse 2s ease-in-out infinite; }
+@keyframes paragonPulse { 0%, 100% { box-shadow: 0 0 60px rgba(255,0,255,0.4), 0 20px 60px rgba(0,0,0,0.9); } 50% { box-shadow: 0 0 100px rgba(255,0,255,0.7), 0 20px 80px rgba(255,0,200,0.3); } }
+#paragonPanel h2 { font-size: 28px; color: #ff88ff; margin-bottom: 20px; text-shadow: 0 0 30px rgba(255,0,255,0.6); line-height: 1.4; }
+#paragonPanel .para-warning { font-size: 16px; color: #ffaaaa; margin: 15px 0; line-height: 1.5; }
+#paragonPanel .para-cost { font-size: 24px; color: #ffd700; margin: 15px 0; font-weight: bold; text-shadow: 0 0 20px rgba(255,215,0,0.5); }
+#paragonPanel .para-sacrifice { font-size: 14px; color: #ff6b6b; margin: 12px 0; }
+#paragonBtnYes { padding: 18px 30px; font-size: 20px; font-weight: bold; border: 3px solid #ff00ff; border-radius: 15px; cursor: pointer; background: linear-gradient(135deg, #4a0030, #8a0050); color: #ff88ff; margin: 10px; transition: all 0.3s; text-shadow: 0 0 15px rgba(255,0,255,0.5); animation: yesBtnPulse 1.5s ease-in-out infinite; }
+@keyframes yesBtnPulse { 0%, 100% { box-shadow: 0 0 20px rgba(255,0,255,0.3); transform: scale(1); } 50% { box-shadow: 0 0 50px rgba(255,0,255,0.8); transform: scale(1.05); } }
+#paragonBtnYes:hover { background: linear-gradient(135deg, #6a0050, #aa0060); transform: scale(1.1) !important; }
+#paragonBtnNo { padding: 18px 30px; font-size: 20px; font-weight: bold; border: 3px solid #666; border-radius: 15px; cursor: pointer; background: #222; color: #888; margin: 10px; transition: all 0.3s; }
+#paragonBtnNo:hover { background: #333; border-color: #888; color: #aaa; }
 </style>
 </head>
 <body>
@@ -203,6 +217,19 @@
   </div>
 </div>
 
+<div id="paragonOverlay" onclick="if(event.target===this)closeParagonDialog()">
+  <div id="paragonPanel">
+    <h2>⚠️ WEET JE HEEL ZEKER? ⚠️</h2>
+    <div class="para-warning">Weet je <strong>HEEL ZEKER</strong> dat je de ultime Tsjaad krachten wilt laten ontwaken?<br><br>
+    Al de andere torens van dit type worden <strong style="color:#ff4444">opgeofferd</strong> voor nog meer Tsjaad kracht!</div>
+    <div class="para-cost" id="paraCostDisplay">⭐ Paragon — €0</div>
+    <div class="para-sacrifice" id="paraSacrificeDisplay"></div>
+    <div style="margin-top:25px;">
+      <button id="paragonBtnYes" onclick="confirmParagon()">💀 Ja!!! Laat de Tsjaad krachten ontwaken!!! 💀</button>
+      <button id="paragonBtnNo" onclick="closeParagonDialog()">😨 Nee de Tsjaad krachten zijn teveel voor mij!!! 😨</button>
+    </div>
+  </div>
+</div>
 <div id="gameWrap">
   <canvas id="game" width="1200" height="700"></canvas>
 </div>
@@ -400,9 +427,11 @@ let critTexts = [];
 let birdEggs = [];
 let paragonActive = false;
 let paragonTower = null;
+let pendingParagonTower = null;
+let sacrificeEffects = [];
 
 // ===== MUTATIONS =====
-const MUTATIONS = ['ondode','snelle','hydra','random','dodelijke','radioactieve','metalen','kogelvrije','beschermde','terugkerende','arme','Nutteloze','verslomende','accelererende','genezende','elite','onstabiele'];
+const MUTATIONS = ['ondode','snelle','hydra','random','dodelijke','radioactieve','metalen','kogelvrije','beschermde','terugkerende','arme','Nutteloze','verslomende','accelererende','genezende','elite','onstabiele','zwakke'];
 function pickMutation(round, mode) {
   let available = MUTATIONS.filter(m => {
     if(m==='metalen'&&round<10) return false;
@@ -411,7 +440,7 @@ function pickMutation(round, mode) {
   return available[Math.floor(Math.random()*available.length)];
 }
 function getMutationDisplayName(mutation1, mutation2, baseName, mutation3) {
-  const prefix = {ondode:'Ondode',snelle:'Snelle',hydra:'Hydra',random:'Random',dodelijke:'Dodelijke',radioactieve:'Radioactieve',metalen:'Metalen',kogelvrije:'Kogelvrije',beschermde:'Beschermde',terugkerende:'Terugkerende',arme:'Arme',onzichtbare:'Onzichtbare',verslomende:'Verslomende',accelererende:'Accelererende',genezende:'Genezende',elite:'ELITE',onstabiele:'ONSTABIELE'};
+  const prefix = {ondode:'Ondode',snelle:'Snelle',hydra:'Hydra',random:'Random',dodelijke:'Dodelijke',radioactieve:'Radioactieve',metalen:'Metalen',kogelvrije:'Kogelvrije',beschermde:'Beschermde',terugkerende:'Terugkerende',arme:'Arme',onzichtbare:'Onzichtbare',verslomende:'Verslomende',accelererende:'Accelererende',genezende:'Genezende',elite:'ELITE',onstabiele:'ONSTABIELE',zwakke:'Zwakke'};
   if(mutation3) return (prefix[mutation1]||'')+'-'+(prefix[mutation2]||'')+'-'+(prefix[mutation3]||'')+' '+baseName;
   if(mutation2) return (prefix[mutation1]||'')+'-'+(prefix[mutation2]||'')+' '+baseName;
   return (prefix[mutation1]||'')+' '+baseName;
@@ -511,24 +540,32 @@ const towerBaseRanges = {
 };
 
 const towerTypes={
-  speer:{range:90,rate:40,dmg:3.6,speed:3.2,cost:80,ultCost:800,paragonCost:4000},
-  boog:{range:130,rate:55,dmg:7,speed:2,cost:125,ultCost:1500,paragonCost:7500},
-  plaagdokter:{range:140,rate:40,dmg:5.5,speed:3.5,cost:300,ultCost:2000,paragonCost:10000},
-  geweer:{range:240,rate:12,dmg:3.8,speed:7,cost:550,ultCost:5000,paragonCost:25000},
-  sniper:{range:550,rate:300,dmg:300,speed:10,cost:3000,ultCost:28000,paragonCost:140000},
+  speer:{range:90,rate:40,dmg:3.6,speed:3.2,cost:80,ultCost:800},
+  boog:{range:130,rate:55,dmg:7,speed:2,cost:125,ultCost:1500},
+  plaagdokter:{range:140,rate:40,dmg:5.5,speed:3.5,cost:300,ultCost:2000},
+  geweer:{range:240,rate:12,dmg:3.8,speed:7,cost:550,ultCost:5000},
+  sniper:{range:550,rate:300,dmg:300,speed:10,cost:3000,ultCost:28000},
   tsjaadinator:{range:180,rate:4,dmg:4.8,speed:8,cost:2500,ultCost:15000,secretCost:500000},
-  atoom:{range:180,rate:100,dmg:15,speed:3,cost:600,bomb:true,ultCost:4500,paragonCost:22500},
-  katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000,paragonCost:20000},
-  aap:{range:120,rate:70,dmg:1.4,speed:0,cost:400,ultCost:2500,paragonCost:12500},
-  fakkel:{range:95,rate:45,dmg:3,speed:3,cost:150,ultCost:4000,paragonCost:20000}
+  atoom:{range:180,rate:100,dmg:15,speed:3,cost:600,bomb:true,ultCost:4500},
+  katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
+  aap:{range:120,rate:70,dmg:1.4,speed:0,cost:400,ultCost:2500},
+  fakkel:{range:95,rate:45,dmg:3,speed:3,cost:150,ultCost:4000}
 };
 
 function getTowerRange(tw) {
+  if(tw.key === 'speer' && tw.paragon) return 99999;
   const baseRange = towerBaseRanges[tw.key] || towerTypes[tw.key].range || 0;
   let range = baseRange * (1 + tw.level * 0.05);
   if(tw.paragon) range *= 2.0;
   if(tw.speerRangeBoostUntil && Date.now() < tw.speerRangeBoostUntil){
     range *= 1.30;
+  }
+  if(!tw.paragon || tw.key !== 'speer'){
+    const speerPara = towers.find(t => t.key === 'speer' && t.paragon);
+    if(speerPara && speerPara !== tw){
+      const boostPct = 0.30 + 0.05 * Math.floor((speerPara.paragonLevel||0) / 10);
+      range *= (1 + boostPct);
+    }
   }
   return range;
 }
@@ -618,19 +655,25 @@ function getTowerTotalInvestedCost(tw){
   let total = base + tw.level * upgradeCost;
   if(tw.ultimate) total += towerTypes[tw.key].ultCost || 0;
   if(tw.secret) total += towerTypes[tw.key].secretCost || 0;
-  if(tw.paragon) total += towerTypes[tw.key].paragonCost || 0;
+  if(tw.paragon) total += (towerTypes[tw.key].ultCost || 0) * 10;
   return total;
 }
 
 function applyParagonStats(tw){
   const cfg = towerTypes[tw.key];
   const pl = tw.paragonLevel || 0;
-  const dmgMult = 2.5 + pl * 0.01;
-  const rateMult = 0.5;
+  const spiritLvl = Math.floor(pl / 25);
+  let dmgMult = 2.5 + pl * 0.01;
+  let rateMult = 0.5;
+  if(spiritLvl >= 1) dmgMult *= 1.25;
+  if(spiritLvl >= 2) { dmgMult *= 1.20; rateMult *= 0.85; }
+  if(spiritLvl >= 3) { dmgMult *= 1.15; rateMult *= 0.90; }
+  if(spiritLvl >= 4) { dmgMult *= 1.10; rateMult *= 0.85; }
   tw.dmg *= dmgMult;
   tw.rate = Math.max(6, Math.floor(tw.rate * rateMult));
   if(tw.key==='katoen'||tw.key==='aap') tw.rate = Math.max(15, tw.rate);
   tw.speed = Math.min(12, (cfg.speed||5) * 1.2);
+  tw.paragonSpiritLevel = spiritLvl;
 }
 
 function getNextLevelStats(tw){
@@ -715,6 +758,7 @@ function updateTooltip(tw, cx, cy){
     html += statRow('⚔️ Schade', fmtDmg(tw.dmg), next?fmtDmg(next.dmg):null);
     html += statRow('🔁 Vuursnelheid', fmtRate(tw.rate), next?fmtRate(next.rate):null);
     html += statRow('📏 Range', fmtRange(effRange), next?fmtRange(next.range):null);
+    html += statRow('💥 Totale schade', Math.floor(tw.totalDamage||0)+'', null);
     if(tw.slow || (next && next.slow)){
       const curSlow = tw.slowAmount ? Math.round(tw.slowAmount*100)+'%' : '—';
       const nextSlow = next && next.slow ? Math.round(next.slow*100)+'%' : null;
@@ -762,14 +806,21 @@ function updateTooltip(tw, cx, cy){
   html += `<hr class="tt-divider">`;
   if(tw.secret){
     html += `<div class="tt-upgrade-header max">✅ GOD MODE ACTIEF</div>`;
-  } else   if(tw.paragon){
+  } else if(tw.paragon){
+    const spiritLvl = Math.floor(tw.paragonLevel / 25);
+    const spiritNames = ['', '🌀 Spirit Lv.1', '🌀 Spirit Lv.2', '🌀 Spirit Lv.3', '⭐ MEGA TSJAAD KRACHT ⭐'];
+    const spiritLabel = spiritNames[spiritLvl] || '';
     html += `<div class="tt-upgrade-header max">✅ PARAGON LEVEL ${tw.paragonLevel}/100</div>`;
     html += `<div style="font-size:9px;color:#ff00ff;margin-top:2px;">⭐ +${(tw.paragonLevel*1).toFixed(0)}% extra schade</div>`;
+    if(spiritLvl > 0){
+      html += `<div style="font-size:9px;color:${spiritLvl >= 4 ? '#ffd700' : '#88ddff'};margin-top:2px;font-weight:bold;">${spiritLabel}</div>`;
+    }
+    html += `<div style="font-size:10px;color:#aaa;margin-top:2px;">⚔️ Totale schade: ${Math.floor(tw.totalDamage||0)}</div>`;
     const specTexts={
-      speer:'🔄 Schiet in alle richtingen tegelijk',
-      boog:'☠️ Gif schade 50/s · 5s',
+      speer:'♾️ Oneindige range | 📡 Geeft ALLE torens '+(30+5*Math.floor((tw.paragonLevel||0)/10))+'% extra range',
+      boog:'💜 Zwakke vijand: -'+(2+2*Math.floor((tw.paragonLevel||0)/25))+'% HP/s (5s)',
       fakkel:'🔥 Zet vijanden in de fik (500/s)',
-      plaagdokter:'💚 +1 leven elke 5 rondes',
+      plaagdokter:'💚 +1 leven elke '+(Math.max(1,5-Math.floor(tw.paragonLevel/20)))+' rondes',
       aap:'🐵 +35% aanvalssnelheid voor torens in radius',
       geweer:'🔫 Laser doorboort metalen vijanden',
       atoom:'☢️ Straling verspreid bij elke hit',
@@ -778,11 +829,11 @@ function updateTooltip(tw, cx, cy){
     };
     if(specTexts[tw.key]) html += `<div style="font-size:9px;color:#88ddff;margin-top:2px;">${specTexts[tw.key]}</div>`;
   } else if(tw.ultimate && tw.key!=='tsjaadinator'){
-    const cost = cfg.paragonCost;
+    const cost = cfg.ultCost * 10;
     const canAfford = money >= cost;
     const specTexts2={
-      speer:'🔄 Schiet 360°',
-      boog:'☠️ Super gif',
+      speer:'♾️ Oneindige range + wereldwijde range boost',
+      boog:'💜 Zwakke mutatie - HP% drain',
       fakkel:'🔥 Mega brand',
       plaagdokter:'💚 Extra levens',
       aap:'🐵 +35% speed boost',
@@ -791,8 +842,14 @@ function updateTooltip(tw, cx, cy){
       katoen:'🌾 5× uitbetaling/ronde, ult korting aura',
       sniper:'💥 Explosieve verdoving',
     };
+    const sameTypeCount = towers.filter(t => t !== tw && t.key === tw.key).length;
     html += `<div class="tt-upgrade-header ult" style="color:${canAfford&&!paragonActive?'#ff00ff':'#f44'}">⭐ PARAGON — €${cost}${paragonActive?' ⚠️':''}</div>`;
     if(paragonActive) html += `<div style="font-size:9px;color:#ff6b35;margin-top:2px;">⚠️ Verkoop andere Paragon eerst!</div>`;
+    if(sameTypeCount > 0){
+      const ultSameType = towers.filter(t => t !== tw && t.key === tw.key && t.ultimate).length;
+      let levelEstimate = ultSameType * 5;
+      html += `<div style="font-size:9px;color:#aaa;margin-top:2px;">🎯 ${sameTypeCount} toren(s) offeren → ca. +${levelEstimate} paragon levels</div>`;
+    }
     html += `<div style="font-size:9px;color:#aaa;margin-top:2px;">Verteert torens van zelfde type voor bonus!</div>`;
     if(specTexts2[tw.key]) html += `<div style="font-size:9px;color:#88ddff;margin-top:2px;">✨ ${specTexts2[tw.key]}</div>`;
   } else if(tw.level < 3){
@@ -817,10 +874,19 @@ function updateTooltip(tw, cx, cy){
     html += `<div style="font-size:9px;color:#aaa;margin-top:2px;">TSJAADINATOR ONTWAAKT!!!</div>`;
   }
 
-  if(tw.ultimate){
+  if(tw.ultimate || tw.paragon){
     if(tw.key==='speer'){
-      const activeBoost = tw.speerRangeBoostUntil && Date.now() < tw.speerRangeBoostUntil;
-      html += `<div class="tt-passive">📡 Range Aura: geeft alle torens in radius +30% range voor 3s bij schot${activeBoost?' <span style="color:#4fc3f7">[ACTIEF]</span>':''}</div>`;
+      if(tw.paragon){
+        const boostPct = 30 + 5 * Math.floor((tw.paragonLevel||0) / 10);
+        html += `<div class="tt-passive">♾️ Oneindige range | 🌍 Geeft ALLE torens wereldwijd +${boostPct}% range</div>`;
+      } else {
+        const activeBoost = tw.speerRangeBoostUntil && Date.now() < tw.speerRangeBoostUntil;
+        html += `<div class="tt-passive">📡 Range Aura: geeft alle torens in radius +30% range voor 3s bij schot${activeBoost?' <span style="color:#4fc3f7">[ACTIEF]</span>':''}</div>`;
+      }
+    }
+    if(tw.key==='boog' && tw.paragon){
+      const pct = 2 + 2 * Math.floor((tw.paragonLevel||0) / 25);
+      html += `<div class="tt-passive">💜 Zwakke mutatie: vijanden verliezen ${pct}% HP per seconde (5s)</div>`;
     }
     if(tw.key==='sniper'){
       const critPct = Math.round((0.10 + tw.level * 0.05) * 100);
@@ -852,7 +918,86 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// ===== PARAGON CONFIRMATION DIALOG =====
+function showParagonDialog(tw, cost){
+  pendingParagonTower = tw;
+  document.getElementById('paraCostDisplay').textContent = '⭐ Paragon — €' + cost;
+  const sameType = towers.filter(t => t !== tw && t.key === tw.key);
+  let ultCount = 0, totalDmg = 0;
+  for(const t of sameType){
+    if(t.ultimate) ultCount++;
+    totalDmg += t.totalDamage || 0;
+  }
+  const approxLevels = Math.min(100, ultCount * 5 + Math.floor(totalDmg / 1000));
+  let sacText = sameType.length > 0
+    ? '🔺 ' + sameType.length + ' toren(s) van zelfde type worden opgeofferd.' + (ultCount > 0 ? ' (' + ultCount + ' ultimate → +' + (ultCount * 5) + ' levels)' : '')
+    : '⚡ Geen torens van dit type om op te offeren.';
+  sacText += '<br>📊 Totale schade: ' + Math.floor(totalDmg) + ' → +' + Math.floor(totalDmg / 1000) + ' levels';
+  sacText += '<br>🎯 Geschat Paragon Level: <strong style="color:#ff88ff">' + approxLevels + '/100</strong>';
+  document.getElementById('paraSacrificeDisplay').innerHTML = sacText;
+  document.getElementById('paragonOverlay').classList.add('open');
+}
+function closeParagonDialog(){
+  pendingParagonTower = null;
+  document.getElementById('paragonOverlay').classList.remove('open');
+}
+function confirmParagon(){
+  const t2 = pendingParagonTower;
+  if(!t2) return;
+  if(!towers.includes(t2)){ closeParagonDialog(); return; }
+  pendingParagonTower = null;
+  closeParagonDialog();
+  const pCost = towerTypes[t2.key].ultCost * 10;
+  if(money < pCost){ showRoundMsg('⚠️ Niet genoeg geld voor Paragon!'); return; }
+  money -= pCost;
+  t2.paragon = true;
+  t2.paragonLevel = 0;
+  t2.level = 5;
+  paragonActive = true;
+  paragonTower = t2;
+
+  let totalDamage = 0;
+  let ultCount = 0;
+  const sameType = towers.filter(t => t !== t2 && t.key === t2.key);
+  const sacrificePositions = [];
+  for(const t of sameType){
+    if(t.ultimate) ultCount++;
+    totalDamage += t.totalDamage || 0;
+    sacrificePositions.push({x: t.x, y: t.y});
+  }
+
+  // Sacrifice animation
+  triggerSacrificeAnimation(sameType);
+
+  towers = towers.filter(t => !sameType.includes(t));
+  const levelsFromUlt = ultCount * 5;
+  const levelsFromDmg = Math.floor(totalDamage / 1000);
+  t2.paragonLevel = Math.min(100, levelsFromUlt + levelsFromDmg);
+  applyParagonStats(t2);
+
+  const spiritLvl = Math.floor(t2.paragonLevel / 25);
+  const spiritNames = ['', '🌀 Spirit Lv.1', '🌀 Spirit Lv.2', '🌀 Spirit Lv.3', '⭐ MEGA TSJAAD KRACHT ⭐'];
+  showRoundMsg('⭐ PARAGON GEMAAKT! Lvl ' + t2.paragonLevel + ' ' + (spiritNames[spiritLvl] || ''));
+  playSound('sacrifice', 0.8);
+  t2.upText = 200;
+}
+
+function triggerSacrificeAnimation(sacTowers){
+  for(const t of sacTowers){
+    sacrificeEffects.push({
+      x: t.x, y: t.y,
+      timer: 120, maxTimer: 120,
+      rings: [],
+      color: '#ff00ff'
+    });
+  }
+}
+
 function sellTower(tw){
+  if(pendingParagonTower === tw){
+    pendingParagonTower = null;
+    document.getElementById('paragonOverlay').classList.remove('open');
+  }
   const sellVal = Math.floor(getTowerTotalInvestedCost(tw) * 0.8);
   money += sellVal;
   totalMoneyEarned += sellVal;
@@ -892,6 +1037,7 @@ canvas.onclick=e=>{
     nukeTimer:0,
     investedCost: cfg.cost,
     speerRangeBoostUntil: 0,
+    totalDamage: 0,
   };
   if(selectedTower==='plaagdokter'){ newTower.slowAmount=0.20; newTower.slowDuration=180; newTower.plaagDmgBonus=1.05; }
   if(selectedTower==='fakkel'){ newTower.fireChance=1.0; }
@@ -939,26 +1085,13 @@ function handleUpgrade(t2){
         showRoundMsg('⚠️ Er is al een Paragon actief!');
         return;
       }
-      const pCost=towerTypes[t2.key].paragonCost;
-      if(money<pCost) return;
-      money-=pCost;
-      t2.paragon=true;
-      t2.paragonLevel=0;
-      t2.level=5;
-      paragonActive=true;
-      paragonTower=t2;
-      let totalRemovedValue=0;
-      const sameType=towers.filter(t=>t!==t2&&t.key===t2.key);
-      for(const t of sameType){
-        totalRemovedValue+=getTowerTotalInvestedCost(t);
+      if(pendingParagonTower){
+        showRoundMsg('⚠️ Paragon dialoog is al geopend!');
+        return;
       }
-      towers=towers.filter(t=>!sameType.includes(t));
-      const levelsFromCash=Math.floor(totalRemovedValue/1000);
-      t2.paragonLevel=Math.min(100,levelsFromCash);
-      applyParagonStats(t2);
-      playSound('sacrifice', 0.8);
-      t2.upText=200;
-      showRoundMsg('⭐ PARAGON GEMAAKT! Level '+t2.paragonLevel);
+      const pCost = towerTypes[t2.key].ultCost * 10;
+      if(money < pCost) return;
+      showParagonDialog(t2, pCost);
     }
     return;
   }
@@ -1280,6 +1413,21 @@ function update(){
       }
     }
 
+    // Zwakke HP drain (from Boog Paragon)
+    if(e._zwakkeTimer > 0){
+      e._zwakkeTimer--;
+      e._zwakkeTick = (e._zwakkeTick || 0) + 1;
+      if(e._zwakkeTick >= 60){
+        e._zwakkeTick = 0;
+        const drainPct = e._zwakkePct || 0.02;
+        e.hp -= e.max * drainPct;
+      }
+      if(e._zwakkeTimer <= 0){
+        e._zwakkeTimer = 0;
+        e._zwakkePct = 0;
+      }
+    }
+
     if(e.mutation==='accelererende'||e.mutation2==='accelererende'||e.mutation3==='accelererende'){ const progress=e.i/Math.max(1,path.length-1); e.speed=e.baseSpeedForAccel*(1+progress*3); }
     if(e.type==='kameel'&&!e.kameelBoosted&&e.hp<=e.max*0.5){ e.kameelBoosted=true; e.kameelBoostTimer=60; e.speed*=4; e.baseSpeed*=4; }
     if(e.kameelBoosted&&e.kameelBoostTimer>0){ e.kameelBoostTimer--; if(e.kameelBoostTimer<=0){ e.kameelBoosted=false; e.speed/=4; e.baseSpeed/=4; } }
@@ -1448,7 +1596,9 @@ function update(){
     const dx=p.tx-p.x,dy=p.ty-p.y,d=Math.hypot(dx,dy);
     if(d<p.speed){
       if(p.target.beschermdActive){ p.dead=true; continue; }
+      const dmgDealt = Math.min(p.dmg, p.target.hp);
       p.target.hp-=p.dmg;
+      if(p.tower) p.tower.totalDamage += dmgDealt;
       if(p.isCrit) critTexts.push({x: p.target.x, y: p.target.y - p.target.size, t: 60});
       if(gameMode==='boss'&&p.target.boss){ money+=Math.floor(p.dmg); totalMoneyEarned+=Math.floor(p.dmg); }
       if(p.towerKey==='plaagdokter'){
@@ -1461,6 +1611,14 @@ function update(){
         const poisonDur=p.paragon?300:180;
         p.target.poisoned=true; p.target.poisonTimer=poisonDur; p.target.poisonDmgPerSec=poisonDmg;
         if(!p.target.poisonSlowApplied){ const slow=0.90; p.target.speed*=slow; p.target.baseSpeed*=slow; p.target.poisonSlowApplied=true; }
+      }
+      // Boog Paragon: zwakke debuff
+      if(p.towerKey === 'boog' && p.tower && p.tower.paragon){
+        const pl = p.tower.paragonLevel || 0;
+        const zwakkePct = 0.02 + 0.02 * Math.floor(pl / 25);
+        p.target._zwakkeTimer = 300;
+        p.target._zwakkePct = Math.max(p.target._zwakkePct || 0, zwakkePct);
+        p.target._zwakkeTick = 0;
       }
       if(p.fire){
         p.target.burning=true; p.target.burnDuration=480; p.target.burnTickTimer=0;
@@ -1577,6 +1735,24 @@ function update(){
   });
 
   for(const e of toSpawn) enemies.push(e);
+  // Update sacrifice effects
+  for(let si = sacrificeEffects.length - 1; si >= 0; si--){
+    const se = sacrificeEffects[si];
+    se.timer--;
+    const progress = 1 - se.timer / se.maxTimer;
+    if(!se._ringsInit){
+      for(let ri = 0; ri < 5; ri++){
+        se.rings.push({radius: 5 + ri * 8, maxRadius: 40 + ri * 15, alpha: 0.9});
+      }
+      se._ringsInit = true;
+    }
+    for(const ring of se.rings){
+      ring.radius += 1.5;
+      ring.alpha = Math.max(0, ring.alpha - 0.012);
+    }
+    if(se.timer <= 0) sacrificeEffects.splice(si, 1);
+  }
+
   for(const vf of visualEffects){ vf.t--; vf.r=vf.maxR*(1-(vf.t/vf.maxT)); }
   visualEffects=visualEffects.filter(v=>v.t>0);
   projectiles=projectiles.filter(p=>!p.dead);
@@ -1841,6 +2017,25 @@ function drawMutationEffects(e){
     ctx.beginPath(); ctx.arc(0,0,e.size+5,0,Math.PI*2); ctx.fill();
   }
 
+  // Zwakke visual effect
+  if(e._zwakkeTimer>0){
+    const t_z = Date.now()*0.006;
+    const zwAlpha = 0.3 + Math.sin(t_z*2)*0.2;
+    ctx.strokeStyle=`rgba(200,50,255,${zwAlpha})`; ctx.lineWidth=3;
+    ctx.shadowBlur=12; ctx.shadowColor='#cc44ff';
+    ctx.beginPath(); ctx.arc(0,0,e.size+6+Math.sin(t_z*3)*2,0,Math.PI*2); ctx.stroke();
+    ctx.shadowBlur=0;
+    for(let pi=0;pi<4;pi++){
+      const a2 = t_z + pi*Math.PI/2;
+      const px3 = Math.cos(a2)*(e.size+4);
+      const py3 = Math.sin(a2)*(e.size+4);
+      ctx.fillStyle=`rgba(200,50,255,${0.4+Math.sin(t_z*4+pi)*0.2})`;
+      ctx.beginPath(); ctx.arc(px3,py3,2,0,Math.PI*2); ctx.fill();
+    }
+    ctx.fillStyle=`rgba(200,50,255,0.05)`;
+    ctx.beginPath(); ctx.arc(0,0,e.size+6,0,Math.PI*2); ctx.fill();
+  }
+
   if(e.burning&&e.burnDuration>0){
     const t_fire = Date.now() * 0.008;
     const flameIntensity = Math.min(1, e.burnDuration / 180);
@@ -1904,6 +2099,11 @@ function drawEnemyHUD(e){
   if(e.burning&&e.burnDuration>0){ ctx.fillStyle='rgba(255,120,0,0.9)'; ctx.font='bold 8px Arial'; ctx.fillText('🔥'+(e.burnDamagePerSec||0).toFixed(1)+'/s',0,-48); }
   if(e.poisoned&&e.poisonTimer>0){ ctx.fillStyle='rgba(0,255,80,0.95)'; ctx.font='bold 8px Arial'; ctx.fillText('☠️10/s',e.burning?22:0,-48); }
   if(e.sniperSlowed&&e.sniperSlowEndTime>0){ ctx.fillStyle='rgba(150,220,255,0.95)'; ctx.font='bold 8px Arial'; ctx.fillText('❄️-50%',0,-56); }
+  if(e._zwakkeTimer>0){
+    const pct = Math.round((e._zwakkePct||0.02)*100);
+    ctx.fillStyle='rgba(255,100,255,0.95)'; ctx.font='bold 8px Arial';
+    ctx.fillText('💜Zwak -'+pct+'%/s',0,-64);
+  }
   const hasOnstabiel = e.mutation==='onstabiele'||e.mutation2==='onstabiele';
   if(hasOnstabiel&&!e.onstabielExploded&&e.onstabielTimer>0){
     const secsLeft = Math.ceil(e.onstabielTimer/60);
@@ -2525,6 +2725,7 @@ function drawNukeStrikes(){
 function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   drawPath();
+  drawSacrificeEffects();
   towers.forEach(drawTower);
   drawBananas();
   drawBirdEggs();
@@ -2535,6 +2736,41 @@ function draw(){
   drawRadiationEffects();
   drawNukeStrikes();
   drawCritTexts();
+}
+
+function drawSacrificeEffects(){
+  for(const se of sacrificeEffects){
+    const progress = 1 - se.timer / se.maxTimer;
+    ctx.save();
+    for(const ring of se.rings){
+      ctx.globalAlpha = ring.alpha * Math.min(1, progress * 2);
+      ctx.strokeStyle = '#ff00ff';
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = '#ff00ff';
+      ctx.beginPath();
+      ctx.arc(se.x, se.y, ring.radius, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    // Rising particles
+    const numParticles = 8;
+    for(let pi = 0; pi < numParticles; pi++){
+      const angle = (pi / numParticles) * Math.PI * 2 + progress * 2;
+      const dist = 10 + progress * 60;
+      const px = se.x + Math.cos(angle) * dist;
+      const py = se.y + Math.sin(angle) * dist - progress * 40;
+      const alpha2 = Math.max(0, 1 - progress * 1.5);
+      ctx.globalAlpha = alpha2 * 0.7;
+      ctx.fillStyle = '#ff44ff';
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = '#ff00ff';
+      ctx.beginPath();
+      ctx.arc(px, py, 2 + progress * 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    ctx.restore();
+  }
 }
 
 function drawCritTexts(){
