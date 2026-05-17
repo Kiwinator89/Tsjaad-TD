@@ -49,6 +49,7 @@
   .modeBtn.dubbelhealth { background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%); color: #fff; text-shadow: 0 0 10px #4fc3f7; animation: dhPulse 2s ease-in-out infinite; }
   .modeBtn.tsjaad { background: linear-gradient(135deg, #ff6f00 0%, #e65100 50%, #bf360c 100%); color: #fff; text-shadow: 0 0 15px #ff9800; animation: tsjaadPulse 1.2s ease-in-out infinite; border-color: #ff9800; }
   .modeBtn.tsjaadplus { background: linear-gradient(135deg, #000000 0%, #1a0000 30%, #3d0000 60%, #ff0000 100%); color: #ffd700; text-shadow: 0 0 20px #ff0000, 0 0 40px #ff6600; animation: tsjaadPlusPulse 0.8s ease-in-out infinite; border-color: #ffd700; border-width: 6px; }
+  .modeBtn.lichtsnelheid { background: linear-gradient(135deg, #00ffff 0%, #0088ff 50%, #0000ff 100%); color: #fff; text-shadow: 0 0 15px #00ffff; animation: speedPulse 0.6s ease-in-out infinite; border-color: #00ffff; }
   @keyframes tsjaadPlusPulse { 0%, 100% { box-shadow: 0 10px 40px rgba(255,0,0,0.6), 0 0 80px rgba(255,100,0,0.3); transform: scale(1); } 50% { box-shadow: 0 10px 80px rgba(255,0,0,1), 0 0 120px rgba(255,100,0,0.8), inset 0 0 30px rgba(255,200,0,0.2); transform: scale(1.06); } }
   @keyframes plaagPulse { 0%, 100% { box-shadow: 0 10px 30px rgba(139,0,0,0.5); transform: scale(1); } 50% { box-shadow: 0 10px 50px rgba(255,69,0,0.8), 0 0 40px rgba(255,69,0,0.6); transform: scale(1.02); } }
   @keyframes hardPulse { 0%, 100% { box-shadow: 0 10px 30px rgba(106,5,114,0.5); transform: scale(1); } 50% { box-shadow: 0 10px 50px rgba(199,0,57,0.8), 0 0 40px rgba(255,0,128,0.6); transform: scale(1.03); } }
@@ -165,7 +166,6 @@
 .modeSelectBtn.tsjaadmodus { border-color:#ff9800;color:#ffb74d; }
 .modeSelectBtn.tsjaadplus { border-color:#ffd700;color:#ffe082; }
 .modeSelectBtn.lichtsnelheid { border-color:#00ffff;color:#80ffff;animation:speedPulse 1s ease-in-out infinite; }
-.modeSelectBtn.robotravage { border-color:#c0c0c0;color:#e0e0e0; }
 #modeBackBtn { margin-top:18px;padding:12px 24px;font-size:15px;border:2px solid #666;border-radius:10px;background:rgba(0,0,0,0.3);color:#888;cursor:pointer;transition:all .2s; }
 #modeBackBtn:hover { background:rgba(255,255,255,0.1);border-color:#888;color:#aaa; }
 #titleScreen { overflow-y:auto !important;overflow-x:hidden; }
@@ -201,69 +201,18 @@
 <div id="titleScreen">
   <h1>🏜️ TSJAAD TD 🐪</h1>
   <div class="subtitle" id="title-subtitle">⚔️ VECHT VOOR TSJAAD!!! ⚔️</div>
-  <div id="mapSelection">
-    <div class="tier-section">
-      <div class="tier-title">🌵 MAKKELIJK — Lange paden, veel ruimte</div>
-      <div class="map-grid">
-        <button class="mapBtn makkelijk" onclick="selectMap('tsjaadwoestijn')">🏜️ Tsjaad Woestijn</button>
-        <button class="mapBtn makkelijk" onclick="selectMap('megastad')">🏙️ Mega Stad</button>
-        <button class="mapBtn makkelijk" onclick="selectMap('berg')">⛰️ Berg</button>
-      </div>
-    </div>
-    <div class="tier-section">
-      <div class="tier-title">⚙️ LASTIG — Kortere paden, obstakels</div>
-      <div class="map-grid">
-        <button class="mapBtn lastig" onclick="selectMap('fabriek')">🏭 Fabriek</button>
-        <button class="mapBtn lastig" onclick="selectMap('ziekenhuis')">🏥 Ziekenhuis</button>
-        <button class="mapBtn lastig" onclick="selectMap('mesa')">🏜️ Mesa</button>
-      </div>
-    </div>
-    <div class="tier-section">
-      <div class="tier-title">🌋 MOEILIJK — Smalle paden, gevaarlijke obstakels</div>
-      <div class="map-grid">
-        <button class="mapBtn moeilijk" onclick="selectMap('vulkaan')">🌋 Vulkaan</button>
-        <button class="mapBtn moeilijk" onclick="selectMap('mounttsjaad')">🗻 Mount Tsjaad</button>
-        <button class="mapBtn moeilijk" onclick="selectMap('tsjaadeiland')">🏝️ Tsjaad Eiland</button>
-      </div>
-    </div>
-    <div class="tier-section">
-      <div class="tier-title">☠️ ONMOGELIJK — Extreem kort pad, amper ruimte</div>
-      <div class="map-grid">
-        <button class="mapBtn onmogelijk" onclick="selectMap('tsjaadmeer')">🌊 Tsjaad Meer</button>
-        <button class="mapBtn onmogelijk" onclick="selectMap('robotfabriek')">🤖 Robot Fabriek</button>
-        <button class="mapBtn onmogelijk" onclick="selectMap('safari')">🦁 Safari</button>
-      </div>
-    </div>
-    <div class="tier-section">
-      <div class="tier-title">💀 ULTIME TSJAAD KRIJGER — Alleen voor de sterksten!</div>
-      <div class="map-grid">
-        <button class="mapBtn ultiem" onclick="selectMap('deruimte')">🚀 De Ruimte</button>
-        <button class="mapBtn ultiem" onclick="selectMap('nucleairereactor')">☢️ Nucleaire Reactor</button>
-        <button class="mapBtn ultiem" onclick="selectMap('tsjaadarena')">⚔️ Tsjaad Arena</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="modeSelectOverlay">
-  <div id="modeSelectPanel">
-    <h2 id="modeSelectTitle">🎯 KIES EEN MODUS</h2>
-    <div class="map-name" id="modeSelectMapName"></div>
-    <div class="mmode-grid" id="modeSelectGrid">
-      <button class="modeSelectBtn standard" onclick="selectMode('standard')">🦟 Standaard</button>
-      <button class="modeSelectBtn plaag" onclick="selectMode('plaag')">🌋 Plaag</button>
-      <button class="modeSelectBtn hard" onclick="selectMode('hard')">💀 Hard</button>
-      <button class="modeSelectBtn speed" onclick="selectMode('speed')">⚡ Dubbel Snelheid</button>
-      <button class="modeSelectBtn armoede" onclick="selectMode('armoede')">💀 Armoede</button>
-      <button class="modeSelectBtn boss" onclick="selectMode('boss')">👹 Boss Battle</button>
-      <button class="modeSelectBtn mutatie" onclick="selectMode('mutatie')">🧬 Mutatie</button>
-      <button class="modeSelectBtn dubbelhealth" onclick="selectMode('dubbelhealth')">💙 Dubbel Health</button>
-      <button class="modeSelectBtn tsjaadmodus" onclick="selectMode('tsjaadmodus')">🔥 Tsjaad</button>
-      <button class="modeSelectBtn tsjaadplus" onclick="selectMode('tsjaadplus')">☠️ Tsjaad+</button>
-      <button class="modeSelectBtn lichtsnelheid" onclick="selectMode('lichtsnelheid')">⚡ Lichtsnelheid</button>
-      <button class="modeSelectBtn robotravage" onclick="selectMode('robotravage')">🤖 Robot Ravage</button>
-    </div>
-    <button id="modeBackBtn" onclick="closeModeSelect()">🔙 Terug naar maps</button>
+  <div class="mode-grid">
+    <button class="modeBtn standard" onclick="selectMode('standard')">🦟 Standaard</button>
+    <button class="modeBtn plaag" onclick="selectMode('plaag')">🌋 Plaag</button>
+    <button class="modeBtn hard" onclick="selectMode('hard')">💀 Hard</button>
+    <button class="modeBtn speed" onclick="selectMode('speed')">⚡ Dubbel Snelheid</button>
+    <button class="modeBtn armoede" onclick="selectMode('armoede')">💀 Armoede</button>
+    <button class="modeBtn boss" onclick="selectMode('boss')">👹 Boss Battle</button>
+    <button class="modeBtn mutatie" onclick="selectMode('mutatie')">🧬 Mutatie</button>
+    <button class="modeBtn dubbelhealth" onclick="selectMode('dubbelhealth')">💙 Dubbel Health</button>
+    <button class="modeBtn tsjaad" onclick="selectMode('tsjaadmodus')">🔥 Tsjaad</button>
+    <button class="modeBtn tsjaadplus" onclick="selectMode('tsjaadplus')">☠️ Tsjaad+</button>
+    <button class="modeBtn lichtsnelheid" onclick="selectMode('lichtsnelheid')">⚡ Lichtsnelheid</button>
   </div>
 </div>
 
@@ -355,7 +304,7 @@ const STRINGS = {
     'mode-armoede': 'ARMOEDE MODUS','mode-boss': 'BOSS MODE','mode-mutatie': 'MUTATIE MODUS',
     'mode-dubbelhealth': 'DUBBEL HEALTH','mode-tsjaadmodus': 'TSJAAD MODUS',
     'btn-tsjaadplus': '💀☠️ TSJAAD MODUS PLUS ☠️💀','mode-tsjaadplus': 'TSJAAD MODUS PLUS',
-    'mode-lichtsnelheid': 'LICHTSNELHEID','mode-robotravage': 'ROBOT RAVAGE',
+    'mode-lichtsnelheid': 'LICHTSNELHEID',
   },
   en: {
     'stg-title': '⚙️ SETTINGS',
@@ -380,7 +329,7 @@ const STRINGS = {
     'mode-armoede': 'POVERTY MODE','mode-boss': 'BOSS MODE','mode-mutatie': 'MUTATION MODE',
     'mode-dubbelhealth': 'DOUBLE HEALTH','mode-tsjaadmodus': 'CHAD MODE',
     'btn-tsjaadplus': '💀☠️ CHAD MODE PLUS ☠️💀','mode-tsjaadplus': 'CHAD MODE PLUS',
-    'mode-lichtsnelheid': 'LIGHT SPEED','mode-robotravage': 'ROBOT RAGE',
+    'mode-lichtsnelheid': 'LIGHT SPEED',
   },
   de: {
     'stg-title': '⚙️ EINSTELLUNGEN',
@@ -405,7 +354,7 @@ const STRINGS = {
     'mode-armoede': 'ARMUTS-MODUS','mode-boss': 'BOSS MODE','mode-mutatie': 'MUTATIONS-MODUS',
     'mode-dubbelhealth': 'DOPPELTE GESUNDHEIT','mode-tsjaadmodus': 'TSCHAD-MODUS',
     'btn-tsjaadplus': '💀☠️ TSCHAD-MODUS PLUS ☠️💀','mode-tsjaadplus': 'TSCHAD-MODUS PLUS',
-    'mode-lichtsnelheid': 'LICHTGESCHWINDIGKEIT','mode-robotravage': 'ROBOT-WÜTEN',
+    'mode-lichtsnelheid': 'LICHTGESCHWINDIGKEIT',
   }
 };
 
@@ -442,117 +391,187 @@ function handleOverlayClick(e) { if (e.target === document.getElementById('setti
 
 // ===== MAP DATA =====
 const MAPS = {
+  // ========== MAKKELIJK - Lange kronkelpaden, veel bouwruimte ==========
   tsjaadwoestijn:{
-    name:'Tsjaad Woestijn',tier:'makkelijk',desc:'Lange woestijnweg met veel bouwruimte',
-    path:[{x:-20,y:350},{x:200,y:350},{x:200,y:180},{x:500,y:180},{x:500,y:520},{x:800,y:520},{x:800,y:260},{x:1100,y:260},{x:1100,y:480},{x:1220,y:480}],
-    obstacles:[],bgColor:'#d4a76a',pathColor:'#c2b280',className:'makkelijk'
+    name:'Tsjaad Woestijn',tier:'makkelijk',desc:'Langzaam S-pad door open woestijn',
+    paths:[[
+      {x:-20,y:350},{x:260,y:350},{x:260,y:130},{x:520,y:130},{x:520,y:560},{x:780,y:560},{x:780,y:240},{x:1040,y:240},{x:1040,y:500},{x:1220,y:500}
+    ]],
+    obstacles:[
+      {x:80,y:60,w:100,h:50,type:'water'},{x:340,y:420,w:80,h:60,type:'water'},{x:600,y:300,w:70,h:50,type:'water'},{x:860,y:150,w:60,h:70,type:'water'},{x:150,y:500,w:80,h:40,type:'water'},{x:900,y:420,w:70,h:50,type:'water'}
+    ],bgColor:'#d4a76a',pathColor:'#c2b280',className:'makkelijk'
   },
   megastad:{
-    name:'Mega Stad',tier:'makkelijk',desc:'Stadsgrid met brede wegen tussen gebouwen',
-    path:[{x:-20,y:350},{x:280,y:350},{x:280,y:150},{x:520,y:150},{x:520,y:550},{x:760,y:550},{x:760,y:280},{x:1000,y:280},{x:1000,y:550},{x:1220,y:550}],
-    obstacles:[{x:150,y:80,w:80,h:80,type:'building'},{x:350,y:380,w:80,h:80,type:'building'},{x:590,y:80,w:80,h:80,type:'building'},{x:830,y:380,w:80,h:80,type:'building'},{x:150,y:520,w:80,h:80,type:'building'},{x:590,y:520,w:80,h:80,type:'building'},{x:350,y:80,w:80,h:80,type:'building'},{x:830,y:80,w:80,h:80,type:'building'},{x:150,y:300,w:60,h:60,type:'building'},{x:730,y:150,w:60,h:60,type:'building'},{x:970,y:150,w:60,h:60,type:'building'},{x:150,y:150,w:50,h:50,type:'building'}],
-    bgColor:'#4a4a5a',pathColor:'#6a6a7a',className:'makkelijk'
+    name:'Mega Stad',tier:'makkelijk',desc:'Lange stadsroute met waterkanalen',
+    paths:[[
+      {x:150,y:-20},{x:150,y:240},{x:450,y:240},{x:450,y:460},{x:750,y:460},{x:750,y:160},{x:1050,y:160},{x:1050,y:560},{x:1220,y:560}
+    ]],
+    obstacles:[
+      {x:50,y:80,w:70,h:120,type:'water'},{x:280,y:80,w:50,h:90,type:'water'},{x:580,y:80,w:50,h:90,type:'water'},{x:880,y:80,w:50,h:90,type:'water'},{x:280,y:340,w:50,h:80,type:'water'},{x:580,y:320,w:50,h:80,type:'water'},{x:880,y:300,w:50,h:80,type:'water'},{x:200,y:500,w:60,h:100,type:'water'},{x:900,y:500,w:60,h:100,type:'water'}
+    ],bgColor:'#4a4a5a',pathColor:'#6a6a7a',className:'makkelijk'
   },
   berg:{
-    name:'Berg',tier:'makkelijk',desc:'Bochtig bergpad met rotspartijen',
-    path:[{x:-20,y:350},{x:180,y:350},{x:250,y:250},{x:350,y:150},{x:500,y:150},{x:600,y:250},{x:700,y:350},{x:850,y:350},{x:950,y:250},{x:1050,y:150},{x:1220,y:150}],
-    obstacles:[{x:300,y:300,w:50,h:50,type:'rock'},{x:550,y:220,w:40,h:40,type:'rock'},{x:800,y:300,w:45,h:45,type:'rock'},{x:420,y:120,w:50,h:50,type:'rock'},{x:700,y:420,w:40,h:40,type:'rock'},{x:900,y:200,w:35,h:35,type:'rock'},{x:150,y:280,w:40,h:40,type:'rock'}],
-    bgColor:'#5a7a3a',pathColor:'#8a6a4a',className:'makkelijk'
+    name:'Berg',tier:'makkelijk',desc:'Kronkelend bergpad met lavastromen',
+    paths:[[
+      {x:-20,y:350},{x:200,y:350},{x:320,y:180},{x:540,y:180},{x:660,y:350},{x:840,y:350},{x:960,y:180},{x:1120,y:180},{x:1220,y:350}
+    ]],
+    obstacles:[
+      {x:260,y:280,w:50,h:40,type:'lava'},{x:420,y:100,w:60,h:50,type:'lava'},{x:600,y:280,w:50,h:40,type:'lava'},{x:760,y:280,w:50,h:40,type:'lava'},{x:900,y:100,w:60,h:50,type:'lava'},{x:1050,y:100,w:50,h:40,type:'lava'}
+    ],bgColor:'#5a7a3a',pathColor:'#8a6a4a',className:'makkelijk'
   },
+  // ========== LASTIG - Medium paden, meer obstakels ==========
   fabriek:{
-    name:'Fabriek',tier:'lastig',desc:'Industrieel terrein met machine obstakels',
-    path:[{x:-20,y:350},{x:200,y:350},{x:200,y:180},{x:400,y:180},{x:400,y:520},{x:600,y:520},{x:600,y:150},{x:800,y:150},{x:800,y:480},{x:1000,y:480},{x:1000,y:280},{x:1220,y:280}],
-    obstacles:[{x:90,y:200,w:60,h:80,type:'machine'},{x:350,y:300,w:50,h:80,type:'machine'},{x:550,y:200,w:70,h:50,type:'machine'},{x:750,y:320,w:50,h:70,type:'machine'},{x:950,y:200,w:60,h:60,type:'machine'},{x:200,y:450,w:40,h:80,type:'machine'},{x:900,y:400,w:60,h:40,type:'machine'}],
-    bgColor:'#3a3a3a',pathColor:'#5a5a5a',className:'lastig'
+    name:'Fabriek',tier:'lastig',desc:'Industriële zone met water- en lavabassins',
+    paths:[[
+      {x:-20,y:350},{x:240,y:350},{x:240,y:180},{x:500,y:180},{x:500,y:540},{x:760,y:540},{x:760,y:280},{x:1020,y:280},{x:1020,y:520},{x:1220,y:520}
+    ]],
+    obstacles:[
+      {x:80,y:260,w:80,h:60,type:'water'},{x:320,y:260,w:50,h:60,type:'lava'},{x:580,y:260,w:60,h:60,type:'water'},{x:840,y:200,w:60,h:60,type:'lava'},{x:300,y:420,w:80,h:60,type:'water'},{x:640,y:420,w:70,h:50,type:'lava'},{x:900,y:380,w:60,h:60,type:'water'}
+    ],bgColor:'#3a3a3a',pathColor:'#5a5a5a',className:'lastig'
   },
   ziekenhuis:{
-    name:'Ziekenhuis',tier:'lastig',desc:'Smalle ziekenhuisgangen met kamers',
-    path:[{x:-20,y:100},{x:150,y:100},{x:150,y:600},{x:320,y:600},{x:320,y:200},{x:500,y:200},{x:500,y:550},{x:680,y:550},{x:680,y:150},{x:860,y:150},{x:860,y:500},{x:1050,y:500},{x:1050,y:320},{x:1220,y:320}],
-    obstacles:[{x:180,y:130,w:50,h:200,type:'room'},{x:350,y:450,w:50,h:120,type:'room'},{x:530,y:250,w:50,h:150,type:'room'},{x:710,y:350,w:50,h:120,type:'room'},{x:890,y:180,w:50,h:150,type:'room'},{x:50,y:300,w:60,h:60,type:'room'}],
-    bgColor:'#e8e8e0',pathColor:'#c8c8c0',className:'lastig'
+    name:'Ziekenhuis',tier:'lastig',desc:'Tighte ziekenhuisgangen met waterbakken',
+    paths:[[
+      {x:300,y:-20},{x:300,y:260},{x:560,y:260},{x:560,y:460},{x:300,y:460},{x:300,y:660},{x:600,y:660},{x:600,y:720}
+    ]],
+    obstacles:[
+      {x:100,y:0,w:120,h:200,type:'water'},{x:100,y:340,w:120,h:80,type:'water'},{x:100,y:500,w:120,h:200,type:'water'},{x:400,y:0,w:60,h:180,type:'water'},{x:640,y:0,w:200,h:200,type:'water'},{x:640,y:300,w:200,h:80,type:'water'},{x:640,y:480,w:200,h:100,type:'water'}
+    ],bgColor:'#e8e8e0',pathColor:'#c8c8c0',className:'lastig'
   },
   mesa:{
-    name:'Mesa',tier:'lastig',desc:'Plateau landschap met smalle doorgangen',
-    path:[{x:-20,y:350},{x:180,y:350},{x:180,y:180},{x:400,y:180},{x:400,y:520},{x:650,y:520},{x:650,y:280},{x:900,y:280},{x:900,y:480},{x:1220,y:480}],
-    obstacles:[{x:250,y:250,w:60,h:150,type:'mesa'},{x:500,y:250,w:50,h:120,type:'mesa'},{x:750,y:300,w:55,h:100,type:'mesa'},{x:250,y:420,w:40,h:80,type:'mesa'},{x:980,y:350,w:60,h:100,type:'mesa'}],
-    bgColor:'#8a5a3a',pathColor:'#b08050',className:'lastig'
+    name:'Mesa',tier:'lastig',desc:'Plateaus met lavapoelen op strategische plekken',
+    paths:[[
+      {x:-20,y:350},{x:220,y:350},{x:220,y:140},{x:480,y:140},{x:480,y:520},{x:740,y:520},{x:740,y:260},{x:1000,y:260},{x:1000,y:500},{x:1220,y:500}
+    ]],
+    obstacles:[
+      {x:80,y:250,w:60,h:60,type:'lava'},{x:300,y:240,w:70,h:50,type:'lava'},{x:560,y:240,w:60,h:60,type:'lava'},{x:820,y:180,w:70,h:50,type:'lava'},{x:300,y:420,w:60,h:60,type:'water'},{x:560,y:420,w:50,h:60,type:'water'},{x:820,y:360,w:60,h:60,type:'water'}
+    ],bgColor:'#8a5a3a',pathColor:'#b08050',className:'lastig'
   },
+  // ========== MOEILIJK - Korte paden, veel lavas ==========
   vulkaan:{
-    name:'Vulkaan',tier:'moeilijk',desc:'Lava rivieren maken smalle paden',
-    path:[{x:-20,y:130},{x:200,y:130},{x:200,y:400},{x:470,y:400},{x:470,y:200},{x:730,y:200},{x:730,y:530},{x:1000,y:530},{x:1000,y:270},{x:1220,y:270}],
-    obstacles:[{x:250,y:150,w:40,h:100,type:'lava'},{x:300,y:300,w:100,h:30,type:'lava'},{x:520,y:250,w:30,h:80,type:'lava'},{x:550,y:450,w:80,h:30,type:'lava'},{x:800,y:280,w:30,h:100,type:'lava'},{x:870,y:450,w:60,h:30,type:'lava'},{x:150,y:300,w:30,h:50,type:'lava'},{x:1050,y:350,w:50,h:40,type:'lava'}],
-    bgColor:'#2a0a00',pathColor:'#8b2500',className:'moeilijk'
+    name:'Vulkaan',tier:'moeilijk',desc:'Kort haarspeldpad omringd door lava',
+    paths:[[
+      {x:200,y:-20},{x:200,y:320},{x:520,y:320},{x:520,y:130},{x:840,y:130},{x:840,y:440},{x:520,y:440},{x:520,y:600},{x:840,y:600},{x:840,y:720}
+    ]],
+    obstacles:[
+      {x:0,y:0,w:120,h:700,type:'lava'},{x:280,y:0,w:60,h:260,type:'lava'},{x:600,y:0,w:60,h:100,type:'lava'},{x:600,y:200,w:60,h:100,type:'lava'},{x:900,y:0,w:300,h:100,type:'lava'},{x:280,y:480,w:60,h:220,type:'lava'},{x:600,y:500,w:60,h:220,type:'lava'},{x:900,y:300,w:300,h:420,type:'lava'},{x:280,y:360,w:150,h:50,type:'lava'}
+    ],bgColor:'#2a0a00',pathColor:'#8b2500',className:'moeilijk'
   },
   mounttsjaad:{
-    name:'Mount Tsjaad',tier:'moeilijk',desc:'Steile bergpaden met weinig bouwplek',
-    path:[{x:-20,y:600},{x:100,y:600},{x:100,y:400},{x:300,y:400},{x:300,y:180},{x:500,y:180},{x:500,y:520},{x:700,y:520},{x:700,y:120},{x:900,y:120},{x:900,y:480},{x:1100,y:480},{x:1100,y:300},{x:1220,y:300}],
-    obstacles:[{x:150,y:450,w:50,h:100,type:'rock'},{x:350,y:250,w:60,h:80,type:'rock'},{x:550,y:300,w:50,h:100,type:'rock'},{x:750,y:280,w:60,h:100,type:'rock'},{x:950,y:250,w:50,h:90,type:'rock'},{x:200,y:200,w:40,h:60,type:'rock'}],
-    bgColor:'#4a6a7a',pathColor:'#7a9aaa',className:'moeilijk'
+    name:'Mount Tsjaad',tier:'moeilijk',desc:'Zeer kort bergpad met weinig bouwplek',
+    paths:[[
+      {x:-20,y:600},{x:200,y:600},{x:200,y:360},{x:520,y:360},{x:520,y:180},{x:840,y:180},{x:840,y:460},{x:1120,y:460},{x:1120,y:300},{x:1220,y:300}
+    ]],
+    obstacles:[
+      {x:60,y:400,w:80,h:60,type:'water'},{x:280,y:280,w:60,h:60,type:'water'},{x:600,y:100,w:60,h:60,type:'water'},{x:900,y:280,w:60,h:60,type:'water'},{x:260,y:440,w:200,h:50,type:'water'},{x:600,y:300,w:200,h:50,type:'water'},{x:900,y:400,w:200,h:50,type:'water'}
+    ],bgColor:'#4a6a7a',pathColor:'#7a9aaa',className:'moeilijk'
   },
   tsjaadeiland:{
-    name:'Tsjaad Eiland',tier:'moeilijk',desc:'Eiland met water kanalen',
-    path:[{x:-20,y:350},{x:200,y:350},{x:200,y:160},{x:500,y:160},{x:500,y:530},{x:800,y:530},{x:800,y:250},{x:1100,y:250},{x:1100,y:500},{x:1220,y:500}],
-    obstacles:[{x:90,y:100,w:200,h:60,type:'water'},{x:90,y:450,w:200,h:150,type:'water'},{x:350,y:100,w:100,h:200,type:'water'},{x:350,y:400,w:100,h:200,type:'water'},{x:640,y:100,w:100,h:200,type:'water'},{x:640,y:450,w:100,h:150,type:'water'},{x:920,y:100,w:200,h:100,type:'water'},{x:920,y:420,w:200,h:180,type:'water'},{x:1150,y:100,w:60,h:350,type:'water'}],
-    bgColor:'#1a4a6a',pathColor:'#3a7a9a',className:'moeilijk'
+    name:'Tsjaad Eiland',tier:'moeilijk',desc:'Eiland met water overal, smalle doorgang',
+    paths:[[
+      {x:600,y:-20},{x:600,y:200},{x:340,y:200},{x:340,y:480},{x:600,y:480},{x:600,y:320},{x:860,y:320},{x:860,y:560},{x:600,y:560},{x:600,y:720}
+    ]],
+    obstacles:[
+      {x:0,y:0,w:260,h:700,type:'water'},{x:340,y:0,w:200,h:120,type:'water'},{x:340,y:340,w:200,h:80,type:'water'},{x:640,y:0,w:220,h:120,type:'water'},{x:640,y:360,w:220,h:80,type:'water'},{x:940,y:0,w:260,h:700,type:'water'}
+    ],bgColor:'#1a4a6a',pathColor:'#3a7a9a',className:'moeilijk'
   },
+  // ========== ONMOGELIJK - 2 uitgangen, extreem kort ==========
   tsjaadmeer:{
-    name:'Tsjaad Meer',tier:'onmogelijk',desc:'Bijna volledig water, extreem smal pad',
-    path:[{x:-20,y:350},{x:160,y:350},{x:160,y:150},{x:350,y:150},{x:350,y:560},{x:550,y:560},{x:550,y:180},{x:750,y:180},{x:750,y:530},{x:950,y:530},{x:950,y:250},{x:1220,y:250}],
-    obstacles:[{x:0,y:0,w:200,h:100,type:'water_deep'},{x:0,y:480,w:200,h:220,type:'water_deep'},{x:200,y:0,w:100,h:110,type:'water_deep'},{x:200,y:400,w:100,h:300,type:'water_deep'},{x:400,y:0,w:100,h:110,type:'water_deep'},{x:400,y:400,w:100,h:300,type:'water_deep'},{x:600,y:0,w:100,h:140,type:'water_deep'},{x:600,y:450,w:100,h:250,type:'water_deep'},{x:800,y:0,w:100,h:140,type:'water_deep'},{x:800,y:400,w:100,h:300,type:'water_deep'},{x:1000,y:0,w:200,h:200,type:'water_deep'},{x:1000,y:380,w:200,h:320,type:'water_deep'}],
-    bgColor:'#0a2a4a',pathColor:'#2a5a7a',className:'onmogelijk'
+    name:'Tsjaad Meer',tier:'onmogelijk',desc:'Twee routes door diep water, bijna geen land',
+    paths:[[
+      {x:80,y:-20},{x:80,y:300},{x:360,y:300},{x:360,y:520},{x:640,y:520},{x:640,y:300},{x:920,y:300},{x:920,y:520},{x:1220,y:520}
+    ],[
+      {x:600,y:-20},{x:600,y:260},{x:900,y:260},{x:900,y:460},{x:600,y:460},{x:600,y:720}
+    ]],
+    obstacles:[
+      {x:0,y:0,w:50,h:700,type:'water_deep'},{x:140,y:0,w:60,h:240,type:'water_deep'},{x:140,y:380,w:60,h:320,type:'water_deep'},{x:240,y:0,w:50,h:700,type:'water_deep'},{x:420,y:0,w:80,h:240,type:'water_deep'},{x:420,y:380,w:80,h:320,type:'water_deep'},{x:520,y:0,w:40,h:200,type:'water_deep'},{x:520,y:540,w:40,h:160,type:'water_deep'},{x:700,y:0,w:80,h:200,type:'water_deep'},{x:700,y:540,w:80,h:160,type:'water_deep'},{x:840,y:0,w:40,h:200,type:'water_deep'},{x:840,y:540,w:40,h:160,type:'water_deep'},{x:980,y:0,w:220,h:240,type:'water_deep'},{x:980,y:400,w:220,h:300,type:'water_deep'}
+    ],bgColor:'#0a2a4a',pathColor:'#2a5a7a',className:'onmogelijk'
   },
   robotfabriek:{
-    name:'Robot Fabriek',tier:'onmogelijk',desc:'Zware machine obstakels, robot thema',
-    path:[{x:-20,y:100},{x:100,y:100},{x:100,y:600},{x:250,y:600},{x:250,y:200},{x:450,y:200},{x:450,y:550},{x:650,y:550},{x:650,y:120},{x:850,y:120},{x:850,y:580},{x:1050,y:580},{x:1050,y:300},{x:1220,y:300}],
-    obstacles:[{x:140,y:150,w:60,h:300,type:'conveyor'},{x:300,y:140,w:80,h:60,type:'machine2'},{x:300,y:450,w:80,h:80,type:'machine2'},{x:500,y:250,w:70,h:150,type:'machine2'},{x:700,y:200,w:80,h:80,type:'conveyor'},{x:700,y:400,w:80,h:60,type:'conveyor'},{x:900,y:200,w:70,h:280,type:'machine2'},{x:150,y:420,w:50,h:50,type:'machine2'}],
-    bgColor:'#1a1a2a',pathColor:'#3a3a5a',className:'onmogelijk'
+    name:'Robot Fabriek',tier:'onmogelijk',desc:'Twee lava-routes, minimale bouwruimte',
+    paths:[[
+      {x:-20,y:180},{x:300,y:180},{x:300,y:420},{x:600,y:420},{x:600,y:180},{x:900,y:180},{x:900,y:520},{x:1220,y:520}
+    ],[
+      {x:-20,y:540},{x:260,y:540},{x:260,y:300},{x:560,y:300},{x:560,y:560},{x:860,y:560},{x:860,y:280},{x:1100,y:280},{x:1100,y:720}
+    ]],
+    obstacles:[
+      {x:0,y:0,w:120,h:120,type:'lava'},{x:0,y:260,w:120,h:200,type:'lava'},{x:0,y:600,w:120,h:100,type:'lava'},{x:180,y:0,w:50,h:120,type:'lava'},{x:180,y:480,w:50,h:220,type:'lava'},{x:360,y:0,w:80,h:130,type:'lava'},{x:360,y:300,w:80,h:50,type:'lava'},{x:520,y:0,w:40,h:130,type:'lava'},{x:520,y:360,w:40,h:100,type:'lava'},{x:680,y:0,w:80,h:130,type:'lava'},{x:840,y:0,w:40,h:130,type:'lava'},{x:940,y:0,w:260,h:130,type:'lava'},{x:940,y:380,w:260,h:320,type:'lava'}
+    ],bgColor:'#1a1a2a',pathColor:'#3a3a5a',className:'onmogelijk'
   },
   safari:{
-    name:'Safari',tier:'onmogelijk',desc:'Wild natuur gebied met natuurlijke obstakels',
-    path:[{x:-20,y:350},{x:150,y:350},{x:150,y:150},{x:380,y:150},{x:380,y:550},{x:580,y:550},{x:580,y:200},{x:800,y:200},{x:800,y:500},{x:1000,y:500},{x:1000,y:200},{x:1220,y:200}],
-    obstacles:[{x:200,y:230,w:60,h:80,type:'tree'},{x:230,y:450,w:70,h:60,type:'tree'},{x:420,y:200,w:80,h:50,type:'tree'},{x:430,y:400,w:60,h:70,type:'tree'},{x:630,y:260,w:70,h:60,type:'tree'},{x:850,y:280,w:60,h:100,type:'tree'},{x:1050,y:300,w:70,h:80,type:'tree'},{x:200,y:100,w:50,h:50,type:'tree'},{x:900,y:150,w:50,h:60,type:'tree'}],
-    bgColor:'#3a6a2a',pathColor:'#5a8a4a',className:'onmogelijk'
+    name:'Safari',tier:'onmogelijk',desc:'Twee paden door wild gebied met water en lava',
+    paths:[[
+      {x:-20,y:200},{x:360,y:200},{x:360,y:460},{x:660,y:460},{x:660,y:240},{x:960,y:240},{x:960,y:500},{x:1220,y:500}
+    ],[
+      {x:500,y:-20},{x:500,y:260},{x:800,y:260},{x:800,y:480},{x:500,y:480},{x:500,y:720}
+    ]],
+    obstacles:[
+      {x:0,y:0,w:200,h:130,type:'water'},{x:0,y:280,w:200,h:120,type:'lava'},{x:0,y:520,w:200,h:180,type:'water'},{x:240,y:100,w:60,h:250,type:'water'},{x:240,y:450,w:60,h:150,type:'lava'},{x:420,y:0,w:40,h:180,type:'lava'},{x:420,y:340,w:40,h:100,type:'water'},{x:620,y:0,w:60,h:180,type:'lava'},{x:620,y:340,w:60,h:80,type:'water'},{x:720,y:0,w:40,h:180,type:'lava'},{x:720,y:340,w:40,h:100,type:'water'},{x:860,y:0,w:340,h:180,type:'water'},{x:860,y:380,w:340,h:320,type:'lava'}
+    ],bgColor:'#3a6a2a',pathColor:'#5a8a4a',className:'onmogelijk'
   },
+  // ========== ULTIME TSJAAD KRIJGER - 3 uitgangen, maximale moeilijkheid ==========
   deruimte:{
-    name:'De Ruimte',tier:'ultiem',desc:'Ruimtestation met zwaartekrachtloze obstakels',
-    path:[{x:-20,y:60},{x:200,y:60},{x:200,y:560},{x:400,y:560},{x:400,y:120},{x:600,y:120},{x:600,y:580},{x:800,y:580},{x:800,y:180},{x:1000,y:180},{x:1000,y:520},{x:1220,y:520}],
-    obstacles:[{x:120,y:200,w:40,h:200,type:'debris'},{x:320,y:250,w:50,h:150,type:'debris'},{x:520,y:250,w:40,h:200,type:'debris'},{x:720,y:300,w:50,h:180,type:'debris'},{x:920,y:300,w:50,h:150,type:'debris'},{x:100,y:380,w:30,h:80,type:'debris'}],
-    bgColor:'#0a0a2a',pathColor:'#2a2a5a',className:'ultiem'
+    name:'De Ruimte',tier:'ultiem',desc:'Drie ruimte-routes, bijna geen bouwplek',
+    paths:[[
+      {x:100,y:-20},{x:100,y:320},{x:400,y:320},{x:400,y:520},{x:700,y:520},{x:700,y:320},{x:1000,y:320},{x:1000,y:520},{x:1220,y:520}
+    ],[
+      {x:600,y:-20},{x:600,y:280},{x:860,y:280},{x:860,y:140},{x:1080,y:140},{x:1080,y:400},{x:860,y:400},{x:860,y:720}
+    ],[
+      {x:-20,y:600},{x:320,y:600},{x:320,y:360},{x:600,y:360},{x:600,y:560},{x:900,y:560},{x:900,y:360},{x:1120,y:360},{x:1120,y:150},{x:1220,y:150}
+    ]],
+    obstacles:[
+      {x:0,y:0,w:60,h:260,type:'water'},{x:0,y:400,w:60,h:200,type:'water'},{x:180,y:0,w:80,h:260,type:'lava'},{x:180,y:400,w:80,h:200,type:'lava'},{x:320,y:0,w:40,h:260,type:'water'},{x:320,y:420,w:40,h:180,type:'water'},{x:460,y:0,w:80,h:260,type:'lava'},{x:460,y:400,w:80,h:200,type:'lava'},{x:760,y:0,w:60,h:260,type:'water'},{x:760,y:420,w:60,h:180,type:'water'},{x:940,y:0,w:260,h:100,type:'lava'},{x:940,y:580,w:260,h:120,type:'lava'}
+    ],bgColor:'#0a0a2a',pathColor:'#2a2a5a',className:'ultiem'
   },
   nucleairereactor:{
-    name:'Nucleaire Reactor',tier:'ultiem',desc:'Radioactieve reactor met stralingszones',
-    path:[{x:-20,y:350},{x:150,y:350},{x:150,y:160},{x:380,y:160},{x:380,y:550},{x:580,y:550},{x:580,y:120},{x:780,y:120},{x:780,y:580},{x:980,y:580},{x:980,y:280},{x:1220,y:280}],
-    obstacles:[{x:200,y:220,w:80,h:80,type:'radiation'},{x:430,y:250,w:70,h:100,type:'radiation'},{x:630,y:280,w:80,h:80,type:'radiation'},{x:830,y:250,w:70,h:100,type:'radiation'},{x:230,y:430,w:60,h:60,type:'radiation'},{x:1030,y:360,w:60,h:80,type:'radiation'}],
-    bgColor:'#0a1a0a',pathColor:'#2a5a2a',className:'ultiem'
+    name:'Nucleaire Reactor',tier:'ultiem',desc:'Drie paden door radioactief water en lava',
+    paths:[[
+      {x:-20,y:260},{x:320,y:260},{x:320,y:460},{x:620,y:460},{x:620,y:260},{x:920,y:260},{x:920,y:520},{x:1220,y:520}
+    ],[
+      {x:400,y:720},{x:400,y:460},{x:700,y:460},{x:700,y:260},{x:400,y:260},{x:400,y:100},{x:700,y:100},{x:700,y:-20}
+    ],[
+      {x:920,y:-20},{x:920,y:200},{x:1140,y:200},{x:1140,y:460},{x:920,y:460},{x:920,y:720}
+    ]],
+    obstacles:[
+      {x:0,y:0,w:220,h:200,type:'water'},{x:0,y:540,w:220,h:160,type:'lava'},{x:260,y:0,w:50,h:200,type:'lava'},{x:260,y:360,w:50,h:160,type:'water'},{x:460,y:0,w:80,h:200,type:'water'},{x:460,y:540,w:80,h:160,type:'lava'},{x:760,y:0,w:100,h:200,type:'lava'},{x:760,y:540,w:100,h:160,type:'water'},{x:1000,y:0,w:200,h:140,type:'water'},{x:1000,y:580,w:200,h:120,type:'lava'}
+    ],bgColor:'#0a1a0a',pathColor:'#2a5a2a',className:'ultiem'
   },
   tsjaadarena:{
-    name:'Tsjaad Arena',tier:'ultiem',desc:'De ultieme strijdarena met zuilen',
-    path:[{x:-20,y:350},{x:200,y:350},{x:200,y:180},{x:450,y:180},{x:450,y:520},{x:700,y:520},{x:700,y:180},{x:950,y:180},{x:950,y:520},{x:1220,y:520}],
-    obstacles:[{x:300,y:300,w:50,h:50,type:'pillar'},{x:550,y:300,w:50,h:50,type:'pillar'},{x:800,y:300,w:50,h:50,type:'pillar'},{x:300,y:100,w:60,h:30,type:'pillar'},{x:550,y:100,w:60,h:30,type:'pillar'},{x:800,y:100,w:60,h:30,type:'pillar'},{x:300,y:520,w:60,h:30,type:'pillar'},{x:550,y:520,w:60,h:30,type:'pillar'},{x:800,y:520,w:60,h:30,type:'pillar'}],
-    bgColor:'#3a1a0a',pathColor:'#6a3a1a',className:'ultiem'
+    name:'Tsjaad Arena',tier:'ultiem',desc:'Drie arena-routes, lava vult bijna alles',
+    paths:[[
+      {x:-20,y:200},{x:400,y:200},{x:400,y:420},{x:800,y:420},{x:800,y:200},{x:1220,y:200}
+    ],[
+      {x:600,y:-20},{x:600,y:300},{x:300,y:300},{x:300,y:520},{x:600,y:520},{x:600,y:720}
+    ],[
+      {x:300,y:720},{x:300,y:500},{x:800,y:500},{x:800,y:300},{x:1080,y:300},{x:1080,y:560},{x:1220,y:560}
+    ]],
+    obstacles:[
+      {x:0,y:0,w:200,h:140,type:'lava'},{x:0,y:280,w:200,h:140,type:'lava'},{x:0,y:540,w:200,h:160,type:'lava'},{x:240,y:0,w:50,h:140,type:'water'},{x:240,y:380,w:50,h:100,type:'water'},{x:460,y:0,w:80,h:140,type:'lava'},{x:460,y:300,w:80,h:70,type:'lava'},{x:660,y:0,w:60,h:140,type:'water'},{x:660,y:360,w:60,h:100,type:'water'},{x:860,y:0,w:340,h:140,type:'lava'},{x:860,y:380,w:340,h:100,type:'lava'},{x:860,y:580,w:340,h:120,type:'lava'}
+    ],bgColor:'#3a1a0a',pathColor:'#6a3a1a',className:'ultiem'
+  },
+  ruimtestation:{
+    name:'Ruimte Station',tier:'ultiem',desc:'Enkel pad door verlaten ruimtestation vol met asteroïden',
+    paths:[[
+      {x:-20,y:200},{x:240,y:200},{x:240,y:480},{x:520,y:480},{x:520,y:160},{x:780,y:160},{x:780,y:520},{x:1040,y:520},{x:1040,y:280},{x:1220,y:280}
+    ]],
+    obstacles:[
+      {x:60,y:60,w:80,h:50,type:'water'},{x:320,y:80,w:60,h:70,type:'lava'},{x:420,y:300,w:70,h:50,type:'water'},{x:600,y:60,w:50,h:60,type:'lava'},{x:700,y:320,w:80,h:60,type:'water'},{x:880,y:80,w:60,h:70,type:'lava'},{x:900,y:400,w:60,h:50,type:'water'}
+    ],bgColor:'#0a0020',pathColor:'#2a5aff',className:'ultiem'
   }
 };
 
 let currentMapId = null;
 
-function selectMap(mapId){
-  currentMapId = mapId;
-  const map = MAPS[mapId];
-  document.getElementById('modeSelectTitle').textContent = '🎯 KIES EEN MODUS';
-  document.getElementById('modeSelectMapName').textContent = '📍 ' + map.name + ' — ' + map.desc;
-  document.getElementById('modeSelectOverlay').classList.add('open');
-}
-
-function closeModeSelect(){
-  document.getElementById('modeSelectOverlay').classList.remove('open');
-  currentMapId = null;
-}
+const MODE_MAP = {
+  standard:'tsjaadwoestijn', plaag:'vulkaan', hard:'mounttsjaad', speed:'megastad',
+  armoede:'tsjaadmeer', boss:'tsjaadarena', mutatie:'safari', dubbelhealth:'berg',
+  tsjaadmodus:'tsjaadeiland', tsjaadplus:'robotfabriek', lichtsnelheid:'ruimtestation'
+};
 
 function selectMode(mode){
-  if(!currentMapId) return;
-  const mapId = currentMapId;
-  closeModeSelect();
-  startGame(mapId, mode);
+  document.getElementById('titleScreen').style.display='none';
+  document.getElementById('settingsBtn').style.display='none';
+  startGame(MODE_MAP[mode]||'tsjaadwoestijn', mode);
 }
 
 const canvas = document.getElementById('game');
@@ -561,7 +580,9 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 
 let gameMode = null;
 let gameSpeedMult = 1;
-let roboMode = false; // robotravage: all enemies are metal+explode
+let enemySpeedMult = 1; // separate mult for enemy-only speed (lichtsnelheid)
+
+let gamePaths = []; // all paths for current map (supports multi-exit)
 
 // ===== SPEEDRUN TIMER =====
 let timerStartTime = null, timerElapsed = 0, timerRunning = false, timerVisible = false, timerRAF = null;
@@ -609,7 +630,7 @@ function toggleTimer() {
 let autoStartRounds = false;
 let autoRoundCountdown = 0;
 
-let path = [];
+let path = []; // first path (backward compat)
 let money=500, lives=20, round=1;
 let selectedTower=null;
 let enemies=[], towers=[], projectiles=[], explosions=[], bananas=[], landmines=[];
@@ -704,7 +725,8 @@ function startGame(mapId, mode) {
   const map = MAPS[mapId];
   if(!map) return;
   currentMapId = mapId;
-  path = map.path;
+  gamePaths = map.paths || (map.path ? [map.path] : []);
+  path = gamePaths[0] || [];
 
   document.getElementById('titleScreen').style.display='none';
   document.getElementById('settingsBtn').style.display='none';
@@ -724,29 +746,28 @@ function startGame(mapId, mode) {
   const titleColors = {
     standard:'#daa520', plaag:'#ff6b35', hard:'#c70039', speed:'#00ffff',
     armoede:'#888', boss:'#ff0000', mutatie:'#00ff44', dubbelhealth:'#4fc3f7',
-    tsjaadmodus:'#ff9800', tsjaadplus:'#ffd700', lichtsnelheid:'#00ffff', robotravage:'#c0c0c0'
+    tsjaadmodus:'#ff9800', tsjaadplus:'#ffd700', lichtsnelheid:'#00ffff'
   };
   const color = titleColors[mode] || '#daa520';
   const modeLabels = {
     standard:'STANDAARD', plaag:'PLAAG MODUS', hard:'HARD MODUS', speed:'DUBBEL SNELHEID',
     armoede:'ARMOEDE MODUS', boss:'BOSS MODE', mutatie:'MUTATIE MODUS', dubbelhealth:'DUBBEL HEALTH',
-    tsjaadmodus:'TSJAAD MODUS', tsjaadplus:'TSJAAD MODUS PLUS', lichtsnelheid:'LICHTSNELHEID', robotravage:'ROBOT RAVAGE'
+    tsjaadmodus:'TSJAAD MODUS', tsjaadplus:'TSJAAD MODUS PLUS', lichtsnelheid:'LICHTSNELHEID'
   };
   const label = modeLabels[mode] || 'STANDAARD';
   document.getElementById('gameTitle').innerHTML = '📍 ' + map.name + ' · <span style="color:'+color+'">'+label+'</span>';
 
-  gameSpeedMult = 1; roboMode = false;
+  gameSpeedMult = 1; enemySpeedMult = 1;
   if(mode==='plaag'){ document.getElementById('roundMax').textContent=''; lives=12; money=700; }
   else if(mode==='hard'){ document.getElementById('roundMax').textContent='/50'; lives=20; money=300; autoStartRounds=true; autoRoundCountdown=0; document.getElementById('startRoundBtn').style.display='none'; document.getElementById('autoRoundMsg').textContent=t('auto-hard'); }
-  else if(mode==='speed'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=2000; gameSpeedMult=2; }
+  else if(mode==='speed'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=2000; gameSpeedMult=2; enemySpeedMult=2; }
   else if(mode==='armoede'){ document.getElementById('roundMax').textContent='/30'; lives=1; money=500; document.getElementById('katoenBtn').disabled=true; document.getElementById('katoenBtn').classList.add('crossed-out'); }
   else if(mode==='boss'){ document.getElementById('roundMax').textContent='/1'; lives=20; money=1000; }
   else if(mode==='mutatie'){ document.getElementById('roundMax').textContent='/35'; lives=20; money=600; }
   else if(mode==='dubbelhealth'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=500; }
   else if(mode==='tsjaadmodus'){ document.getElementById('roundMax').textContent='/50'; lives=1; money=800; autoStartRounds=true; autoRoundCountdown=0; document.getElementById('startRoundBtn').style.display='none'; document.getElementById('autoRoundMsg').textContent=t('auto-tsjaad'); }
   else if(mode==='tsjaadplus'){ document.getElementById('roundMax').textContent='/50'; lives=1; money=1000; }
-  else if(mode==='lichtsnelheid'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=2000; gameSpeedMult=4; }
-  else if(mode==='robotravage'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=800; roboMode=true; }
+  else if(mode==='lichtsnelheid'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=2000; enemySpeedMult=4; }
   else { document.getElementById('roundMax').textContent='/30'; }
 
   document.getElementById('lives').textContent=lives;
@@ -755,14 +776,14 @@ function startGame(mapId, mode) {
   const themeMap = {
     plaag:'themePlaag', hard:'themeHard', speed:'themeSpeed',
     boss:'themeBoss', mutatie:'themeMutatie', tsjaadmodus:'themeTsjaad',
-    tsjaadplus:'themeTsjaad', dubbelhealth:'themeDubbelHealth', armoede:'themeArmoede',
-    lichtsnelheid:'themeSpeed', robotravage:'themeHard'
+    tsjaadplus:'themeTsjaad', dubbelhealth:'themeDubbelHealth', armoede:'themeArmoede'
   };
-  playMusic(themeMap[mode] || 'themeStandaard');
-
-  // Extra audio for new modes
-  if(mode==='lichtsnelheid'){ const a=new Audio(BASE_AUDIO+'Lichtsnelheid.mp3'); a.volume=0.6; a.play().catch(()=>{}); }
-  if(mode==='robotravage'){ const a=new Audio(BASE_AUDIO+'RoboRavage.mp3'); a.volume=0.6; a.play().catch(()=>{}); }
+  if(mode==='lichtsnelheid'){
+    stopMusic();
+    const a=new Audio(BASE_AUDIO+'Lichtsnelheid.mp3'); a.loop=true; a.volume=0.6; a.play().catch(()=>{}); currentTheme=a; musicPlaying=true;
+  } else {
+    playMusic(themeMap[mode] || 'themeStandaard');
+  }
 
   startTimer();
   document.getElementById('utilBtns').style.display = 'flex';
@@ -1279,9 +1300,12 @@ canvas.onclick=e=>{
   if(money<cfg.cost) return;
   if(isPointInObstacle(x,y)) return;
   if(selectedTower!=='aap'){
-    for(let i=0;i<path.length-1;i++){
-      const p1=path[i],p2=path[i+1];
-      if(distanceToLineSegment(x,y,p1.x,p1.y,p2.x,p2.y)<30) return;
+    const pathsToCheck = gamePaths.length ? gamePaths : [path];
+    for(const checkPath of pathsToCheck){
+      for(let i=0;i<checkPath.length-1;i++){
+        const p1=checkPath[i],p2=checkPath[i+1];
+        if(distanceToLineSegment(x,y,p1.x,p1.y,p2.x,p2.y)<30) return;
+      }
     }
   }
   money-=cfg.cost;
@@ -1414,13 +1438,12 @@ function startRound(){
   else if(gameMode==='dubbelhealth') baseEnemies=Math.floor(5+round*1.8);
   else if(gameMode==='tsjaadmodus') baseEnemies=Math.floor(8+round*2.5);
   else if(gameMode==='tsjaadplus') baseEnemies=Math.floor(8+round*3);
-
   spawnLeft=baseEnemies; spawning=true; spawnTimer=0;
   if(autoStartRounds) autoRoundCountdown=0;
 }
 
 function getMaxRound(){
-  if(gameMode==='standard'||gameMode==='speed'||gameMode==='armoede'||gameMode==='dubbelhealth'||gameMode==='lichtsnelheid'||gameMode==='robotravage') return 30;
+  if(gameMode==='standard'||gameMode==='speed'||gameMode==='armoede'||gameMode==='dubbelhealth'||gameMode==='lichtsnelheid') return 30;
   if(gameMode==='hard'||gameMode==='tsjaadmodus') return 50;
   if(gameMode==='boss') return 1;
   if(gameMode==='mutatie') return 35;
@@ -1459,7 +1482,6 @@ function spawnEnemy(){
 
   if(round===maxRound){
     if(gameMode==='mutatie'){ enemies.push(makeEnemy({...zwangereMugBossType})); return; }
-    if(gameMode==='robotravage'){ const rb={...mutatedBossType}; rb.name='🤖 Robo Malaria Mug'; enemies.push(makeEnemy(rb)); return; }
     if(gameMode==='standard'||gameMode==='speed'||gameMode==='lichtsnelheid'||gameMode==='armoede'){ enemies.push(makeEnemy({...bossType})); return; }
     if(gameMode==='hard'){ enemies.push(makeEnemy({...mutatedBossType})); return; }
     if(gameMode==='boss'){ enemies.push(makeEnemy({...slowBossType})); return; }
@@ -1474,7 +1496,6 @@ function spawnEnemy(){
   if(gameMode==='plaag'){ hpScale*=1.80; speedScale*=1.35; }
   else if(gameMode==='hard'){ hpScale*=1.5; speedScale*=1.15; }
   else if(gameMode==='speed'){ speedScale*=2.0; }
-  else if(gameMode==='robotravage'){ hpScale*=1.5; speedScale*=1.3; }
   else if(gameMode==='dubbelhealth'){ hpScale*=2.0; }
   else if(gameMode==='tsjaadmodus'){ hpScale*=2.0; speedScale*=2.0; }
   else if(gameMode==='tsjaadplus'){ hpScale*=2.5; speedScale*=2.5; }
@@ -1513,12 +1534,6 @@ function spawnEnemy(){
 
   const enemy=makeEnemy({...base,hp:finalHp,speed:finalSpeed,reward:Math.floor(base.reward*(1+round*0.15)),infected:gameMode==='plaag'});
   if(mutation){ enemy.mutation=mutation; enemy.mutation2=mutation2||null; enemy.mutation3=mutation3||null; enemy.name=getMutationDisplayName(mutation,mutation2,base.name,mutation3); applyMutationToEnemy(enemy,mutation,finalHp,finalSpeed,base); if(mutation2) applyMutationToEnemy(enemy,mutation2,finalHp,finalSpeed,base); if(mutation3) applyMutationToEnemy(enemy,mutation3,finalHp,finalSpeed,base); }
-  // Robotravage: all enemies are metal + explode
-  if(roboMode){
-    enemy._roboExplode = true;
-    if(!enemy.mutation){ enemy.mutation='metalen'; enemy.name='🤖 Robo '+base.name; }
-    else { enemy.mutation2 = 'metalen'; enemy.name='🤖 '+enemy.name; }
-  }
   enemies.push(enemy);
 }
 
@@ -1531,8 +1546,11 @@ function applyMutationToEnemy(enemy,mutation,hp,speed,base){
 }
 
 function makeEnemy(t2){
+  if(t2.pathIndex===undefined && gamePaths.length>1) t2.pathIndex=Math.floor(Math.random()*gamePaths.length);
+  const pi = t2.pathIndex || 0;
+  const startPath = gamePaths[pi] || path;
   const e = {
-    x:path[0].x,y:path[0].y,i:0,hp:t2.hp,max:t2.hp,speed:t2.speed,baseSpeed:t2.speed,
+    x:startPath[0].x,y:startPath[0].y,i:0,pathIndex:pi,hp:t2.hp,max:t2.hp,speed:t2.speed,baseSpeed:t2.speed,
     size:t2.size,reward:t2.reward,name:t2.name,type:t2.type,boss:t2.boss||false,
     infected:t2.infected||false,slowEndTime:0,
     burning:false,burnDamage:0,burnDuration:0,
@@ -1641,8 +1659,8 @@ function update(){
         const base = availableAnimals[Math.floor(Math.random()*availableAnimals.length)];
         const hpScale = 1 + round * 0.14;
         const speedScale = 1 + round * 0.02;
-        const child = makeEnemy({...base, hp: Math.floor(base.hp*hpScale), speed: base.speed*speedScale, reward: Math.floor(base.reward*0.5)});
-        child.i = 0; child.x = path[0].x; child.y = path[0].y;
+        const child = makeEnemy({...base, hp: Math.floor(base.hp*hpScale), speed: base.speed*speedScale, reward: Math.floor(base.reward*0.5), pathIndex:0});
+        child.i = 0; child.x = (gamePaths[0]||path)[0].x; child.y = (gamePaths[0]||path)[0].y;
         toSpawn.push(child);
       }
     }
@@ -1692,23 +1710,25 @@ function update(){
       }
     }
 
-    if(e.mutation==='accelererende'||e.mutation2==='accelererende'||e.mutation3==='accelererende'){ const progress=e.i/Math.max(1,path.length-1); e.speed=e.baseSpeedForAccel*(1+progress*3); }
+    if(e.mutation==='accelererende'||e.mutation2==='accelererende'||e.mutation3==='accelererende'){ const curPath=gamePaths[e.pathIndex]||path; const progress=e.i/Math.max(1,curPath.length-1); e.speed=e.baseSpeedForAccel*(1+progress*3); }
     if(e.type==='kameel'&&!e.kameelBoosted&&e.hp<=e.max*0.5){ e.kameelBoosted=true; e.kameelBoostTimer=60; e.speed*=4; e.baseSpeed*=4; }
     if(e.kameelBoosted&&e.kameelBoostTimer>0){ e.kameelBoostTimer--; if(e.kameelBoostTimer<=0){ e.kameelBoosted=false; e.speed/=4; e.baseSpeed/=4; } }
 
-    let effectiveSpeed = e.speed * (gameSpeedMult||1);
-    if(e.birdWindBoosted && !e.isBird) effectiveSpeed = e.speed * 1.3 * (gameSpeedMult||1);
+    const _speedMult = Math.max(gameSpeedMult||1, enemySpeedMult||1);
+    let effectiveSpeed = e.speed * _speedMult;
+    if(e.birdWindBoosted && !e.isBird) effectiveSpeed = e.speed * 1.3 * _speedMult;
 
-    const p=path[e.i+1];
+    const curPath=gamePaths[e.pathIndex]||path;
+    const p=curPath[e.i+1];
     if(!p) continue;
     const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy);
     if(d<effectiveSpeed){ e.i++; } else { e.x+=dx/d*effectiveSpeed; e.y+=dy/d*effectiveSpeed; }
-    if(e.boss&&e.i>=path.length-1){ lives=0; loseGame(); }
+    if(e.boss&&e.i>=curPath.length-1){ lives=0; loseGame(); }
   }
 
   for(const tw of towers){
     if(tw.cool>0) tw.cool -= (gameSpeedMult||1);
-    if(tw.cool<=0 && !tw.farm && enemies.length>0){
+    if(tw.cool<=0 && !tw.farm && (enemies.length>0 || tw.monkey)){
       const effRange = getTowerRange(tw);
       let target = null;
       for(const e of enemies){
@@ -1719,14 +1739,20 @@ function update(){
           if(!target || e.i > target.i || (e.i===target.i&&e.hp<target.hp)) target = e;
         }
       }
-      if(target){
-        tw.cool = Math.max(1, Math.floor(tw.rate / (gameSpeedMult||1)));
-        // Aap tower throws bananas instead of projectiles
-        if(tw.monkey){
-          if(!(target.mutation==='metalen'||target.mutation2==='metalen'||target.mutation3==='metalen')){
-            bananas.push({x:tw.x, y:tw.y, dmg:tw.dmg*3, lifetime:120, dead:false});
-          }
-        } else {
+      tw.cool = Math.max(1, Math.floor(tw.rate / (gameSpeedMult||1)));
+      if(tw.monkey){
+        let bx = target ? target.x : 0, by = target ? target.y : 0;
+        if(!target){
+          const paths = gamePaths.length ? gamePaths : [path];
+          const rPath = paths[Math.floor(Math.random() * paths.length)];
+          const ri = Math.floor(Math.random() * (rPath.length - 1));
+          const p1 = rPath[ri], p2 = rPath[ri + 1];
+          const t = Math.random();
+          bx = p1.x + (p2.x - p1.x) * t;
+          by = p1.y + (p2.y - p1.y) * t;
+        }
+        bananas.push({x:bx, y:by, dmg:tw.dmg*3, lifetime:600, dead:false, isMonkey:true});
+      } else if(target){
           const p = {
             x:tw.x, y:tw.y, tx:target.x, ty:target.y, target,
             speed: (towerTypes[tw.key]?.speed||3) * (gameSpeedMult||1),
@@ -1784,9 +1810,11 @@ function update(){
   for(const egg of eggsToHatch){
     const childBird = makeEnemy({...animalTypes.find(a=>a.type==='vogel'), hp: Math.floor(animalTypes.find(a=>a.type==='vogel').hp*(1+round*0.14)), speed: 1.4*(1+round*0.02), reward:15});
     childBird.isBird=true; childBird.isChildBird=true; childBird.windRadius=80; childBird.eggLaid=false;
+    childBird.pathIndex=0;
+    const eggPath=gamePaths[0]||path;
     let closestI=0, closestDist=999999;
-    for(let pi=0;pi<path.length;pi++){
-      const d2=Math.hypot(path[pi].x-egg.x,path[pi].y-egg.y);
+    for(let pi=0;pi<eggPath.length;pi++){
+      const d2=Math.hypot(eggPath[pi].x-egg.x,eggPath[pi].y-egg.y);
       if(d2<closestDist){closestDist=d2;closestI=pi;}
     }
     childBird.i=Math.max(0,closestI-1); childBird.x=egg.x; childBird.y=egg.y;
@@ -1805,8 +1833,11 @@ function update(){
     if(monkeyRageTimer<=0) banana.lifetime--;
     for(const e of enemies){
       if(e.isBird) continue;
-      if(e.mutation==='metalen'||e.mutation2==='metalen'||e.mutation3==='metalen') continue;
-      if(Math.hypot(e.x-banana.x,e.y-banana.y)<e.size+10){ e.hp-=banana.dmg; banana.dead=true; break; }
+      if(Math.hypot(e.x-banana.x,e.y-banana.y)<e.size+10){
+        const isMetal = e.mutation==='metalen'||e.mutation2==='metalen'||e.mutation3==='metalen'||e.isRoboLeeuw;
+        if(!(banana.isMonkey && isMetal)) e.hp-=banana.dmg;
+        banana.dead=true; break;
+      }
     }
   }
   bananas=bananas.filter(b=>!b.dead&&b.lifetime>0);
@@ -1822,6 +1853,11 @@ function update(){
     const dx=p.tx-p.x,dy=p.ty-p.y,d=Math.hypot(dx,dy);
     if(d<p.speed){
       if(p.target.beschermdActive){ p.dead=true; continue; }
+      const _isMetal = p.target.mutation==='metalen'||p.target.mutation2==='metalen'||p.target.mutation3==='metalen'||p.target.isRoboLeeuw;
+      if(_isMetal){
+        const _canDmg = p.towerKey==='fakkel'||p.towerKey==='atoom'||p.paragon||(p.tower&&(p.tower.ultimate||p.tower.secret));
+        if(!_canDmg){ p.dead=true; continue; }
+      }
       const dmgDealt = Math.max(0, Math.min(p.dmg, p.target.hp));
       p.target.hp-=p.dmg;
       if(p.tower) p.tower.totalDamage += dmgDealt;
@@ -1934,14 +1970,14 @@ function update(){
 
       if(e.mutation==='radioactieve'||e.mutation2==='radioactieve'||e.mutation3==='radioactieve'){ triggerEnemyNuclearExplosion(e, false); }
       if(e.isRoboLeeuw){ triggerEnemyNuclearExplosion(e, false); }
-      if(e._roboExplode){ triggerEnemyNuclearExplosion(e, false); }
 
+      const ePath=gamePaths[e.pathIndex]||path;
       if(e.mutation==='ondode'||e.mutation2==='ondode'||e.mutation3==='ondode'){ toSpawn.push(makeGhostEnemy(e)); }
-      if(e.mutation==='hydra'&&!e.isHydraChild){ const base2=animalTypes.find(a=>a.type===e.type)||animalTypes[0]; for(let h=0;h<4;h++){ const hpScale=1+round*0.14; const child=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale*0.7),speed:base2.speed*(1+round*0.02),reward:0}); child.i=Math.max(0,e.i-1); child.x=path[Math.max(0,e.i-1)].x+(Math.random()-0.5)*60; child.y=path[Math.max(0,e.i-1)].y+(Math.random()-0.5)*60; child.isHydraChild=true; toSpawn.push(child); } }
-      if(e.mutation2==='hydra'&&!e.isHydraChild){ const base2=animalTypes.find(a=>a.type===e.type)||animalTypes[0]; for(let h=0;h<3;h++){ const hpScale=1+round*0.14; const child=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale*0.5),speed:base2.speed*(1+round*0.02),reward:0}); child.i=Math.max(0,e.i-1); child.x=path[Math.max(0,e.i-1)].x+(Math.random()-0.5)*50; child.y=path[Math.max(0,e.i-1)].y+(Math.random()-0.5)*50; child.isHydraChild=true; toSpawn.push(child); } }
-      if(e.mutation==='random'||e.mutation2==='random'||e.mutation3==='random'){ const base2=animalTypes[Math.floor(Math.random()*animalTypes.length)]; const hpScale=1+round*0.14; const newE=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale),speed:base2.speed*(1+round*0.02),reward:0}); newE.i=Math.max(0,e.i-1); newE.x=path[Math.max(0,e.i-1)].x; newE.y=path[Math.max(0,e.i-1)].y; toSpawn.push(newE); }
-      if(e.mutation==='terugkerende'&&e.terugkerendeCount>0){ e.terugkerendeCount--; e.i=0; e.x=path[0].x; e.y=path[0].y; e.hp=e.max; return true; }
-      if(e.type==='kameel'&&!e.kameelLionsSpawned){ e.kameelLionsSpawned=true; const hpScale=1+round*0.14; for(let l=0;l<4;l++){ const lion=makeEnemy({...animalTypes.find(a=>a.type==='leeuw'),hp:Math.floor(6*hpScale),speed:1.25*(1+round*0.02),reward:8}); lion.i=Math.max(0,e.i-1); lion.x=path[Math.max(0,e.i-1)].x+(Math.random()-0.5)*50; lion.y=path[Math.max(0,e.i-1)].y+(Math.random()-0.5)*50; toSpawn.push(lion); } }
+      if(e.mutation==='hydra'&&!e.isHydraChild){ const base2=animalTypes.find(a=>a.type===e.type)||animalTypes[0]; for(let h=0;h<4;h++){ const hpScale=1+round*0.14; const child=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale*0.7),speed:base2.speed*(1+round*0.02),reward:0,pathIndex:e.pathIndex}); child.i=Math.max(0,e.i-1); child.x=ePath[Math.max(0,e.i-1)].x+(Math.random()-0.5)*60; child.y=ePath[Math.max(0,e.i-1)].y+(Math.random()-0.5)*60; child.isHydraChild=true; toSpawn.push(child); } }
+      if(e.mutation2==='hydra'&&!e.isHydraChild){ const base2=animalTypes.find(a=>a.type===e.type)||animalTypes[0]; for(let h=0;h<3;h++){ const hpScale=1+round*0.14; const child=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale*0.5),speed:base2.speed*(1+round*0.02),reward:0,pathIndex:e.pathIndex}); child.i=Math.max(0,e.i-1); child.x=ePath[Math.max(0,e.i-1)].x+(Math.random()-0.5)*50; child.y=ePath[Math.max(0,e.i-1)].y+(Math.random()-0.5)*50; child.isHydraChild=true; toSpawn.push(child); } }
+      if(e.mutation==='random'||e.mutation2==='random'||e.mutation3==='random'){ const base2=animalTypes[Math.floor(Math.random()*animalTypes.length)]; const hpScale=1+round*0.14; const newE=makeEnemy({...base2,hp:Math.floor(base2.hp*hpScale),speed:base2.speed*(1+round*0.02),reward:0,pathIndex:e.pathIndex}); newE.i=Math.max(0,e.i-1); newE.x=ePath[Math.max(0,e.i-1)].x; newE.y=ePath[Math.max(0,e.i-1)].y; toSpawn.push(newE); }
+      if(e.mutation==='terugkerende'&&e.terugkerendeCount>0){ e.terugkerendeCount--; e.i=0; e.x=ePath[0].x; e.y=ePath[0].y; e.hp=e.max; return true; }
+      if(e.type==='kameel'&&!e.kameelLionsSpawned){ e.kameelLionsSpawned=true; const hpScale=1+round*0.14; for(let l=0;l<4;l++){ const lion=makeEnemy({...animalTypes.find(a=>a.type==='leeuw'),hp:Math.floor(6*hpScale),speed:1.25*(1+round*0.02),reward:8,pathIndex:e.pathIndex}); lion.i=Math.max(0,e.i-1); lion.x=ePath[Math.max(0,e.i-1)].x+(Math.random()-0.5)*50; lion.y=ePath[Math.max(0,e.i-1)].y+(Math.random()-0.5)*50; toSpawn.push(lion); } }
 
       if(e.isBird && !e.isChildBird && !e.eggLaid){
         e.eggLaid=true;
@@ -1953,10 +1989,11 @@ function update(){
       if(!e.boss && !antiLagMode) playSound('kill', 0.4);
       return false;
     }
-    if(e.i>=path.length-1){
+    const ePathEnd=gamePaths[e.pathIndex]||path;
+    if(e.i>=ePathEnd.length-1){
       if(e.mutation==='dodelijke'||e.mutation2==='dodelijke'||e.mutation3==='dodelijke') lives-=5; else lives--;
       if(towers.some(t=>t.key==='aap')){ monkeyRageTimer=600; if(!antiLagMode) playSound('monkey', 0.8); }
-      if(e.mutation==='terugkerende'&&e.terugkerendeCount>0){ e.terugkerendeCount--; e.i=0; e.x=path[0].x; e.y=path[0].y; lives--; if(lives<=0){ loseGame(); return false; } return true; }
+      if(e.mutation==='terugkerende'&&e.terugkerendeCount>0){ e.terugkerendeCount--; e.i=0; e.x=ePathEnd[0].x; e.y=ePathEnd[0].y; lives--; if(lives<=0){ loseGame(); return false; } return true; }
       if(lives<=0){ loseGame(); return false; }
       return false;
     }
@@ -2004,39 +2041,12 @@ function triggerNukeStrike(tower){
 }
 
 function makeGhostEnemy(original){
-  const ghost=makeEnemy({hp:original.max,speed:original.baseSpeed*1.1,size:original.size,reward:Math.floor(original.reward*0.5),name:'👻 Geest '+original.name.replace(/^[^ ]+ /,''),type:original.type,boss:false});
+  const ghost=makeEnemy({hp:original.max,speed:original.baseSpeed*1.1,size:original.size,reward:Math.floor(original.reward*0.5),name:'👻 Geest '+original.name.replace(/^[^ ]+ /,''),type:original.type,boss:false,pathIndex:original.pathIndex});
   ghost.i=original.i; ghost.x=original.x; ghost.y=original.y; ghost.isGhost=true;
   return ghost;
 }
 
 // ===== DRAW =====
-function drawTsjaadPlusBg(){
-  const t_now = Date.now() * 0.001;
-  const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  bgGrad.addColorStop(0, '#080000'); bgGrad.addColorStop(0.3, '#1a0000');
-  bgGrad.addColorStop(0.6, '#0d0000'); bgGrad.addColorStop(1, '#050005');
-  ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.save(); ctx.globalAlpha = 0.12 + Math.sin(t_now * 0.7) * 0.05;
-  const crackPositions = [{x:150,y:0,w:3,h:700},{x:380,y:0,w:2,h:700},{x:620,y:0,w:4,h:700},{x:850,y:0,w:2,h:700},{x:1100,y:0,w:3,h:700},{x:0,y:150,w:1200,h:3},{x:0,y:350,w:1200,h:2},{x:0,y:550,w:1200,h:3}];
-  for(const crack of crackPositions){ const lavaGrad = ctx.createLinearGradient(crack.x, crack.y, crack.x + crack.w, crack.y + crack.h); lavaGrad.addColorStop(0, 'rgba(255,60,0,0)'); lavaGrad.addColorStop(0.5, `rgba(255,${80 + Math.sin(t_now*2)*30},0,0.9)`); lavaGrad.addColorStop(1, 'rgba(255,60,0,0)'); ctx.fillStyle = lavaGrad; ctx.fillRect(crack.x, crack.y, crack.w, crack.h); }
-  ctx.restore();
-
-  ctx.save(); const vigAlpha = 0.25 + Math.sin(t_now * 1.2) * 0.1;
-  const vigGrad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 200, canvas.width/2, canvas.height/2, 750);
-  vigGrad.addColorStop(0, 'rgba(0,0,0,0)'); vigGrad.addColorStop(1, `rgba(180,0,0,${vigAlpha})`);
-  ctx.fillStyle = vigGrad; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore();
-
-  ctx.strokeStyle='#8b0000'; ctx.lineWidth=34; ctx.lineCap='round';
-  ctx.shadowBlur=20; ctx.shadowColor='#ff0000';
-  ctx.beginPath(); ctx.moveTo(path[0].x,path[0].y);
-  for(const p of path) ctx.lineTo(p.x,p.y); ctx.stroke();
-  ctx.strokeStyle=`rgba(255,${40 + Math.sin(t_now*3)*20},0,0.8)`; ctx.lineWidth=20;
-  ctx.beginPath(); ctx.moveTo(path[0].x,path[0].y);
-  for(const p of path) ctx.lineTo(p.x,p.y); ctx.stroke();
-  ctx.shadowBlur=0;
-}
-
 function drawObstacles(){
   const map = MAPS[currentMapId];
   if(!map || !map.obstacles) return;
@@ -2071,84 +2081,6 @@ function drawObstacles(){
         const lx = obs.x+((li*obs.w/4+(t_l*30)%obs.w));
         ctx.fillRect(lx,obs.y+2,8,obs.h-4);
       }
-    } else if(obs.type==='building'||obs.type==='room'){
-      ctx.fillStyle = obs.type==='room'?'#c8c8d0':'#6a6a7a';
-      ctx.fillRect(obs.x,obs.y,obs.w,obs.h);
-      ctx.strokeStyle = '#444'; ctx.lineWidth = 1.5;
-      ctx.strokeRect(obs.x,obs.y,obs.w,obs.h);
-      if(obs.type==='building'){
-        for(let wi2=0;wi2<Math.floor(obs.w/25);wi2++){
-          for(let hi=0;hi<Math.floor(obs.h/25);hi++){
-            ctx.fillStyle = 'rgba(255,255,200,0.15)';
-            ctx.fillRect(obs.x+5+wi2*25,obs.y+5+hi*25,8,12);
-          }
-        }
-      }
-    } else if(obs.type==='rock'||obs.type==='mesa'){
-      ctx.fillStyle = obs.type==='mesa'?'#b08050':'#7a6a4a';
-      ctx.beginPath();
-      ctx.ellipse(obs.x+obs.w/2,obs.y+obs.h/2,obs.w/2,obs.h/2,0,0,Math.PI*2);
-      ctx.fill();
-      ctx.strokeStyle = '#5a4a2a'; ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.ellipse(obs.x+obs.w/2,obs.y+obs.h/2,obs.w/2,obs.h/2,0,0,Math.PI*2);
-      ctx.stroke();
-    } else if(obs.type==='machine'||obs.type==='machine2'||obs.type==='conveyor'){
-      ctx.fillStyle = obs.type==='conveyor'?'#4a4a3a':'#3a3a4a';
-      ctx.fillRect(obs.x,obs.y,obs.w,obs.h);
-      ctx.strokeStyle = '#555'; ctx.lineWidth = 2;
-      ctx.strokeRect(obs.x,obs.y,obs.w,obs.h);
-      if(obs.type==='conveyor'){
-        ctx.strokeStyle = '#6a6a5a'; ctx.lineWidth = 2;
-        for(let ci=0;ci<obs.w/20;ci++){
-          ctx.beginPath();
-          ctx.moveTo(obs.x+ci*15+((Date.now()*0.01)%15),obs.y);
-          ctx.lineTo(obs.x+ci*15+((Date.now()*0.01)%15)-5,obs.y+obs.h);
-          ctx.stroke();
-        }
-      } else {
-        ctx.fillStyle = '#5a5a6a';
-        ctx.beginPath(); ctx.arc(obs.x+obs.w/2,obs.y+obs.h/2,6,0,Math.PI*2); ctx.fill();
-      }
-    } else if(obs.type==='tree'){
-      ctx.fillStyle = '#3a6a2a';
-      ctx.beginPath(); ctx.arc(obs.x+obs.w/2,obs.y+obs.h*0.4,obs.w/2,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#2a5a1a';
-      ctx.beginPath(); ctx.arc(obs.x+obs.w/3,obs.y+obs.h*0.3,obs.w/3,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#5a3a1a';
-      ctx.fillRect(obs.x+obs.w/2-3,obs.y+obs.h*0.5,6,obs.h*0.5);
-    } else if(obs.type==='debris'){
-      ctx.fillStyle = '#2a2a3a';
-      ctx.beginPath();
-      ctx.moveTo(obs.x,obs.y+obs.h); ctx.lineTo(obs.x+obs.w*0.3,obs.y);
-      ctx.lineTo(obs.x+obs.w*0.7,obs.y+obs.h*0.3); ctx.lineTo(obs.x+obs.w,obs.y+obs.h*0.6);
-      ctx.lineTo(obs.x+obs.w*0.8,obs.y+obs.h); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = '#444'; ctx.lineWidth = 1;
-      ctx.stroke();
-    } else if(obs.type==='radiation'){
-      ctx.fillStyle = 'rgba(0,100,0,0.3)';
-      ctx.fillRect(obs.x,obs.y,obs.w,obs.h);
-      ctx.fillStyle = 'rgba(0,255,0,0.05)';
-      ctx.shadowBlur = 15; ctx.shadowColor = '#00ff00';
-      ctx.strokeStyle = 'rgba(0,255,0,0.25)'; ctx.lineWidth = 1.5;
-      ctx.strokeRect(obs.x,obs.y,obs.w,obs.h);
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = 'rgba(0,255,0,0.15)';
-      const t_r = Date.now()*0.004;
-      for(let ri=0;ri<3;ri++){
-        const rx = obs.x+obs.w/2+Math.cos(t_r+ri*2)*obs.w*0.3;
-        const ry = obs.y+obs.h/2+Math.sin(t_r+ri*2)*obs.h*0.3;
-        ctx.beginPath(); ctx.arc(rx,ry,3,0,Math.PI*2); ctx.fill();
-      }
-    } else if(obs.type==='pillar'){
-      ctx.fillStyle = '#7a6a5a';
-      ctx.fillRect(obs.x,obs.y,obs.w,obs.h);
-      ctx.strokeStyle = '#5a4a3a'; ctx.lineWidth = 2;
-      ctx.strokeRect(obs.x,obs.y,obs.w,obs.h);
-      ctx.fillStyle = '#8a7a6a';
-      ctx.fillRect(obs.x+3,obs.y+3,obs.w-6,obs.h-6);
-      ctx.strokeStyle = '#6a5a4a'; ctx.lineWidth = 1;
-      ctx.strokeRect(obs.x+3,obs.y+3,obs.w-6,obs.h-6);
     }
     // Cross icon to indicate "no towers"
     ctx.globalAlpha = 0.25;
@@ -2174,15 +2106,18 @@ function drawPath(){
   // Draw obstacles
   drawObstacles();
 
-  // Draw path (border + fill)
-  ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 30; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(path[0].x,path[0].y);
-  for(const p of path) ctx.lineTo(p.x,p.y);
-  ctx.stroke();
-  ctx.strokeStyle = map.pathColor || '#c2b280'; ctx.lineWidth = 24;
-  ctx.beginPath(); ctx.moveTo(path[0].x,path[0].y);
-  for(const p of path) ctx.lineTo(p.x,p.y);
-  ctx.stroke();
+  // Draw all paths (border + fill)
+  const pathsToDraw = gamePaths.length ? gamePaths : [path];
+  for(const drawPath of pathsToDraw){
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 30; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(drawPath[0].x,drawPath[0].y);
+    for(const p of drawPath) ctx.lineTo(p.x,p.y);
+    ctx.stroke();
+    ctx.strokeStyle = map.pathColor || '#c2b280'; ctx.lineWidth = 24;
+    ctx.beginPath(); ctx.moveTo(drawPath[0].x,drawPath[0].y);
+    for(const p of drawPath) ctx.lineTo(p.x,p.y);
+    ctx.stroke();
+  }
 }
 
 function drawEnemy(e){
