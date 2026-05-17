@@ -389,184 +389,40 @@ function handleOverlayClick(e) { if (e.target === document.getElementById('setti
   if (savedLang) { currentLang = savedLang; document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active')); const btn = document.getElementById('lang-' + savedLang); if (btn) btn.classList.add('active'); applyTranslations(); }
 })();
 
-// ===== MAP DATA =====
-const MAPS = {
-  // ========== MAKKELIJK - Lange kronkelpaden, veel bouwruimte ==========
-  tsjaadwoestijn:{
-    name:'Tsjaad Woestijn',tier:'makkelijk',desc:'Langzaam S-pad door open woestijn',
-    paths:[[
-      {x:-20,y:350},{x:260,y:350},{x:260,y:130},{x:520,y:130},{x:520,y:560},{x:780,y:560},{x:780,y:240},{x:1040,y:240},{x:1040,y:500},{x:1220,y:500}
-    ]],
-    obstacles:[
-      {x:80,y:60,w:100,h:50,type:'water'},{x:340,y:420,w:80,h:60,type:'water'},{x:600,y:300,w:70,h:50,type:'water'},{x:860,y:150,w:60,h:70,type:'water'},{x:150,y:500,w:80,h:40,type:'water'},{x:900,y:420,w:70,h:50,type:'water'}
-    ],bgColor:'#d4a76a',pathColor:'#c2b280',className:'makkelijk'
-  },
-  megastad:{
-    name:'Mega Stad',tier:'makkelijk',desc:'Lange stadsroute met waterkanalen',
-    paths:[[
-      {x:150,y:-20},{x:150,y:240},{x:450,y:240},{x:450,y:460},{x:750,y:460},{x:750,y:160},{x:1050,y:160},{x:1050,y:560},{x:1220,y:560}
-    ]],
-    obstacles:[
-      {x:50,y:80,w:70,h:120,type:'water'},{x:280,y:80,w:50,h:90,type:'water'},{x:580,y:80,w:50,h:90,type:'water'},{x:880,y:80,w:50,h:90,type:'water'},{x:280,y:340,w:50,h:80,type:'water'},{x:580,y:320,w:50,h:80,type:'water'},{x:880,y:300,w:50,h:80,type:'water'},{x:200,y:500,w:60,h:100,type:'water'},{x:900,y:500,w:60,h:100,type:'water'}
-    ],bgColor:'#4a4a5a',pathColor:'#6a6a7a',className:'makkelijk'
-  },
-  berg:{
-    name:'Berg',tier:'makkelijk',desc:'Kronkelend bergpad met lavastromen',
-    paths:[[
-      {x:-20,y:350},{x:200,y:350},{x:320,y:180},{x:540,y:180},{x:660,y:350},{x:840,y:350},{x:960,y:180},{x:1120,y:180},{x:1220,y:350}
-    ]],
-    obstacles:[
-      {x:260,y:280,w:50,h:40,type:'lava'},{x:420,y:100,w:60,h:50,type:'lava'},{x:600,y:280,w:50,h:40,type:'lava'},{x:760,y:280,w:50,h:40,type:'lava'},{x:900,y:100,w:60,h:50,type:'lava'},{x:1050,y:100,w:50,h:40,type:'lava'}
-    ],bgColor:'#5a7a3a',pathColor:'#8a6a4a',className:'makkelijk'
-  },
-  // ========== LASTIG - Medium paden, meer obstakels ==========
-  fabriek:{
-    name:'Fabriek',tier:'lastig',desc:'Industriële zone met water- en lavabassins',
-    paths:[[
-      {x:-20,y:350},{x:240,y:350},{x:240,y:180},{x:500,y:180},{x:500,y:540},{x:760,y:540},{x:760,y:280},{x:1020,y:280},{x:1020,y:520},{x:1220,y:520}
-    ]],
-    obstacles:[
-      {x:80,y:260,w:80,h:60,type:'water'},{x:320,y:260,w:50,h:60,type:'lava'},{x:580,y:260,w:60,h:60,type:'water'},{x:840,y:200,w:60,h:60,type:'lava'},{x:300,y:420,w:80,h:60,type:'water'},{x:640,y:420,w:70,h:50,type:'lava'},{x:900,y:380,w:60,h:60,type:'water'}
-    ],bgColor:'#3a3a3a',pathColor:'#5a5a5a',className:'lastig'
-  },
-  ziekenhuis:{
-    name:'Ziekenhuis',tier:'lastig',desc:'Tighte ziekenhuisgangen met waterbakken',
-    paths:[[
-      {x:300,y:-20},{x:300,y:260},{x:560,y:260},{x:560,y:460},{x:300,y:460},{x:300,y:660},{x:600,y:660},{x:600,y:720}
-    ]],
-    obstacles:[
-      {x:100,y:0,w:120,h:200,type:'water'},{x:100,y:340,w:120,h:80,type:'water'},{x:100,y:500,w:120,h:200,type:'water'},{x:400,y:0,w:60,h:180,type:'water'},{x:640,y:0,w:200,h:200,type:'water'},{x:640,y:300,w:200,h:80,type:'water'},{x:640,y:480,w:200,h:100,type:'water'}
-    ],bgColor:'#e8e8e0',pathColor:'#c8c8c0',className:'lastig'
-  },
-  mesa:{
-    name:'Mesa',tier:'lastig',desc:'Plateaus met lavapoelen op strategische plekken',
-    paths:[[
-      {x:-20,y:350},{x:220,y:350},{x:220,y:140},{x:480,y:140},{x:480,y:520},{x:740,y:520},{x:740,y:260},{x:1000,y:260},{x:1000,y:500},{x:1220,y:500}
-    ]],
-    obstacles:[
-      {x:80,y:250,w:60,h:60,type:'lava'},{x:300,y:240,w:70,h:50,type:'lava'},{x:560,y:240,w:60,h:60,type:'lava'},{x:820,y:180,w:70,h:50,type:'lava'},{x:300,y:420,w:60,h:60,type:'water'},{x:560,y:420,w:50,h:60,type:'water'},{x:820,y:360,w:60,h:60,type:'water'}
-    ],bgColor:'#8a5a3a',pathColor:'#b08050',className:'lastig'
-  },
-  // ========== MOEILIJK - Korte paden, veel lavas ==========
-  vulkaan:{
-    name:'Vulkaan',tier:'moeilijk',desc:'Kort haarspeldpad omringd door lava',
-    paths:[[
-      {x:200,y:-20},{x:200,y:320},{x:520,y:320},{x:520,y:130},{x:840,y:130},{x:840,y:440},{x:520,y:440},{x:520,y:600},{x:840,y:600},{x:840,y:720}
-    ]],
-    obstacles:[
-      {x:0,y:0,w:120,h:700,type:'lava'},{x:280,y:0,w:60,h:260,type:'lava'},{x:600,y:0,w:60,h:100,type:'lava'},{x:600,y:200,w:60,h:100,type:'lava'},{x:900,y:0,w:300,h:100,type:'lava'},{x:280,y:480,w:60,h:220,type:'lava'},{x:600,y:500,w:60,h:220,type:'lava'},{x:900,y:300,w:300,h:420,type:'lava'},{x:280,y:360,w:150,h:50,type:'lava'}
-    ],bgColor:'#2a0a00',pathColor:'#8b2500',className:'moeilijk'
-  },
-  mounttsjaad:{
-    name:'Mount Tsjaad',tier:'moeilijk',desc:'Zeer kort bergpad met weinig bouwplek',
-    paths:[[
-      {x:-20,y:600},{x:200,y:600},{x:200,y:360},{x:520,y:360},{x:520,y:180},{x:840,y:180},{x:840,y:460},{x:1120,y:460},{x:1120,y:300},{x:1220,y:300}
-    ]],
-    obstacles:[
-      {x:60,y:400,w:80,h:60,type:'water'},{x:280,y:280,w:60,h:60,type:'water'},{x:600,y:100,w:60,h:60,type:'water'},{x:900,y:280,w:60,h:60,type:'water'},{x:260,y:440,w:200,h:50,type:'water'},{x:600,y:300,w:200,h:50,type:'water'},{x:900,y:400,w:200,h:50,type:'water'}
-    ],bgColor:'#4a6a7a',pathColor:'#7a9aaa',className:'moeilijk'
-  },
-  tsjaadeiland:{
-    name:'Tsjaad Eiland',tier:'moeilijk',desc:'Eiland met water overal, smalle doorgang',
-    paths:[[
-      {x:600,y:-20},{x:600,y:200},{x:340,y:200},{x:340,y:480},{x:600,y:480},{x:600,y:320},{x:860,y:320},{x:860,y:560},{x:600,y:560},{x:600,y:720}
-    ]],
-    obstacles:[
-      {x:0,y:0,w:260,h:700,type:'water'},{x:340,y:0,w:200,h:120,type:'water'},{x:340,y:340,w:200,h:80,type:'water'},{x:640,y:0,w:220,h:120,type:'water'},{x:640,y:360,w:220,h:80,type:'water'},{x:940,y:0,w:260,h:700,type:'water'}
-    ],bgColor:'#1a4a6a',pathColor:'#3a7a9a',className:'moeilijk'
-  },
-  // ========== ONMOGELIJK - 2 uitgangen, extreem kort ==========
-  tsjaadmeer:{
-    name:'Tsjaad Meer',tier:'onmogelijk',desc:'Twee routes door diep water, bijna geen land',
-    paths:[[
-      {x:80,y:-20},{x:80,y:300},{x:360,y:300},{x:360,y:520},{x:640,y:520},{x:640,y:300},{x:920,y:300},{x:920,y:520},{x:1220,y:520}
-    ],[
-      {x:600,y:-20},{x:600,y:260},{x:900,y:260},{x:900,y:460},{x:600,y:460},{x:600,y:720}
-    ]],
-    obstacles:[
-      {x:0,y:0,w:50,h:700,type:'water_deep'},{x:140,y:0,w:60,h:240,type:'water_deep'},{x:140,y:380,w:60,h:320,type:'water_deep'},{x:240,y:0,w:50,h:700,type:'water_deep'},{x:420,y:0,w:80,h:240,type:'water_deep'},{x:420,y:380,w:80,h:320,type:'water_deep'},{x:520,y:0,w:40,h:200,type:'water_deep'},{x:520,y:540,w:40,h:160,type:'water_deep'},{x:700,y:0,w:80,h:200,type:'water_deep'},{x:700,y:540,w:80,h:160,type:'water_deep'},{x:840,y:0,w:40,h:200,type:'water_deep'},{x:840,y:540,w:40,h:160,type:'water_deep'},{x:980,y:0,w:220,h:240,type:'water_deep'},{x:980,y:400,w:220,h:300,type:'water_deep'}
-    ],bgColor:'#0a2a4a',pathColor:'#2a5a7a',className:'onmogelijk'
-  },
-  robotfabriek:{
-    name:'Robot Fabriek',tier:'onmogelijk',desc:'Twee lava-routes, minimale bouwruimte',
-    paths:[[
-      {x:-20,y:180},{x:300,y:180},{x:300,y:420},{x:600,y:420},{x:600,y:180},{x:900,y:180},{x:900,y:520},{x:1220,y:520}
-    ],[
-      {x:-20,y:540},{x:260,y:540},{x:260,y:300},{x:560,y:300},{x:560,y:560},{x:860,y:560},{x:860,y:280},{x:1100,y:280},{x:1100,y:720}
-    ]],
-    obstacles:[
-      {x:0,y:0,w:120,h:120,type:'lava'},{x:0,y:260,w:120,h:200,type:'lava'},{x:0,y:600,w:120,h:100,type:'lava'},{x:180,y:0,w:50,h:120,type:'lava'},{x:180,y:480,w:50,h:220,type:'lava'},{x:360,y:0,w:80,h:130,type:'lava'},{x:360,y:300,w:80,h:50,type:'lava'},{x:520,y:0,w:40,h:130,type:'lava'},{x:520,y:360,w:40,h:100,type:'lava'},{x:680,y:0,w:80,h:130,type:'lava'},{x:840,y:0,w:40,h:130,type:'lava'},{x:940,y:0,w:260,h:130,type:'lava'},{x:940,y:380,w:260,h:320,type:'lava'}
-    ],bgColor:'#1a1a2a',pathColor:'#3a3a5a',className:'onmogelijk'
-  },
-  safari:{
-    name:'Safari',tier:'onmogelijk',desc:'Twee paden door wild gebied met water en lava',
-    paths:[[
-      {x:-20,y:200},{x:360,y:200},{x:360,y:460},{x:660,y:460},{x:660,y:240},{x:960,y:240},{x:960,y:500},{x:1220,y:500}
-    ],[
-      {x:500,y:-20},{x:500,y:260},{x:800,y:260},{x:800,y:480},{x:500,y:480},{x:500,y:720}
-    ]],
-    obstacles:[
-      {x:0,y:0,w:200,h:130,type:'water'},{x:0,y:280,w:200,h:120,type:'lava'},{x:0,y:520,w:200,h:180,type:'water'},{x:240,y:100,w:60,h:250,type:'water'},{x:240,y:450,w:60,h:150,type:'lava'},{x:420,y:0,w:40,h:180,type:'lava'},{x:420,y:340,w:40,h:100,type:'water'},{x:620,y:0,w:60,h:180,type:'lava'},{x:620,y:340,w:60,h:80,type:'water'},{x:720,y:0,w:40,h:180,type:'lava'},{x:720,y:340,w:40,h:100,type:'water'},{x:860,y:0,w:340,h:180,type:'water'},{x:860,y:380,w:340,h:320,type:'lava'}
-    ],bgColor:'#3a6a2a',pathColor:'#5a8a4a',className:'onmogelijk'
-  },
-  // ========== ULTIME TSJAAD KRIJGER - 3 uitgangen, maximale moeilijkheid ==========
-  deruimte:{
-    name:'De Ruimte',tier:'ultiem',desc:'Drie ruimte-routes, bijna geen bouwplek',
-    paths:[[
-      {x:100,y:-20},{x:100,y:320},{x:400,y:320},{x:400,y:520},{x:700,y:520},{x:700,y:320},{x:1000,y:320},{x:1000,y:520},{x:1220,y:520}
-    ],[
-      {x:600,y:-20},{x:600,y:280},{x:860,y:280},{x:860,y:140},{x:1080,y:140},{x:1080,y:400},{x:860,y:400},{x:860,y:720}
-    ],[
-      {x:-20,y:600},{x:320,y:600},{x:320,y:360},{x:600,y:360},{x:600,y:560},{x:900,y:560},{x:900,y:360},{x:1120,y:360},{x:1120,y:150},{x:1220,y:150}
-    ]],
-    obstacles:[
-      {x:0,y:0,w:60,h:260,type:'water'},{x:0,y:400,w:60,h:200,type:'water'},{x:180,y:0,w:80,h:260,type:'lava'},{x:180,y:400,w:80,h:200,type:'lava'},{x:320,y:0,w:40,h:260,type:'water'},{x:320,y:420,w:40,h:180,type:'water'},{x:460,y:0,w:80,h:260,type:'lava'},{x:460,y:400,w:80,h:200,type:'lava'},{x:760,y:0,w:60,h:260,type:'water'},{x:760,y:420,w:60,h:180,type:'water'},{x:940,y:0,w:260,h:100,type:'lava'},{x:940,y:580,w:260,h:120,type:'lava'}
-    ],bgColor:'#0a0a2a',pathColor:'#2a2a5a',className:'ultiem'
-  },
-  nucleairereactor:{
-    name:'Nucleaire Reactor',tier:'ultiem',desc:'Drie paden door radioactief water en lava',
-    paths:[[
-      {x:-20,y:260},{x:320,y:260},{x:320,y:460},{x:620,y:460},{x:620,y:260},{x:920,y:260},{x:920,y:520},{x:1220,y:520}
-    ],[
-      {x:400,y:720},{x:400,y:460},{x:700,y:460},{x:700,y:260},{x:400,y:260},{x:400,y:100},{x:700,y:100},{x:700,y:-20}
-    ],[
-      {x:920,y:-20},{x:920,y:200},{x:1140,y:200},{x:1140,y:460},{x:920,y:460},{x:920,y:720}
-    ]],
-    obstacles:[
-      {x:0,y:0,w:220,h:200,type:'water'},{x:0,y:540,w:220,h:160,type:'lava'},{x:260,y:0,w:50,h:200,type:'lava'},{x:260,y:360,w:50,h:160,type:'water'},{x:460,y:0,w:80,h:200,type:'water'},{x:460,y:540,w:80,h:160,type:'lava'},{x:760,y:0,w:100,h:200,type:'lava'},{x:760,y:540,w:100,h:160,type:'water'},{x:1000,y:0,w:200,h:140,type:'water'},{x:1000,y:580,w:200,h:120,type:'lava'}
-    ],bgColor:'#0a1a0a',pathColor:'#2a5a2a',className:'ultiem'
-  },
-  tsjaadarena:{
-    name:'Tsjaad Arena',tier:'ultiem',desc:'Drie arena-routes, lava vult bijna alles',
-    paths:[[
-      {x:-20,y:200},{x:400,y:200},{x:400,y:420},{x:800,y:420},{x:800,y:200},{x:1220,y:200}
-    ],[
-      {x:600,y:-20},{x:600,y:300},{x:300,y:300},{x:300,y:520},{x:600,y:520},{x:600,y:720}
-    ],[
-      {x:300,y:720},{x:300,y:500},{x:800,y:500},{x:800,y:300},{x:1080,y:300},{x:1080,y:560},{x:1220,y:560}
-    ]],
-    obstacles:[
-      {x:0,y:0,w:200,h:140,type:'lava'},{x:0,y:280,w:200,h:140,type:'lava'},{x:0,y:540,w:200,h:160,type:'lava'},{x:240,y:0,w:50,h:140,type:'water'},{x:240,y:380,w:50,h:100,type:'water'},{x:460,y:0,w:80,h:140,type:'lava'},{x:460,y:300,w:80,h:70,type:'lava'},{x:660,y:0,w:60,h:140,type:'water'},{x:660,y:360,w:60,h:100,type:'water'},{x:860,y:0,w:340,h:140,type:'lava'},{x:860,y:380,w:340,h:100,type:'lava'},{x:860,y:580,w:340,h:120,type:'lava'}
-    ],bgColor:'#3a1a0a',pathColor:'#6a3a1a',className:'ultiem'
-  },
-  ruimtestation:{
-    name:'Ruimte Station',tier:'ultiem',desc:'Enkel pad door verlaten ruimtestation vol met asteroïden',
-    paths:[[
-      {x:-20,y:200},{x:240,y:200},{x:240,y:480},{x:520,y:480},{x:520,y:160},{x:780,y:160},{x:780,y:520},{x:1040,y:520},{x:1040,y:280},{x:1220,y:280}
-    ]],
-    obstacles:[
-      {x:60,y:60,w:80,h:50,type:'water'},{x:320,y:80,w:60,h:70,type:'lava'},{x:420,y:300,w:70,h:50,type:'water'},{x:600,y:60,w:50,h:60,type:'lava'},{x:700,y:320,w:80,h:60,type:'water'},{x:880,y:80,w:60,h:70,type:'lava'},{x:900,y:400,w:60,h:50,type:'water'}
-    ],bgColor:'#0a0020',pathColor:'#2a5aff',className:'ultiem'
-  }
-};
-
-let currentMapId = null;
-
-const MODE_MAP = {
-  standard:'tsjaadwoestijn', plaag:'vulkaan', hard:'mounttsjaad', speed:'megastad',
-  armoede:'tsjaadmeer', boss:'tsjaadarena', mutatie:'safari', dubbelhealth:'berg',
-  tsjaadmodus:'tsjaadeiland', tsjaadplus:'robotfabriek', lichtsnelheid:'ruimtestation'
-};
+// ===== PATH DATA =====
+const standardPath = [
+  {x:-20,y:350},{x:260,y:350},{x:260,y:130},{x:520,y:130},{x:520,y:560},{x:780,y:560},{x:780,y:240},{x:1040,y:240},{x:1040,y:500},{x:1220,y:500}
+];
+const volcanoPath = [
+  {x:-20,y:120},{x:200,y:120},{x:200,y:300},{x:480,y:300},{x:480,y:120},{x:760,y:120},{x:760,y:420},{x:480,y:420},{x:480,y:580},{x:760,y:580},{x:760,y:460},{x:1040,y:460},{x:1040,y:240},{x:1220,y:240}
+];
+const hardPath = [
+  {x:-20,y:600},{x:200,y:600},{x:200,y:360},{x:520,y:360},{x:520,y:180},{x:840,y:180},{x:840,y:460},{x:1120,y:460},{x:1120,y:300},{x:1220,y:300}
+];
+const racePath = [
+  {x:-20,y:180},{x:250,y:180},{x:250,y:380},{x:520,y:380},{x:520,y:180},{x:790,y:180},{x:790,y:460},{x:1020,y:460},{x:1020,y:280},{x:1220,y:280}
+];
+const bossPath = [
+  {x:-20,y:180},{x:200,y:180},{x:200,y:380},{x:380,y:380},{x:380,y:180},{x:560,y:180},{x:560,y:480},{x:740,y:480},{x:740,y:280},{x:920,y:280},{x:920,y:520},{x:1060,y:520},{x:1060,y:350},{x:1220,y:350}
+];
+const mutatiePath = [
+  {x:-20,y:200},{x:360,y:200},{x:360,y:460},{x:660,y:460},{x:660,y:240},{x:960,y:240},{x:960,y:500},{x:1220,y:500}
+];
+const dubbelHealthPath = [
+  {x:-20,y:350},{x:200,y:350},{x:320,y:180},{x:540,y:180},{x:660,y:350},{x:840,y:350},{x:960,y:180},{x:1120,y:180},{x:1220,y:350}
+];
+const tsjaadPath = [
+  {x:-20,y:350},{x:200,y:350},{x:200,y:150},{x:450,y:150},{x:450,y:500},{x:700,y:500},{x:700,y:200},{x:950,y:200},{x:950,y:550},{x:1220,y:550}
+];
+const tsjaadPlusPath = [
+  {x:-20,y:180},{x:300,y:180},{x:300,y:420},{x:600,y:420},{x:600,y:180},{x:900,y:180},{x:900,y:520},{x:1220,y:520}
+];
+const armoedePath = [
+  {x:-20,y:350},{x:320,y:350},{x:320,y:180},{x:640,y:180},{x:640,y:520},{x:960,y:520},{x:960,y:350},{x:1220,y:350}
+];
+const lichtsnelheidPath = [
+  {x:-20,y:200},{x:240,y:200},{x:240,y:480},{x:520,y:480},{x:520,y:160},{x:780,y:160},{x:780,y:520},{x:1040,y:520},{x:1040,y:280},{x:1220,y:280}
+];
 
 document.getElementById('titleScreen').addEventListener('click', function(e){
   const btn = e.target.closest('.modeBtn');
@@ -575,7 +431,7 @@ document.getElementById('titleScreen').addEventListener('click', function(e){
   if(!mode) return;
   document.getElementById('titleScreen').style.display='none';
   document.getElementById('settingsBtn').style.display='none';
-  startGame(MODE_MAP[mode]||'tsjaadwoestijn', mode);
+  startGame(mode);
 });
 
 const canvas = document.getElementById('game');
@@ -724,13 +580,17 @@ function playSound(name, vol=0.7) {
 }
 
 // ===== GAME MODE SELECTION =====
-function startGame(mapId, mode) {
+function startGame(mode) {
   gameMode = mode;
-  const map = MAPS[mapId];
-  if(!map) return;
-  currentMapId = mapId;
-  gamePaths = map.paths || (map.path ? [map.path] : []);
-  path = gamePaths[0] || [];
+  const modePaths = {
+    standard: standardPath, plaag: volcanoPath, hard: hardPath,
+    speed: racePath, armoede: armoedePath, boss: bossPath,
+    mutatie: mutatiePath, dubbelhealth: dubbelHealthPath,
+    tsjaadmodus: tsjaadPath, tsjaadplus: tsjaadPlusPath,
+    lichtsnelheid: lichtsnelheidPath
+  };
+  path = modePaths[mode] || standardPath;
+  gamePaths = [path];
 
   document.getElementById('titleScreen').style.display='none';
   document.getElementById('settingsBtn').style.display='none';
@@ -759,17 +619,17 @@ function startGame(mapId, mode) {
     tsjaadmodus:'TSJAAD MODUS', tsjaadplus:'TSJAAD MODUS PLUS', lichtsnelheid:'LICHTSNELHEID'
   };
   const label = modeLabels[mode] || 'STANDAARD';
-  document.getElementById('gameTitle').innerHTML = '📍 ' + map.name + ' · <span style="color:'+color+'">'+label+'</span>';
+  document.getElementById('gameTitle').innerHTML = '<span style="color:'+color+'">'+label+'</span>';
 
   gameSpeedMult = 1; enemySpeedMult = 1;
   if(mode==='plaag'){ document.getElementById('roundMax').textContent=''; lives=12; money=700; }
-  else if(mode==='hard'){ document.getElementById('roundMax').textContent='/50'; lives=20; money=300; autoStartRounds=true; autoRoundCountdown=0; document.getElementById('startRoundBtn').style.display='none'; document.getElementById('autoRoundMsg').textContent=t('auto-hard'); }
+  else if(mode==='hard'){ document.getElementById('roundMax').textContent='/50'; lives=20; money=300; }
   else if(mode==='speed'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=2000; gameSpeedMult=2; enemySpeedMult=2; }
   else if(mode==='armoede'){ document.getElementById('roundMax').textContent='/30'; lives=1; money=500; document.getElementById('katoenBtn').disabled=true; document.getElementById('katoenBtn').classList.add('crossed-out'); }
   else if(mode==='boss'){ document.getElementById('roundMax').textContent='/1'; lives=20; money=1000; }
   else if(mode==='mutatie'){ document.getElementById('roundMax').textContent='/35'; lives=20; money=600; }
   else if(mode==='dubbelhealth'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=500; }
-  else if(mode==='tsjaadmodus'){ document.getElementById('roundMax').textContent='/50'; lives=1; money=800; autoStartRounds=true; autoRoundCountdown=0; document.getElementById('startRoundBtn').style.display='none'; document.getElementById('autoRoundMsg').textContent=t('auto-tsjaad'); }
+  else if(mode==='tsjaadmodus'){ document.getElementById('roundMax').textContent='/50'; lives=1; money=800; }
   else if(mode==='tsjaadplus'){ document.getElementById('roundMax').textContent='/50'; lives=1; money=1000; }
   else if(mode==='lichtsnelheid'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=2000; enemySpeedMult=4; }
   else { document.getElementById('roundMax').textContent='/30'; }
@@ -1019,7 +879,7 @@ function updateTooltip(tw, cx, cy){
     html += statRow('📏 Gebiedsradius', fmtRange(effRange), next?fmtRange(next.range):null);
     html += statRow('💥 Totale schade', Math.floor(tw.totalDamage||0)+'', null);
     html += `<div class="tt-passive">🐵 Kan geen metalen vijanden raken</div>`;
-    html += `<div class="tt-passive">💢 Bij levensverlies: dubbele aanvalsnelheid 10s + bananen blijven</div>`;
+    html += `<div class="tt-passive">💢 Bij levensverlies: 100% sneller aanvallen (10s)</div>`;
   } else {
     html += `<div class="tt-stats-title">📊 Huidige Stats</div>`;
     html += statRow('⚔️ Schade', fmtDmg(tw.dmg), next?fmtDmg(next.dmg):null);
@@ -1285,15 +1145,6 @@ function sellTower(tw){
   playSound('sell', 0.7);
 }
 
-function isPointInObstacle(x,y){
-  const map = MAPS[currentMapId];
-  if(!map || !map.obstacles) return false;
-  for(const obs of map.obstacles){
-    if(x >= obs.x && x <= obs.x+obs.w && y >= obs.y && y <= obs.y+obs.h) return true;
-  }
-  return false;
-}
-
 canvas.onclick=e=>{
   if(gameWon) return;
   const r=canvas.getBoundingClientRect();
@@ -1302,7 +1153,6 @@ canvas.onclick=e=>{
   if(!selectedTower) return;
   const cfg=towerTypes[selectedTower];
   if(money<cfg.cost) return;
-  if(isPointInObstacle(x,y)) return;
   if(selectedTower!=='aap'){
     const pathsToCheck = gamePaths.length ? gamePaths : [path];
     for(const checkPath of pathsToCheck){
@@ -1743,19 +1593,25 @@ function update(){
           if(!target || e.i > target.i || (e.i===target.i&&e.hp<target.hp)) target = e;
         }
       }
-      tw.cool = Math.max(1, Math.floor(tw.rate / (gameSpeedMult||1)));
+      tw.cool = Math.max(1, Math.floor(tw.rate / (gameSpeedMult||1) / (tw.monkey && monkeyRageTimer>0 ? 2 : 1)));
       if(tw.monkey){
-        let bx = target ? target.x : 0, by = target ? target.y : 0;
-        if(!target){
+        if(target){
+          bananas.push({x:target.x, y:target.y, dmg:tw.dmg*3, lifetime:600, dead:false, isMonkey:true});
+        } else {
           const paths = gamePaths.length ? gamePaths : [path];
-          const rPath = paths[Math.floor(Math.random() * paths.length)];
-          const ri = Math.floor(Math.random() * (rPath.length - 1));
-          const p1 = rPath[ri], p2 = rPath[ri + 1];
-          const t = Math.random();
-          bx = p1.x + (p2.x - p1.x) * t;
-          by = p1.y + (p2.y - p1.y) * t;
+          const candidates = [];
+          for(const p of paths){
+            for(let i=0;i<p.length-1;i++){
+              const p1=p[i],p2=p[i+1];
+              if(distanceToLineSegment(tw.x,tw.y,p1.x,p1.y,p2.x,p2.y)<=effRange) candidates.push({p1,p2});
+            }
+          }
+          if(candidates.length>0){
+            const seg=candidates[Math.floor(Math.random()*candidates.length)];
+            const t=Math.random();
+            bananas.push({x:seg.p1.x+(seg.p2.x-seg.p1.x)*t, y:seg.p1.y+(seg.p2.y-seg.p1.y)*t, dmg:tw.dmg*3, lifetime:600, dead:false, isMonkey:true});
+          }
         }
-        bananas.push({x:bx, y:by, dmg:tw.dmg*3, lifetime:600, dead:false, isMonkey:true});
       } else if(target){
           const p = {
             x:tw.x, y:tw.y, tx:target.x, ty:target.y, target,
@@ -1776,7 +1632,6 @@ function update(){
           projectiles.push(p);
         }
       }
-    }
 
     if(tw.upText>0) tw.upText--;
 
@@ -1834,7 +1689,7 @@ function update(){
   birdEggs = birdEggs.filter(e=>e.timer>0&&!e.destroyed);
 
   for(const banana of bananas){
-    if(monkeyRageTimer<=0) banana.lifetime--;
+    banana.lifetime--;
     for(const e of enemies){
       if(e.isBird) continue;
       if(Math.hypot(e.x-banana.x,e.y-banana.y)<e.size+10){
@@ -2051,76 +1906,126 @@ function makeGhostEnemy(original){
 }
 
 // ===== DRAW =====
-function drawObstacles(){
-  const map = MAPS[currentMapId];
-  if(!map || !map.obstacles) return;
-  for(const obs of map.obstacles){
-    ctx.save();
-    if(obs.type==='water'||obs.type==='water_deep'){
-      const col = obs.type==='water_deep' ? '#0a2a5a' : '#1a5a8a';
-      const wGrad = ctx.createLinearGradient(obs.x,obs.y,obs.x,obs.y+obs.h);
-      wGrad.addColorStop(0,col); wGrad.addColorStop(0.6,'#0a3a6a'); wGrad.addColorStop(1,'#051a3a');
-      ctx.fillStyle = wGrad;
-      ctx.fillRect(obs.x,obs.y,obs.w,obs.h);
-      ctx.strokeStyle = 'rgba(100,200,255,0.3)'; ctx.lineWidth = 1;
-      ctx.strokeRect(obs.x,obs.y,obs.w,obs.h);
-      ctx.fillStyle = 'rgba(255,255,255,0.08)';
-      const t_w = Date.now()*0.002;
-      for(let wi=0;wi<3;wi++){
-        const wx = obs.x+((wi*obs.w/3+(t_w*20)%obs.w));
-        ctx.fillRect(wx,obs.y,15,obs.h);
-      }
-    } else if(obs.type==='lava'){
-      const lGrad = ctx.createLinearGradient(obs.x,obs.y,obs.x,obs.y+obs.h);
-      lGrad.addColorStop(0,'#ff4400'); lGrad.addColorStop(0.5,'#ff6600'); lGrad.addColorStop(1,'#cc2200');
-      ctx.fillStyle = lGrad;
-      ctx.fillRect(obs.x,obs.y,obs.w,obs.h);
-      ctx.shadowBlur = 12; ctx.shadowColor = '#ff4400';
-      ctx.strokeStyle = 'rgba(255,200,50,0.5)'; ctx.lineWidth = 2;
-      ctx.strokeRect(obs.x,obs.y,obs.w,obs.h);
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = 'rgba(255,255,100,0.15)';
-      const t_l = Date.now()*0.003;
-      for(let li=0;li<4;li++){
-        const lx = obs.x+((li*obs.w/4+(t_l*30)%obs.w));
-        ctx.fillRect(lx,obs.y+2,8,obs.h-4);
-      }
-    }
-    // Cross icon to indicate "no towers"
-    ctx.globalAlpha = 0.25;
-    ctx.strokeStyle = '#ff0000'; ctx.lineWidth = 2;
-    const cx2 = obs.x+obs.w/2, cy2 = obs.y+obs.h/2, sz = Math.min(obs.w,obs.h)*0.2;
-    ctx.beginPath(); ctx.moveTo(cx2-sz,cy2-sz); ctx.lineTo(cx2+sz,cy2+sz); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx2+sz,cy2-sz); ctx.lineTo(cx2-sz,cy2+sz); ctx.stroke();
-    ctx.globalAlpha = 1;
-    ctx.restore();
+function drawTsjaadPlusBg(){
+  const t_now = Date.now() * 0.001;
+  const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  bgGrad.addColorStop(0, '#080000'); bgGrad.addColorStop(0.3, '#1a0000');
+  bgGrad.addColorStop(0.6, '#0d0000'); bgGrad.addColorStop(1, '#050005');
+  ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save(); ctx.globalAlpha = 0.12 + Math.sin(t_now * 0.7) * 0.05;
+  const crackPositions = [{x:150,y:0,w:3,h:700},{x:380,y:0,w:2,h:700},{x:620,y:0,w:4,h:700},{x:850,y:0,w:2,h:700},{x:1100,y:0,w:3,h:700},{x:0,y:150,w:1200,h:3},{x:0,y:350,w:1200,h:2},{x:0,y:550,w:1200,h:3}];
+  for(const crack of crackPositions){ const lavaGrad = ctx.createLinearGradient(crack.x, crack.y, crack.x + crack.w, crack.y + crack.h); lavaGrad.addColorStop(0, 'rgba(255,60,0,0)'); lavaGrad.addColorStop(0.5, `rgba(255,${80 + Math.sin(t_now*2)*30},0,0.9)`); lavaGrad.addColorStop(1, 'rgba(255,60,0,0)'); ctx.fillStyle = lavaGrad; ctx.fillRect(crack.x, crack.y, crack.w, crack.h); }
+  ctx.restore();
+
+  ctx.save(); const vigAlpha = 0.25 + Math.sin(t_now * 1.2) * 0.1;
+  const vigGrad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 200, canvas.width/2, canvas.height/2, 750);
+  vigGrad.addColorStop(0, 'rgba(0,0,0,0)'); vigGrad.addColorStop(1, `rgba(180,0,0,${vigAlpha})`);
+  ctx.fillStyle = vigGrad; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore();
+
+  const pathsToDraw = gamePaths.length ? gamePaths : [path];
+  for(const drawPath of pathsToDraw){
+    ctx.strokeStyle='#8b0000'; ctx.lineWidth=34; ctx.lineCap='round';
+    ctx.shadowBlur=20; ctx.shadowColor='#ff0000';
+    ctx.beginPath(); ctx.moveTo(drawPath[0].x,drawPath[0].y);
+    for(const p of drawPath) ctx.lineTo(p.x,p.y); ctx.stroke();
+    ctx.strokeStyle=`rgba(255,${40 + Math.sin(t_now*3)*20},0,0.8)`; ctx.lineWidth=20;
+    ctx.beginPath(); ctx.moveTo(drawPath[0].x,drawPath[0].y);
+    for(const p of drawPath) ctx.lineTo(p.x,p.y); ctx.stroke();
+    ctx.shadowBlur=0;
   }
 }
 
 function drawPath(){
-  const map = MAPS[currentMapId];
-  if(!map) return;
-
-  // Background
-  const grad = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-  const bg = map.bgColor || '#7ab86d';
-  grad.addColorStop(0,bg); grad.addColorStop(1,bg);
-  ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  // Draw obstacles
-  drawObstacles();
-
-  // Draw all paths (border + fill)
   const pathsToDraw = gamePaths.length ? gamePaths : [path];
-  for(const drawPath of pathsToDraw){
-    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 30; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(drawPath[0].x,drawPath[0].y);
-    for(const p of drawPath) ctx.lineTo(p.x,p.y);
-    ctx.stroke();
-    ctx.strokeStyle = map.pathColor || '#c2b280'; ctx.lineWidth = 24;
-    ctx.beginPath(); ctx.moveTo(drawPath[0].x,drawPath[0].y);
-    for(const p of drawPath) ctx.lineTo(p.x,p.y);
-    ctx.stroke();
+  if(gameMode==='tsjaadplus'){ drawTsjaadPlusBg(); return; }
+  if(gameMode==='mutatie'){
+    const grad=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    grad.addColorStop(0,'#0a1a0a'); grad.addColorStop(0.5,'#0d2b0d'); grad.addColorStop(1,'#0a1a0a');
+    ctx.fillStyle=grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+    for(const dp of pathsToDraw){
+      ctx.strokeStyle='#1a5c1a'; ctx.lineWidth=30; ctx.lineCap='round'; ctx.shadowBlur=20; ctx.shadowColor='#00ff44';
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.shadowBlur=0;
+    }
+  } else if(gameMode==='dubbelhealth'){
+    const grad=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    grad.addColorStop(0,'#001233'); grad.addColorStop(0.5,'#003166'); grad.addColorStop(1,'#001233');
+    ctx.fillStyle=grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+    for(const dp of pathsToDraw){
+      ctx.strokeStyle='#0d47a1'; ctx.lineWidth=28; ctx.lineCap='round'; ctx.shadowBlur=15; ctx.shadowColor='#4fc3f7';
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.shadowBlur=0;
+    }
+  } else if(gameMode==='tsjaadmodus'){
+    const grad=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    grad.addColorStop(0,'#1a0500'); grad.addColorStop(0.5,'#3d1100'); grad.addColorStop(1,'#1a0500');
+    ctx.fillStyle=grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+    for(const dp of pathsToDraw){
+      ctx.strokeStyle='#8b2500'; ctx.lineWidth=26; ctx.lineCap='round'; ctx.shadowBlur=25; ctx.shadowColor='#ff6600';
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.shadowBlur=0;
+    }
+  } else if(gameMode==='plaag'){
+    const gradient=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    gradient.addColorStop(0,'#5a2d0c'); gradient.addColorStop(0.5,'#8b4513'); gradient.addColorStop(1,'#654321');
+    ctx.fillStyle=gradient; ctx.fillRect(0,0,canvas.width,canvas.height);
+    for(const dp of pathsToDraw){
+      ctx.strokeStyle='#ff4500'; ctx.lineWidth=28; ctx.lineCap='round'; ctx.shadowBlur=25; ctx.shadowColor='#ff0000';
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.shadowBlur=0;
+    }
+  } else if(gameMode==='hard'){
+    const gradient=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    gradient.addColorStop(0,'#1a0033'); gradient.addColorStop(0.5,'#2c003e'); gradient.addColorStop(1,'#1a0033');
+    ctx.fillStyle=gradient; ctx.fillRect(0,0,canvas.width,canvas.height);
+    for(const dp of pathsToDraw){
+      ctx.strokeStyle='#c70039'; ctx.lineWidth=26; ctx.lineCap='round'; ctx.shadowBlur=30; ctx.shadowColor='#ff0080';
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.shadowBlur=0;
+    }
+  } else if(gameMode==='speed'){
+    const gradient=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    gradient.addColorStop(0,'#2c3e50'); gradient.addColorStop(0.5,'#34495e'); gradient.addColorStop(1,'#2c3e50');
+    ctx.fillStyle=gradient; ctx.fillRect(0,0,canvas.width,canvas.height);
+    for(const dp of pathsToDraw){
+      ctx.strokeStyle='#555'; ctx.lineWidth=35; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke();
+      ctx.strokeStyle='#ffeb3b'; ctx.lineWidth=3; ctx.setLineDash([15,10]);
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.setLineDash([]);
+    }
+  } else if(gameMode==='armoede'){
+    const gradient=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    gradient.addColorStop(0,'#3a3a3a'); gradient.addColorStop(0.5,'#2a2a2a'); gradient.addColorStop(1,'#1a1a1a');
+    ctx.fillStyle=gradient; ctx.fillRect(0,0,canvas.width,canvas.height);
+    for(const dp of pathsToDraw){
+      ctx.strokeStyle='#666'; ctx.lineWidth=26; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke();
+    }
+  } else if(gameMode==='boss'){
+    const gradient=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    gradient.addColorStop(0,'#2a0a0a'); gradient.addColorStop(0.5,'#440000'); gradient.addColorStop(1,'#2a0a0a');
+    ctx.fillStyle=gradient; ctx.fillRect(0,0,canvas.width,canvas.height);
+    for(const dp of pathsToDraw){
+      ctx.strokeStyle='#8b0000'; ctx.lineWidth=32; ctx.lineCap='round'; ctx.shadowBlur=30; ctx.shadowColor='#ff0000';
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.shadowBlur=0;
+    }
+  } else if(gameMode==='lichtsnelheid'){
+    const grad=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    grad.addColorStop(0,'#05001a'); grad.addColorStop(0.3,'#0a0033'); grad.addColorStop(0.6,'#100022'); grad.addColorStop(1,'#00000a');
+    ctx.fillStyle=grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+    const nebulaPos=[{x:200,y:150,r:300,c1:'rgba(100,0,200,0.08)',c2:'rgba(100,0,200,0)'},{x:900,y:500,r:250,c1:'rgba(0,100,255,0.06)',c2:'rgba(0,100,255,0)'},{x:600,y:350,r:220,c1:'rgba(200,0,100,0.05)',c2:'rgba(200,0,100,0)'}];
+    for(const nb of nebulaPos){ const ng=ctx.createRadialGradient(nb.x,nb.y,0,nb.x,nb.y,nb.r); ng.addColorStop(0,nb.c1); ng.addColorStop(1,nb.c2); ctx.fillStyle=ng; ctx.fillRect(0,0,canvas.width,canvas.height); }
+    if(!window._galaxyStars){ window._galaxyStars=[]; for(let i=0;i<250;i++) window._galaxyStars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,s:0.5+Math.random()*2,b:0.3+Math.random()*0.7,p:Math.random()*Math.PI*2}); }
+    const t=Date.now()*0.001;
+    for(const st of window._galaxyStars){ const a=st.b*(0.5+Math.sin(t*2+st.p)*0.5); ctx.fillStyle='rgba(255,255,255,'+a+')'; ctx.beginPath(); ctx.arc(st.x,st.y,st.s,0,Math.PI*2); ctx.fill(); }
+    for(const dp of pathsToDraw){
+      ctx.shadowBlur=40; ctx.shadowColor='#00aaff'; ctx.strokeStyle='rgba(0,100,255,0.25)'; ctx.lineWidth=42; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke();
+      ctx.strokeStyle='#00ccff'; ctx.lineWidth=18; ctx.shadowBlur=30; ctx.shadowColor='#00ffff'; ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke();
+      ctx.strokeStyle='#ffffff'; ctx.lineWidth=4; ctx.shadowBlur=50; ctx.shadowColor='#88ffff'; ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke();
+      ctx.shadowBlur=0;
+    }
+  } else {
+    ctx.fillStyle='#7ab86d'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    for(const dp of pathsToDraw){
+      ctx.strokeStyle='#c2b280'; ctx.lineWidth=26; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke();
+    }
   }
 }
 
@@ -2598,9 +2503,10 @@ function drawAapTower(tw){
       const s=t_par*2+i*Math.PI*2/3;
       ctx.fillStyle='rgba(255,215,0,0.3)'; ctx.beginPath(); ctx.arc(Math.cos(s)*2,Math.sin(s)*2-19,4,0,Math.PI*2); ctx.fill();
     }
+    if(monkeyRageTimer>0){ ctx.save(); const ra=0.4+Math.sin(Date.now()*0.008)*0.2; ctx.strokeStyle='rgba(255,0,0,'+ra+')'; ctx.lineWidth=3; ctx.shadowBlur=20; ctx.shadowColor='#ff0000'; ctx.beginPath(); ctx.arc(0,0,20,0,Math.PI*2); ctx.stroke(); ctx.fillStyle='rgba(255,0,0,'+(ra*0.2)+')'; ctx.beginPath(); ctx.arc(0,0,20,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; ctx.restore(); }
     return;
   }
-  const isUltimate=tw.ultimate; const monkeyColor=isUltimate?'#ffd700':'#8b4513'; const faceColor=isUltimate?'#ffed4e':'#d2691e'; const eyeColor=isUltimate?'#ff4500':'#000'; ctx.fillStyle=monkeyColor; ctx.beginPath(); ctx.ellipse(0,2,10,12,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(0,-6,8,0,Math.PI*2); ctx.fill(); ctx.fillStyle=faceColor; ctx.beginPath(); ctx.ellipse(0,-5,5,6,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle=eyeColor; ctx.beginPath(); ctx.arc(-3,-7,isUltimate?2:1.5,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(3,-7,isUltimate?2:1.5,0,Math.PI*2); ctx.fill(); ctx.strokeStyle=eyeColor; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(0,-3,2,0,Math.PI); ctx.stroke(); ctx.fillStyle=monkeyColor; ctx.beginPath(); ctx.arc(-7,-6,3,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(7,-6,3,0,Math.PI*2); ctx.fill(); ctx.strokeStyle=monkeyColor; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(-8,0); ctx.lineTo(-12,6); ctx.stroke(); ctx.beginPath(); ctx.moveTo(8,0); ctx.lineTo(12,6); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-4,12); ctx.lineTo(-6,18); ctx.stroke(); ctx.beginPath(); ctx.moveTo(4,12); ctx.lineTo(6,18); ctx.stroke(); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(8,8); ctx.quadraticCurveTo(15,5,12,-2); ctx.stroke(); }
+  const isUltimate=tw.ultimate; const monkeyColor=isUltimate?'#ffd700':'#8b4513'; const faceColor=isUltimate?'#ffed4e':'#d2691e'; const eyeColor=isUltimate?'#ff4500':'#000'; ctx.fillStyle=monkeyColor; ctx.beginPath(); ctx.ellipse(0,2,10,12,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(0,-6,8,0,Math.PI*2); ctx.fill(); ctx.fillStyle=faceColor; ctx.beginPath(); ctx.ellipse(0,-5,5,6,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle=eyeColor; ctx.beginPath(); ctx.arc(-3,-7,isUltimate?2:1.5,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(3,-7,isUltimate?2:1.5,0,Math.PI*2); ctx.fill(); ctx.strokeStyle=eyeColor; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(0,-3,2,0,Math.PI); ctx.stroke(); ctx.fillStyle=monkeyColor; ctx.beginPath(); ctx.arc(-7,-6,3,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(7,-6,3,0,Math.PI*2); ctx.fill(); ctx.strokeStyle=monkeyColor; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(-8,0); ctx.lineTo(-12,6); ctx.stroke(); ctx.beginPath(); ctx.moveTo(8,0); ctx.lineTo(12,6); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-4,12); ctx.lineTo(-6,18); ctx.stroke(); ctx.beginPath(); ctx.moveTo(4,12); ctx.lineTo(6,18); ctx.stroke(); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(8,8); ctx.quadraticCurveTo(15,5,12,-2); ctx.stroke(); if(monkeyRageTimer>0){ ctx.save(); const ra=0.4+Math.sin(Date.now()*0.008)*0.2; ctx.strokeStyle='rgba(255,0,0,'+ra+')'; ctx.lineWidth=3; ctx.shadowBlur=18; ctx.shadowColor='#ff0000'; ctx.beginPath(); ctx.arc(0,0,15,0,Math.PI*2); ctx.stroke(); ctx.fillStyle='rgba(255,0,0,'+(ra*0.2)+')'; ctx.beginPath(); ctx.arc(0,0,15,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; ctx.restore(); } }
 function drawFakkelTower(tw){
   if(tw.paragon){
     const t_par=Date.now()*0.004;
