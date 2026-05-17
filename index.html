@@ -202,17 +202,17 @@
   <h1>🏜️ TSJAAD TD 🐪</h1>
   <div class="subtitle" id="title-subtitle">⚔️ VECHT VOOR TSJAAD!!! ⚔️</div>
   <div class="mode-grid">
-    <button class="modeBtn standard" onclick="selectMode('standard')">🦟 Standaard</button>
-    <button class="modeBtn plaag" onclick="selectMode('plaag')">🌋 Plaag</button>
-    <button class="modeBtn hard" onclick="selectMode('hard')">💀 Hard</button>
-    <button class="modeBtn speed" onclick="selectMode('speed')">⚡ Dubbel Snelheid</button>
-    <button class="modeBtn armoede" onclick="selectMode('armoede')">💀 Armoede</button>
-    <button class="modeBtn boss" onclick="selectMode('boss')">👹 Boss Battle</button>
-    <button class="modeBtn mutatie" onclick="selectMode('mutatie')">🧬 Mutatie</button>
-    <button class="modeBtn dubbelhealth" onclick="selectMode('dubbelhealth')">💙 Dubbel Health</button>
-    <button class="modeBtn tsjaad" onclick="selectMode('tsjaadmodus')">🔥 Tsjaad</button>
-    <button class="modeBtn tsjaadplus" onclick="selectMode('tsjaadplus')">☠️ Tsjaad+</button>
-    <button class="modeBtn lichtsnelheid" onclick="selectMode('lichtsnelheid')">⚡ Lichtsnelheid</button>
+    <button class="modeBtn standard" data-mode="standard">🦟 Standaard</button>
+    <button class="modeBtn plaag" data-mode="plaag">🌋 Plaag</button>
+    <button class="modeBtn hard" data-mode="hard">💀 Hard</button>
+    <button class="modeBtn speed" data-mode="speed">⚡ Dubbel Snelheid</button>
+    <button class="modeBtn armoede" data-mode="armoede">💀 Armoede</button>
+    <button class="modeBtn boss" data-mode="boss">👹 Boss Battle</button>
+    <button class="modeBtn mutatie" data-mode="mutatie">🧬 Mutatie</button>
+    <button class="modeBtn dubbelhealth" data-mode="dubbelhealth">💙 Dubbel Health</button>
+    <button class="modeBtn tsjaad" data-mode="tsjaadmodus">🔥 Tsjaad</button>
+    <button class="modeBtn tsjaadplus" data-mode="tsjaadplus">☠️ Tsjaad+</button>
+    <button class="modeBtn lichtsnelheid" data-mode="lichtsnelheid">⚡ Lichtsnelheid</button>
   </div>
 </div>
 
@@ -568,11 +568,15 @@ const MODE_MAP = {
   tsjaadmodus:'tsjaadeiland', tsjaadplus:'robotfabriek', lichtsnelheid:'ruimtestation'
 };
 
-function selectMode(mode){
+document.getElementById('titleScreen').addEventListener('click', function(e){
+  const btn = e.target.closest('.modeBtn');
+  if(!btn) return;
+  const mode = btn.getAttribute('data-mode');
+  if(!mode) return;
   document.getElementById('titleScreen').style.display='none';
   document.getElementById('settingsBtn').style.display='none';
   startGame(MODE_MAP[mode]||'tsjaadwoestijn', mode);
-}
+});
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
