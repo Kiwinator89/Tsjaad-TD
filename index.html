@@ -662,16 +662,16 @@ const towerBaseRanges = {
 };
 
 const towerTypes={
-  speer:{range:90,rate:40,dmg:3.6,speed:3.2,cost:80,ultCost:800},
-  boog:{range:130,rate:55,dmg:7,speed:2,cost:125,ultCost:1500},
-  plaagdokter:{range:140,rate:40,dmg:5.5,speed:3.5,cost:300,ultCost:2000},
+  speer:{range:90,rate:40,dmg:3.6,speed:8,cost:80,ultCost:800},
+  boog:{range:130,rate:55,dmg:7,speed:8,cost:125,ultCost:1500},
+  plaagdokter:{range:140,rate:40,dmg:5.5,speed:8,cost:300,ultCost:2000},
   geweer:{range:240,rate:12,dmg:3.8,speed:7,cost:550,ultCost:5000},
   sniper:{range:550,rate:300,dmg:300,speed:10,cost:3000,ultCost:28000},
   tsjaadinator:{range:180,rate:4,dmg:4.8,speed:8,cost:2500,ultCost:15000,secretCost:500000},
-  atoom:{range:180,rate:100,dmg:15,speed:3,cost:600,bomb:true,ultCost:4500},
+  atoom:{range:180,rate:100,dmg:15,speed:8,cost:600,bomb:true,ultCost:4500},
   katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
-  aap:{range:120,rate:70,dmg:1.4,speed:0,cost:400,ultCost:2500,monkey:true},
-  fakkel:{range:95,rate:45,dmg:3,speed:3,cost:150,ultCost:4000,fire:true}
+  aap:{range:120,rate:70,dmg:0.8,speed:0,cost:400,ultCost:2500,monkey:true},
+  fakkel:{range:95,rate:45,dmg:3,speed:8,cost:150,ultCost:4000,fire:true}
 };
 
 function getTowerRange(tw) {
@@ -878,7 +878,7 @@ function updateTooltip(tw, cx, cy){
     html += statRow('🔁 Gooisnelheid', fmtRate(tw.rate), next?fmtRate(next.rate):null);
     html += statRow('📏 Gebiedsradius', fmtRange(effRange), next?fmtRange(next.range):null);
     html += statRow('💥 Totale schade', Math.floor(tw.totalDamage||0)+'', null);
-    html += `<div class="tt-passive">🐵 Kan geen metalen vijanden raken</div>`;
+    html += `<div class="tt-passive">🐵 Vogels vliegen over bananen heen!!!</div>`;
     html += `<div class="tt-passive">💢 Bij levensverlies: 100% sneller aanvallen (10s)</div>`;
   } else {
     html += `<div class="tt-stats-title">📊 Huidige Stats</div>`;
@@ -963,15 +963,15 @@ function updateTooltip(tw, cx, cy){
       boog:'💜 Zwakke mutatie - HP% drain',
       fakkel:'🔥 Mega brand',
       plaagdokter:'💚 Extra levens',
-      aap:'🐵 +35% speed boost',
-      geweer:'🔫 Laser kanon',
+      aap:'🐵 +35% snelheid voor ALLE torens in radius!!',
+      geweer:'Laser kanon!!!',
       atoom:'☢️ Straling',
       katoen:'🌾 5× uitbetaling/ronde, ult korting aura',
       sniper:'💥 Explosie verdooft alle vijanden in radius',
     };
     const sameTypeCount = towers.filter(t => t !== tw && t.key === tw.key).length;
     html += `<div class="tt-upgrade-header ult" style="color:${canAfford&&!paragonActive?'#ff00ff':'#f44'}">⭐ PARAGON — €${cost}${paragonActive?' ⚠️':''}</div>`;
-    if(paragonActive) html += `<div style="font-size:9px;color:#ff6b35;margin-top:2px;">⚠️ Verkoop andere Paragon eerst!</div>`;
+    if(paragonActive) html += `<div style="font-size:9px;color:#ff6b35;margin-top:2px;">⚠️ Verkoop andere Paragon eerst! Zoveel Tsjaad kracht is onmogelijk!!!</div>`;
     if(sameTypeCount > 0){
       const ultSameType = towers.filter(t => t !== tw && t.key === tw.key && t.ultimate).length;
       let levelEstimate = ultSameType * 5;
@@ -1005,7 +1005,7 @@ function updateTooltip(tw, cx, cy){
     if(tw.key==='speer'){
       if(tw.paragon){
         const boostPct = 30 + 5 * Math.floor((tw.paragonLevel||0) / 10);
-        html += `<div class="tt-passive">♾️ Oneindige range | 🌍 Geeft ALLE torens wereldwijd +${boostPct}% range</div>`;
+        html += `<div class="tt-passive">♾️ Oneindige range | 🌍 Geeft ALLE torens ULTIME range +${boostPct}% range</div>`;
       } else {
         const activeBoost = tw.speerRangeBoostUntil && Date.now() < tw.speerRangeBoostUntil;
         html += `<div class="tt-passive">📡 Range Aura: geeft alle torens in radius +30% range voor 3s bij schot${activeBoost?' <span style="color:#4fc3f7">[ACTIEF]</span>':''}</div>`;
@@ -1020,7 +1020,7 @@ function updateTooltip(tw, cx, cy){
       const nextCritPct = next ? Math.round((0.10 + (isUltNext ? tw.level : tw.level+1) * 0.05) * 100) : null;
       html += statRow('🎯 Crit kans', critPct+'%', nextCritPct && nextCritPct !== critPct ? nextCritPct+'%' : null);
       if(tw.paragon){
-        html += `<div class="tt-passive">💥 Elke 5s: explosie (80px) verdooft alle vijanden 2s</div>`;
+        html += `<div class="tt-passive">💥 Elke 5s: explosie (80px) Versloomd alle vijanden 2s</div>`;
       } else {
         html += `<div class="tt-passive">❄️ Raakshot: vertraagt doel 50% voor 0.3 seconde</div>`;
       }
@@ -1107,7 +1107,7 @@ function confirmParagon(){
   applyParagonStats(t2);
 
   const spiritLvl = Math.floor(t2.paragonLevel / 25);
-  const spiritNames = ['', '🌀 Spirit Lv.1', '🌀 Spirit Lv.2', '🌀 Spirit Lv.3', '⭐ MEGA TSJAAD KRACHT ⭐'];
+  const spiritNames = ['', '🌀 Tsjaad kracht', '🌀 Super Tsjaad kracht', '⚔️ Tsjaad krijger', '⭐ MEGA ULTIME TSJAADTASTISCHE KRACHT ⭐'];
   showRoundMsg('⭐ PARAGON GEMAAKT! Lvl ' + t2.paragonLevel + ' ' + (spiritNames[spiritLvl] || ''));
   playSound('sacrifice', 0.8);
   t2.upText = 200;
