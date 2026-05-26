@@ -551,6 +551,7 @@ const sounds = {
   sell:       new Audio(BASE_AUDIO + 'Sell.mp3'),
   sniper:     new Audio(BASE_AUDIO + 'Sniper.mp3'),
   upgrade:    new Audio(BASE_AUDIO + 'Upgrade.mp3'),
+  heal:       new Audio(BASE_AUDIO + 'Heal.mp3'),
 };
 // Set music to loop at default volume
 ['themeStandaard','themePlaag','themeHard','themeSpeed','themeBoss','themeMutatie','themeTsjaad','themeDubbelHealth','themeArmoede'].forEach(k=>{
@@ -726,7 +727,7 @@ const animalTypes=[
   {name:'Krokodil',hp:40,speed:0.75,size:20,reward:38,type:'krokodil',minRound:20},
 ];
 const bossType = {name:'Malaria Mug',hp:50000,speed:0.7,size:80,reward:1000,boss:true,type:'mug'};
-const mutatedBossType = {name:'Gemuteerde Malaria Mug',hp:250000,speed:0.75,size:95,reward:2500,boss:true,type:'mutatedmug'};
+const mutatedBossType = {name:'Gemuteerde Malaria Mug',hp:5000000,speed:0.75,size:95,reward:2500,boss:true,type:'mutatedmug'};
 const slowBossType = {name:'Malaria Mug',hp:6500000,speed:0.15,size:120,reward:1000,boss:true,type:'mug'};
 const zwangereMugBossType = {name:'ULTRA Malaria Mug',hp:300000,speed:0.6,size:110,reward:3000,boss:true,type:'zwangeremug'};
 
@@ -866,8 +867,15 @@ function updateTooltip(tw, cx, cy){
   let html = '';
 
   if(tw.farm){
-    const curIncome = 80 + tw.level*40 + (tw.ultimate?500:0) + (tw.paragon?300+tw.paragonLevel*10:0);
-    const curLabel = tw.paragon ? `€${curIncome}/ronde (€${Math.floor(curIncome/5)}×5)` : `€${curIncome}`;
+    let curIncome;
+    if(tw.paragon){
+      const baseIncome = Math.floor((80+tw.level*40+500+300+tw.paragonLevel*10)/5);
+      const growthMult = Math.pow(1.10, round - 1);
+      curIncome = Math.floor(baseIncome * growthMult);
+    } else {
+      curIncome = 80 + tw.level*40 + (tw.ultimate?500:0);
+    }
+    const curLabel = tw.paragon ? `€${curIncome}/ronde (+10%/ronde)` : `€${curIncome}`;
     const nextIncome = next ? (80 + (tw.level+1)*40 + (isUltNext?500:0)) : null;
     html += `<div class="tt-stats-title">📊 Huidige Stats</div>`;
     html += statRow('💰 Inkomen/ronde', curLabel, nextIncome?`€${nextIncome}`:null);
@@ -951,7 +959,7 @@ function updateTooltip(tw, cx, cy){
       aap:'🐵 +35% aanvalssnelheid voor torens in radius',
       geweer:'🔫 Laser doorboort metalen vijanden',
       atoom:'☢️ Straling verspreid bij elke hit',
-      katoen:'🌾 5 uitbetalingen/ronde · -30% ult kosten aura',
+      katoen:'🌾 5 uitbetalingen/ronde · +10% inkomen per ronde (compound) · -30% ult kosten aura',
       sniper:'💥 Elke 5s: explosie verdooft alle vijanden in radius 2s',
     };
     if(specTexts[tw.key]) html += `<div style="font-size:9px;color:#88ddff;margin-top:2px;">${specTexts[tw.key]}</div>`;
@@ -962,8 +970,8 @@ function updateTooltip(tw, cx, cy){
       speer:'♾️ Oneindige range + wereldwijde range boost',
       boog:'💜 Zwakke mutatie - HP% drain',
       fakkel:'🔥 Mega brand',
-      plaagdokter:'💚 Extra levens',
-      aap:'🐵 PERMANENT +35% snelheid voor ALLE torens in radius!!',
+      plaagdokter:'💚 Extra levens elke paar rondes (elke 20 paragon lvl = 1 ronde sneller)',
+      aap:'🐵 +35% snelheid voor ALLE torens in radius!!',
       geweer:'Laser kanon!!!',
       atoom:'☢️ Straling',
       katoen:'🌾 5× uitbetaling/ronde, ult korting aura',
@@ -1265,6 +1273,7 @@ function startRound(){
         lives++;
         document.getElementById('lives').textContent=lives;
         showRoundMsg('💚 PlaagDokter Paragon gaf +1 leven!');
+        if(!antiLagMode) playSound('heal', 0.8);
       }
     }
   }
@@ -1474,6 +1483,20 @@ function triggerEnemyNuclearExplosion(e, mega=false){
   }
 }
 
+// ===== ROBO LEEUW STUN =====
+function triggerRoboLeeuwStun(e){
+  const stunRadius = 150;
+  const stunDuration = 180; // 3 seconden bij 60fps
+  for(const tw of towers){
+    if(Math.hypot(tw.x-e.x, tw.y-e.y) < stunRadius){
+      tw.stunned = true;
+      tw.stunTimer = stunDuration;
+    }
+  }
+  // Visueel stun-ring effect
+  explosions.push({x:e.x,y:e.y,r:stunRadius*0.1,t:40,gold:false,stunRing:true});
+}
+
 // ===== UPDATE =====
 function update(){
   if(autoStartRounds&&!spawning&&!gameWon&&enemies.length===0) startRound();
@@ -1581,7 +1604,10 @@ function update(){
   }
 
   for(const tw of towers){
+    // Robo Leeuw stun update
+    if(tw.stunned && tw.stunTimer > 0){ tw.stunTimer -= (gameSpeedMult||1); if(tw.stunTimer<=0){ tw.stunned=false; tw.stunTimer=0; } }
     if(tw.cool>0) tw.cool -= (gameSpeedMult||1);
+    if(tw.stunned) continue; // Gestunde torens schieten niet
     if(tw.cool<=0 && !tw.farm && (enemies.length>0 || tw.monkey)){
       const effRange = getTowerRange(tw);
       let target = null;
@@ -1623,6 +1649,7 @@ function update(){
             p.sniperSlowOnHit = !!tw.sniperSlowOnHit || tw.ultimate;
             p.isCrit = Math.random() < 0.10 + tw.level * 0.05;
             if(p.isCrit) p.dmg *= 3;
+            if(!antiLagMode) playSound('sniper', 0.7);
           }
           if(tw.key==='speer' && tw.ultimate){ p.speerUltAura = true; p.speerTower = tw; }
           if(tw.key==='boog') p.poisonArrow = !!tw.poisonArrows;
@@ -1637,7 +1664,10 @@ function update(){
 
     if(tw.farm&&tw.paragon){
       tw.farmTimer=(tw.farmTimer||0)+1;
-      const farmPerTick=Math.floor((80+tw.level*40+500+300+tw.paragonLevel*10)/5);
+      // Elke ronde 10% meer dan de vorige ronde (compound groei)
+      const baseIncome = Math.floor((80+tw.level*40+500+300+tw.paragonLevel*10)/5);
+      const growthMultiplier = Math.pow(1.10, round - 1);
+      const farmPerTick = Math.floor(baseIncome * growthMultiplier);
       if(tw.farmTimer>=300){
         tw.farmTimer=0;
         money+=farmPerTick;
@@ -1828,7 +1858,7 @@ function update(){
       if(hasOnstabiel && !e.onstabielExploded){ /* killed early, no explosion */ }
 
       if(e.mutation==='radioactieve'||e.mutation2==='radioactieve'||e.mutation3==='radioactieve'){ triggerEnemyNuclearExplosion(e, false); }
-      if(e.isRoboLeeuw){ triggerEnemyNuclearExplosion(e, false); }
+      if(e.isRoboLeeuw){ triggerEnemyNuclearExplosion(e, false); playSound('explode', 1.0); triggerRoboLeeuwStun(e); }
 
       const ePath=gamePaths[e.pathIndex]||path;
       if(e.mutation==='ondode'||e.mutation2==='ondode'||e.mutation3==='ondode'){ toSpawn.push(makeGhostEnemy(e)); }
@@ -2429,6 +2459,14 @@ function drawTower(tw){
 
   if(tw.nuclearSlowUntil&&Date.now()<tw.nuclearSlowUntil){ ctx.strokeStyle='rgba(0,255,0,0.6)'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(0,0,22,0,Math.PI*2); ctx.stroke(); ctx.fillStyle='rgba(0,255,0,0.1)'; ctx.beginPath(); ctx.arc(0,0,22,0,Math.PI*2); ctx.fill(); }
   if(tw.boosted){ ctx.strokeStyle='rgba(255,215,0,0.6)'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(0,0,20,0,Math.PI*2); ctx.stroke(); }
+  if(tw.stunned && tw.stunTimer > 0){
+    const blink = Math.floor(Date.now()/200)%2===0;
+    ctx.strokeStyle=blink?'rgba(0,150,255,0.9)':'rgba(100,200,255,0.6)';
+    ctx.lineWidth=3; ctx.beginPath(); ctx.arc(0,0,23,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle='rgba(0,100,255,0.18)'; ctx.beginPath(); ctx.arc(0,0,23,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(100,200,255,0.9)'; ctx.font='bold 10px Arial'; ctx.textAlign='center';
+    ctx.fillText('⚡STUN',0,-26);
+  }
 
   if(tw.key==='atoom'){
     const cooldown=getAtoomNukeCooldown(tw);
