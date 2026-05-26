@@ -672,7 +672,7 @@ const towerTypes={
   atoom:{range:180,rate:100,dmg:15,speed:8,cost:600,bomb:true,ultCost:4500},
   katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
   aap:{range:120,rate:70,dmg:0.8,speed:0,cost:400,ultCost:2500,monkey:true},
-  fakkel:{range:95,rate:45,dmg:3,speed:8,cost:150,ultCost:4000,fire:true}
+  fakkel:{range:95,rate:50,dmg:2,speed:8,cost:150,ultCost:4000,fire:true}
 };
 
 function getTowerRange(tw) {
@@ -694,9 +694,9 @@ function getTowerRange(tw) {
 }
 
 function getFakkelBurnDmg(level, ultimate, paragon) {
-  if(paragon) return 500;
-  if(ultimate) return 80;
-  const byLevel = [3, 3, 5, 15]; // level 0,1,2,3
+  if(paragon) return 120;
+  if(ultimate) return 35;
+  const byLevel = [2, 2, 4, 10]; // level 0,1,2,3
   return byLevel[Math.min(level, 3)];
 }
 
@@ -814,7 +814,7 @@ function getNextLevelStats(tw){
     if(tw.key==='sniper'){ dmg = tw.dmg + 200; }
     else if(tw.key==='plaagdokter'){ dmg = tw.dmg * 1.25; rate = tw.rate * 0.85; slow = (tw.slowAmount||0.20) + 0.05; plaagBonus = (tw.plaagDmgBonus||1.05) + 0.05; }
     else if(tw.key==='aap'){ dmg = tw.dmg * 1.5; }
-    else if(tw.key==='fakkel'){ dmg = tw.dmg * 5.5; rate = tw.rate * 0.85; }
+    else if(tw.key==='fakkel'){ dmg = tw.dmg * 2.2; rate = tw.rate * 0.90; }
     else if(!tw.farm){ dmg = tw.dmg * 1.25; rate = tw.rate * 0.85; }
   } else if(!tw.ultimate){
     if(tw.key==='atoom'){ dmg = tw.dmg * 2.8; rate = tw.rate * 0.55; }
@@ -825,7 +825,7 @@ function getNextLevelStats(tw){
     else if(tw.key==='sniper'){ dmg = 5000; }
     else if(tw.key==='plaagdokter'){ dmg = tw.dmg * 4; slow = null; plaagBonus = (tw.plaagDmgBonus||1.05) + 0.05; }
     else if(tw.key==='aap'){ dmg = tw.dmg * 2; }
-    else if(tw.key==='fakkel'){ dmg = tw.dmg * 1.4; }
+    else if(tw.key==='fakkel'){ dmg = tw.dmg * 1.2; }
   }
   return { dmg, rate, range: nextRange, slow, plaagBonus };
 }
@@ -954,7 +954,7 @@ function updateTooltip(tw, cx, cy){
     const specTexts={
       speer:'♾️ Oneindige range | 📡 Geeft ALLE torens '+(30+5*Math.floor((tw.paragonLevel||0)/10))+'% extra range',
       boog:'💜 Zwakke vijand: -'+(2+2*Math.floor((tw.paragonLevel||0)/25))+'% HP/s (5s)',
-      fakkel:'🔥 Zet vijanden in de fik (500/s)',
+      fakkel:'🔥 Zet vijanden in de fik (120/s)',
       plaagdokter:'💚 +1 leven elke '+(Math.max(1,5-Math.floor(tw.paragonLevel/20)))+' rondes',
       aap:'🐵 +35% aanvalssnelheid voor torens in radius',
       geweer:'🔫 Laser doorboort metalen vijanden',
@@ -1622,7 +1622,7 @@ function update(){
       tw.cool = Math.max(1, Math.floor(tw.rate / (gameSpeedMult||1) / (tw.monkey && monkeyRageTimer>0 ? 2 : 1)));
       if(tw.monkey){
         if(target){
-          bananas.push({x:target.x, y:target.y, dmg:tw.dmg*3, lifetime:600, dead:false, isMonkey:true});
+          bananas.push({x:target.x, y:target.y, dmg:tw.dmg*3, lifetime:600, dead:false, isMonkey:true, isParagon:!!tw.paragon});
         } else {
           const paths = gamePaths.length ? gamePaths : [path];
           const candidates = [];
@@ -1635,7 +1635,7 @@ function update(){
           if(candidates.length>0){
             const seg=candidates[Math.floor(Math.random()*candidates.length)];
             const t=Math.random();
-            bananas.push({x:seg.p1.x+(seg.p2.x-seg.p1.x)*t, y:seg.p1.y+(seg.p2.y-seg.p1.y)*t, dmg:tw.dmg*3, lifetime:600, dead:false, isMonkey:true});
+            bananas.push({x:seg.p1.x+(seg.p2.x-seg.p1.x)*t, y:seg.p1.y+(seg.p2.y-seg.p1.y)*t, dmg:tw.dmg*3, lifetime:600, dead:false, isMonkey:true, isParagon:!!tw.paragon});
           }
         }
       } else if(target){
@@ -2509,6 +2509,14 @@ function drawTower(tw){
     ctx.font='bold 10px Arial'; ctx.textAlign='center';
     ctx.fillText(tw.secret?'⭐ GOD MODE!':(tw.paragon?'⭐ PARAGON!':'UPGRADED!'),0,-20/scale);
   }
+
+  // Aap emoji boven torens in radius van paragon aap
+  const aapParagon = towers.find(t => t.key==='aap' && t.paragon && t !== tw);
+  if(aapParagon && Math.hypot(tw.x - aapParagon.x, tw.y - aapParagon.y) <= getTowerRange(aapParagon)){
+    ctx.font = '14px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('🐵', 0, -30/scale);
+  }
+
   ctx.restore();
 }
 
@@ -2782,7 +2790,33 @@ function drawRadiationSymbol(x,y,r){
   ctx.globalAlpha=1; ctx.restore();
 }
 
-function drawBananas(){ for(const banana of bananas){ ctx.save(); ctx.translate(banana.x,banana.y); ctx.rotate(-0.3); ctx.fillStyle='#ffeb3b'; ctx.beginPath(); ctx.moveTo(-8,0); ctx.quadraticCurveTo(-6,-4,0,-5); ctx.quadraticCurveTo(6,-4,8,0); ctx.quadraticCurveTo(6,2,0,3); ctx.quadraticCurveTo(-6,2,-8,0); ctx.fill(); ctx.strokeStyle='#f9a825'; ctx.lineWidth=1; ctx.stroke(); ctx.restore(); } }
+function drawBananas(){
+  for(const banana of bananas){
+    ctx.save();
+    ctx.translate(banana.x, banana.y);
+    if(banana.isParagon){
+      // Gouden paragon banaan met gloed
+      const t = Date.now()*0.005;
+      ctx.rotate(-0.3 + Math.sin(t)*0.1);
+      ctx.shadowBlur = 12; ctx.shadowColor = '#ffd700';
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath(); ctx.moveTo(-10,0); ctx.quadraticCurveTo(-8,-6,0,-7); ctx.quadraticCurveTo(8,-6,10,0); ctx.quadraticCurveTo(8,3,0,4); ctx.quadraticCurveTo(-8,3,-10,0); ctx.fill();
+      ctx.strokeStyle = '#ff8800'; ctx.lineWidth = 1.5; ctx.stroke();
+      // Ster glinstering
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(255,255,200,0.8)';
+      ctx.beginPath(); ctx.arc(-3,-2,1.5,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(3,1,1,0,Math.PI*2); ctx.fill();
+    } else {
+      // Normale banaan
+      ctx.rotate(-0.3);
+      ctx.fillStyle = '#ffeb3b';
+      ctx.beginPath(); ctx.moveTo(-8,0); ctx.quadraticCurveTo(-6,-4,0,-5); ctx.quadraticCurveTo(6,-4,8,0); ctx.quadraticCurveTo(6,2,0,3); ctx.quadraticCurveTo(-6,2,-8,0); ctx.fill();
+      ctx.strokeStyle = '#f9a825'; ctx.lineWidth = 1; ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
 
 function drawBirdEggs(){
   for(const egg of birdEggs){
