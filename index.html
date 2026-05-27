@@ -248,6 +248,7 @@
   <button onclick="selectTower('aap')" id="tower-aap">🐵 Wilde Aap (€400)</button>
   <button onclick="selectTower('geweer')" id="tower-geweer">🔫 Soldaat (€550)</button>
   <button onclick="selectTower('atoom')" id="tower-atoom">💣 Atoombommenwerper (€600)</button>
+  <button onclick="selectTower('hut')" id="tower-hut">🛖 De Hut (€800)</button>
   <button id="katoenBtn" onclick="selectTower('katoen')"> Katoen Plantage🌾 (€950)</button>
   <button onclick="selectTower('tsjaadinator')" id="tower-tsjaad">⚡ Tsjaadinator (€2500)</button>
   <button onclick="selectTower('sniper')" id="tower-sniper">🎯 Sniper (€3000)</button>
@@ -511,6 +512,7 @@ let paragonTower = null;
 let pendingParagonTower = null;
 let sacrificeEffects = [];
 let monkeyRageTimer = 0;
+let hutFreeTowerPending = null; // key of free tower to place
 
 // ===== MUTATIONS =====
 const MUTATIONS = ['ondode','snelle','hydra','random','dodelijke','radioactieve','metalen','kogelvrije','beschermde','terugkerende','arme','Nutteloze','verslomende','accelererende','genezende','elite','onstabiele','zwakke'];
@@ -602,6 +604,7 @@ function startGame(mode) {
   money=500; lives=20; round=1; totalMoneyEarned=0;
   autoStartRounds=false; autoRoundCountdown=0;
   paragonActive=false; paragonTower=null;
+  hutFreeTowerPending = null;
   document.getElementById('startRoundBtn').style.display='block';
   document.getElementById('katoenBtn').disabled=false;
   document.getElementById('katoenBtn').classList.remove('crossed-out');
@@ -659,7 +662,7 @@ function startGame(mode) {
 // ===== TOWERS =====
 const towerBaseRanges = {
   speer:90, boog:130, plaagdokter:140, geweer:240, sniper:550,
-  tsjaadinator:180, atoom:180, katoen:0, aap:120, fakkel:95
+  tsjaadinator:180, atoom:180, katoen:0, aap:120, fakkel:95, hut:110
 };
 
 const towerTypes={
@@ -672,7 +675,8 @@ const towerTypes={
   atoom:{range:180,rate:100,dmg:15,speed:8,cost:600,bomb:true,ultCost:4500},
   katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
   aap:{range:120,rate:70,dmg:0.8,speed:0,cost:400,ultCost:2500,monkey:true},
-  fakkel:{range:95,rate:50,dmg:2,speed:8,cost:150,ultCost:4000,fire:true}
+  fakkel:{range:95,rate:50,dmg:2,speed:8,cost:150,ultCost:4000,fire:true},
+  hut:{range:110,rate:9999,dmg:0,speed:0,cost:800,hut:true,ultCost:5000}
 };
 
 function getTowerRange(tw) {
@@ -754,7 +758,7 @@ canvas.onmousemove = e => {
 canvas.onmouseleave=()=>{ hoveredTower=null; tooltipEl.style.display='none'; };
 
 function getTowerName(key){
-  const names={speer:'Speer Werper',boog:'Boog Schutter',fakkel:'Fakkel Drager',plaagdokter:'Plaag Dokter',aap:'Wilde Aap',geweer:'Soldaat',atoom:'Atoombommenwerper',katoen:'Katoen Plantage',tsjaadinator:'Tsjaadinator',sniper:'Sniper'};
+  const names={speer:'Speer Werper',boog:'Boog Schutter',fakkel:'Fakkel Drager',plaagdokter:'Plaag Dokter',aap:'Wilde Aap',geweer:'Soldaat',atoom:'Atoombommenwerper',katoen:'Katoen Plantage',tsjaadinator:'Tsjaadinator',sniper:'Sniper',hut:'De Hut'};
   return names[key]||key;
 }
 
@@ -769,10 +773,19 @@ function getUpgradeCostForTower(tw){
   if(tw.key==='katoen') return 200;
   if(tw.key==='aap') return 150;
   if(tw.key==='fakkel') return 125;
+  if(tw.key==='hut') return 0; // hut uses fixed upgrade costs
   return 200;
 }
 
 function getTowerTotalInvestedCost(tw){
+  if(tw.key === 'hut'){
+    const base = towerTypes.hut.cost || 0;
+    let total = base;
+    for(let i=0; i<Math.min(tw.level,3); i++) total += HUT_UPGRADE_COSTS[i];
+    if(tw.ultimate) total += HUT_ULT_COST;
+    if(tw.paragon) total += HUT_PARAGON_COST;
+    return total;
+  }
   const base = towerTypes[tw.key].cost || 0;
   const upgradeCost = getUpgradeCostForTower(tw);
   let total = base + tw.level * upgradeCost;
@@ -843,7 +856,7 @@ function statRow(label, cur, next){
 
 function updateTooltip(tw, cx, cy){
   const name = getTowerName(tw.key);
-  const icons = {speer:'⚔️',boog:'🏹',fakkel:'🔥',plaagdokter:'💉',aap:'🐵',geweer:'🔫',atoom:'💣',katoen:'🌾',tsjaadinator:'⚡',sniper:'🎯'};
+  const icons = {speer:'⚔️',boog:'🏹',fakkel:'🔥',plaagdokter:'💉',aap:'🐵',geweer:'🔫',atoom:'💣',katoen:'🌾',tsjaadinator:'⚡',sniper:'🎯',hut:'🛖'};
   const icon = icons[tw.key]||'🏰';
 
   let lvlLabel, lvlColor;
@@ -866,7 +879,16 @@ function updateTooltip(tw, cx, cy){
 
   let html = '';
 
-  if(tw.farm){
+  if(tw.hut){
+    html += `<div class="tt-stats-title">📊 Hut Stats</div>`;
+    html += `<div class="tt-stat-row"><span class="tt-stat-label">⚔️ Dmg bonus</span><span class="tt-stat-val">+5 dmg/toren in radius</span></div>`;
+    html += `<div class="tt-stat-row"><span class="tt-stat-label">📏 Range</span><span class="tt-stat-val">${fmtRange(effRange)}</span></div>`;
+    if(tw.level >= 1) html += `<div class="tt-passive">💰 Torens in radius verdienen +20% per kill</div>`;
+    if(tw.level >= 2) html += `<div class="tt-passive">💵 +10g/s per vijand in radius</div>`;
+    if(tw.level >= 3) html += `<div class="tt-passive">🏷️ Verkoop aura: 100% verkoopwaarde</div>`;
+    if(tw.ultimate) html += `<div class="tt-passive">🎁 Elke ronde gratis toren te plaatsen!</div>`;
+    if(tw.paragon) html += `<div class="tt-passive" style="color:#ff88ff">⭐ Speer/Boog/Fakkel in radius: ${200 + 5*(tw.paragonLevel||0)}% schade bonus!</div>`;
+  } else if(tw.farm){
     let curIncome;
     if(tw.paragon){
       const baseIncome = Math.floor((80+tw.level*40+500+300+tw.paragonLevel*10)/5);
@@ -963,7 +985,20 @@ function updateTooltip(tw, cx, cy){
       sniper:'💥 Elke 5s: explosie verdooft alle vijanden in radius 2s',
     };
     if(specTexts[tw.key]) html += `<div style="font-size:9px;color:#88ddff;margin-top:2px;">${specTexts[tw.key]}</div>`;
+    // Hut paragon
+    if(tw.key==='hut'){
+      const paraDmgPct = 200 + 5*(tw.paragonLevel||0);
+      html += `<div style="font-size:9px;color:#ff88ff;margin-top:2px;">⭐ Speer/Boog/Fakkel in radius: +${paraDmgPct}% schade</div>`;
+      html += `<div style="font-size:9px;color:#aaa;margin-top:2px;">+5% per paragon level</div>`;
+    }
   } else if(tw.ultimate && tw.key!=='tsjaadinator'){
+    // For hut: show paragon option after ultimate
+    if(tw.key === 'hut'){
+      const paraCost = HUT_PARAGON_COST;
+      const canAffordPara = money >= paraCost;
+      html += `<div class="tt-upgrade-header ult" style="color:${canAffordPara&&!paragonActive?'#ff00ff':'#f44'}">⭐ PARAGON — €${paraCost}${paragonActive?' ⚠️':''}</div>`;
+      html += `<div style="font-size:9px;color:#88ddff;margin-top:2px;">⭐ Speer/Boog/Fakkel doen 200%+5%/lvl meer schade in radius</div>`;
+    } else {
     const cost = cfg.ultCost * 10;
     const canAfford = money >= cost;
     const specTexts2={
@@ -987,16 +1022,22 @@ function updateTooltip(tw, cx, cy){
     }
     html += `<div style="font-size:9px;color:#aaa;margin-top:2px;">Verteert torens van zelfde type voor bonus!</div>`;
     if(specTexts2[tw.key]) html += `<div style="font-size:9px;color:#88ddff;margin-top:2px;">✨ ${specTexts2[tw.key]}</div>`;
+    } // end else (non-hut ult)
   } else if(tw.level < 3){
-    const cost = getUpgradeCostForTower(tw);
+    const cost = tw.key==='hut' ? getHutUpgradeCost(tw) : getUpgradeCostForTower(tw);
     const canAfford = money >= cost;
+    const hutUpgradeDescriptions = ['💰 Torens in radius +20% kill reward','💵 +10g/s per vijand in radius','🏷️ Verkoop radius torens voor 100%!'];
+    const hutDesc = tw.key==='hut' ? hutUpgradeDescriptions[tw.level] : '';
     html += `<div class="tt-upgrade-header" style="color:${canAfford?'#4fc3f7':'#f44'}">⬆️ Upgrade Lvl ${tw.level+1} — €${cost}</div>`;
+    if(hutDesc) html += `<div style="font-size:9px;color:#aaffcc;margin-top:2px;">${hutDesc}</div>`;
   } else if(!tw.ultimate){
-    let cost = cfg.ultCost;
+    let cost = tw.key==='hut' ? HUT_ULT_COST : cfg.ultCost;
     const hasKatoenPara=towers.some(t=>t.key==='katoen'&&t.paragon&&Math.hypot(t.x-tw.x,t.y-tw.y)<=getTowerRange(t));
-    const costStr=hasKatoenPara?`<span style="text-decoration:line-through;opacity:0.5">€${cost}</span> €${Math.floor(cost*0.7)}`:`€${cost}`;
-    const canAfford = money >= (hasKatoenPara?Math.floor(cost*0.7):cost);
-    if(tw.key==='speer'){
+    const costStr=hasKatoenPara&&tw.key!=='hut'?`<span style="text-decoration:line-through;opacity:0.5">€${cost}</span> €${Math.floor(cost*0.7)}`:`€${cost}`;
+    const canAfford = money >= (hasKatoenPara&&tw.key!=='hut'?Math.floor(cost*0.7):cost);
+    if(tw.key==='hut'){
+      html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — €${cost} | 🎁 Gratis toren elk ronde</div>`;
+    } else if(tw.key==='speer'){
       html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — ${costStr} | 📡 +30% range aura</div>`;
     } else if(tw.key==='sniper'){
       html += `<div class="tt-upgrade-header ult" style="color:${canAfford?'#ffd700':'#f44'}">⭐ ULTIMATE — ${costStr} | ❄️ Shot slow 50%</div>`;
@@ -1158,6 +1199,21 @@ canvas.onclick=e=>{
   const r=canvas.getBoundingClientRect();
   const x=e.clientX-r.left, y=e.clientY-r.top;
   for(const tw of towers){ const towerSize=18*(1+tw.level*0.05); if(Math.hypot(tw.x-x,tw.y-y)<towerSize){ handleUpgrade(tw); return; } }
+
+  // Hut free tower placement
+  if(selectedTower === '__hut_free__'){
+    // Check path collision
+    const pathsToCheck2 = gamePaths.length ? gamePaths : [path];
+    for(const checkPath of pathsToCheck2){
+      for(let i=0;i<checkPath.length-1;i++){
+        const p1=checkPath[i],p2=checkPath[i+1];
+        if(distanceToLineSegment(x,y,p1.x,p1.y,p2.x,p2.y)<30) return;
+      }
+    }
+    applyHutFreeTower(x, y);
+    return;
+  }
+
   if(!selectedTower) return;
   const cfg=towerTypes[selectedTower];
   if(money<cfg.cost) return;
@@ -1184,6 +1240,7 @@ canvas.onclick=e=>{
   if(selectedTower==='plaagdokter'){ newTower.slowAmount=0.20; newTower.slowDuration=180; newTower.plaagDmgBonus=1.05; }
   if(selectedTower==='fakkel'){ newTower.fireChance=1.0; }
   if(selectedTower==='atoom'){ newTower.fireBonusMultiplier=1.20; }
+  if(selectedTower==='hut'){ newTower.hut=true; newTower.hutTickTimer=0; newTower.hutEnemyRewardBonus=0; }
   towers.push(newTower);
   playSound('placement', 0.6);
 };
@@ -1194,7 +1251,113 @@ function distanceToLineSegment(px,py,x1,y1,x2,y2){
   return Math.hypot(px-(x1+t2*dx),py-(y1+t2*dy));
 }
 
+// ===== HUT UPGRADE COSTS =====
+const HUT_UPGRADE_COSTS = [500, 1200, 1500]; // levels 1,2,3
+const HUT_ULT_COST = 5000;
+const HUT_PARAGON_COST = 50000;
+
+function getHutUpgradeCost(tw){
+  if(tw.paragon) return null;
+  if(tw.ultimate) return HUT_PARAGON_COST;
+  if(tw.level < 3) return HUT_UPGRADE_COSTS[tw.level];
+  return HUT_ULT_COST;
+}
+
+function handleHutUpgrade(t2){
+  if(t2.paragon) return;
+  const cost = getHutUpgradeCost(t2);
+  if(cost === null) return;
+  if(money < cost) return;
+
+  if(t2.level < 3){
+    money -= cost;
+    t2.level++;
+    // Upgrade 3 effect: sell all towers in radius for 100%
+    if(t2.level === 3){
+      const hutRange = getTowerRange(t2);
+      const toSell = towers.filter(ot => ot !== t2 && Math.hypot(ot.x-t2.x,ot.y-t2.y) <= hutRange);
+      if(toSell.length > 0){
+        let totalSold = 0;
+        for(const ot of toSell){
+          const val = getTowerTotalInvestedCost(ot); // 100% waarde
+          money += val; totalMoneyEarned += val; totalSold += val;
+          if(ot.paragon){ paragonActive = false; paragonTower = null; }
+        }
+        towers = towers.filter(ot => !toSell.includes(ot));
+        showRoundMsg(`🛖 Hut Lvl 3: ${toSell.length} torens verkocht voor €${totalSold}!`);
+      }
+    }
+    playSound('upgrade', 0.6);
+    t2.upText = 90;
+    return;
+  }
+  if(!t2.ultimate){
+    // Buy ultimate (Upg 4)
+    money -= cost;
+    t2.ultimate = true;
+    t2.level = 4;
+    // Grant first free tower immediately at round start, set flag
+    t2.hutNextFreeTower = pickHutFreeTower();
+    showRoundMsg('🛖 Hut Ultimate! Gratis toren beschikbaar!');
+    showHutFreeTowerUI(t2);
+    playSound('upgrade', 0.7);
+    t2.upText = 140;
+    return;
+  }
+  if(!t2.paragon){
+    // Paragon
+    if(paragonActive){ showRoundMsg('⚠️ Er is al een Paragon actief!'); return; }
+    money -= cost;
+    t2.paragon = true; t2.paragonLevel = 0; t2.level = 5;
+    paragonActive = true; paragonTower = t2;
+    playSound('sacrifice', 0.8);
+    t2.upText = 200;
+    showRoundMsg('⭐ Hut Paragon! Alle speerwerpers, boogschutters & fakkeldragers doen 200% extra schade!');
+  }
+}
+
+function pickHutFreeTower(){
+  const pool = ['speer','boog','fakkel','plaagdokter','aap','geweer','atoom'];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function showHutFreeTowerUI(hutTower){
+  const key = hutTower.hutNextFreeTower;
+  if(!key) return;
+  const names = {speer:'⚔️ Speer Werper',boog:'🏹 Boog Schutter',fakkel:'🔥 Fakkel Drager',plaagdokter:'💉 Plaag Dokter',aap:'🐵 Wilde Aap',geweer:'🔫 Soldaat',atoom:'💣 Atoombommenwerper'};
+  const label = names[key] || key;
+  showRoundMsg(`🛖 Hut: Gratis ${label} te plaatsen! Klik op de kaart.`);
+  hutFreeTowerPending = key;
+  selectedTower = '__hut_free__';
+}
+
+function applyHutFreeTower(x, y){
+  if(!hutFreeTowerPending) return;
+  const key = hutFreeTowerPending;
+  hutFreeTowerPending = null;
+  selectedTower = null;
+  const cfg = towerTypes[key];
+  const newTower = {
+    x, y, key, cool:0, dmg:cfg.dmg, rate:cfg.rate, level:0,
+    ultimate:false, upText:60, farm:cfg.farm||false, slow:cfg.slow||false,
+    monkey:cfg.monkey||false, fire:cfg.fire||false,
+    monkeyTimer:0, boosted:false, boostEndTime:0,
+    nukeTimer:0, investedCost:0, speerRangeBoostUntil:0, totalDamage:0,
+  };
+  if(key==='plaagdokter'){ newTower.slowAmount=0.20; newTower.slowDuration=180; newTower.plaagDmgBonus=1.05; }
+  if(key==='fakkel'){ newTower.fireChance=1.0; }
+  if(key==='atoom'){ newTower.fireBonusMultiplier=1.20; }
+  towers.push(newTower);
+  showRoundMsg('🛖 Gratis toren geplaatst!');
+  playSound('placement', 0.6);
+}
+
 function handleUpgrade(t2){
+  // Hut has custom upgrade costs/logic
+  if(t2.key === 'hut'){
+    handleHutUpgrade(t2);
+    return;
+  }
   let upgradeCost = getUpgradeCostForTower(t2);
 
   if(t2.level<3){
@@ -1279,6 +1442,13 @@ function startRound(){
   }
   let farmCash=0;
   for(const t2 of towers){ if(t2.farm&&!t2.paragon){ const base=80+t2.level*40+(t2.ultimate?500:0); money+=base; farmCash+=base; } }
+  // Hut ultimate: give free tower each round
+  for(const t2 of towers){
+    if(t2.key==='hut' && t2.ultimate){
+      t2.hutNextFreeTower = pickHutFreeTower();
+      showHutFreeTowerUI(t2);
+    }
+  }
   showRoundMsg(farmCash>0? t('round-farms')+farmCash : t('round-label')+round);
   const maxRound=getMaxRound();
   if(round===maxRound){ if(gameMode==='mutatie'){ spawnLeft=3; } else { spawnLeft=1; } spawning=true; return; }
@@ -1608,7 +1778,7 @@ function update(){
     if(tw.stunned && tw.stunTimer > 0){ tw.stunTimer -= (gameSpeedMult||1); if(tw.stunTimer<=0){ tw.stunned=false; tw.stunTimer=0; } }
     if(tw.cool>0) tw.cool -= (gameSpeedMult||1);
     if(tw.stunned) continue; // Gestunde torens schieten niet
-    if(tw.cool<=0 && !tw.farm && (enemies.length>0 || tw.monkey)){
+    if(tw.cool<=0 && !tw.farm && !tw.hut && (enemies.length>0 || tw.monkey)){
       const effRange = getTowerRange(tw);
       let target = null;
       for(const e of enemies){
@@ -1645,6 +1815,26 @@ function update(){
             dmg: tw.dmg, tower: tw, towerKey: tw.key, gold: false, dead: false,
             paragon: !!tw.paragon,
           };
+          // Hut passive: +5 dmg to towers in radius. Hut upgrade 1: +20% kill reward multiplier tracked on target
+          {
+            let hutDmgBonus = 0;
+            let hutRewardMult = 1;
+            for(const ht of towers){
+              if(ht.key !== 'hut' || ht === tw) continue;
+              const hutRange = getTowerRange(ht);
+              if(Math.hypot(tw.x-ht.x,tw.y-ht.y) <= hutRange){
+                hutDmgBonus += 5;
+                if(ht.level >= 1) hutRewardMult = Math.max(hutRewardMult, 1.20);
+                // Paragon: speer/boog/fakkel do 200%+5%*paragonLevel extra
+                if(ht.paragon && (tw.key==='speer'||tw.key==='boog'||tw.key==='fakkel')){
+                  const paraMult = 2.0 + 0.05*(ht.paragonLevel||0);
+                  hutDmgBonus += tw.dmg * (paraMult - 1);
+                }
+              }
+            }
+            p.dmg += hutDmgBonus;
+            p.hutRewardMult = hutRewardMult;
+          }
           if(tw.key==='sniper'){
             p.sniperSlowOnHit = !!tw.sniperSlowOnHit || tw.ultimate;
             p.isCrit = Math.random() < 0.10 + tw.level * 0.05;
@@ -1693,6 +1883,25 @@ function update(){
       }
     }
     if(tw.boosted&&tw.boostEndTime>0){ tw.boostEndTime--; if(tw.boostEndTime<=0) tw.boosted=false; }
+
+    // Hut: upgrade 2 — earn 10 gold/sec per enemy in radius
+    if(tw.key==='hut' && tw.level >= 2){
+      const hutRange = getTowerRange(tw);
+      tw.hutTickTimer = (tw.hutTickTimer||0) + 1;
+      if(tw.hutTickTimer >= 60){
+        tw.hutTickTimer = 0;
+        let enemiesInRange = 0;
+        for(const e of enemies){
+          if(Math.hypot(e.x-tw.x,e.y-tw.y) < hutRange) enemiesInRange++;
+        }
+        if(enemiesInRange > 0){
+          const earned = enemiesInRange * 10;
+          money += earned;
+          totalMoneyEarned += earned;
+          document.getElementById('money').textContent = money;
+        }
+      }
+    }
   }
 
   const eggsToHatch = birdEggs.filter(e=>e.timer<=0&&!e.destroyed);
@@ -1874,7 +2083,18 @@ function update(){
       }
 
       const isArme=(e.mutation==='arme'||e.mutation2==='arme'||e.mutation3==='arme');
-      if(!isArme){ money+=e.reward; totalMoneyEarned+=e.reward; }
+      if(!isArme){
+        // Hut upgrade 1: towers in radius earn 20% more per kill
+        let rewardMult = 1;
+        for(const ht of towers){
+          if(ht.key==='hut' && ht.level >= 1){
+            const hutRange = getTowerRange(ht);
+            if(Math.hypot(e.x-ht.x,e.y-ht.y) <= hutRange) rewardMult = Math.max(rewardMult, 1.20);
+          }
+        }
+        const earnedReward = Math.floor(e.reward * rewardMult);
+        money += earnedReward; totalMoneyEarned += earnedReward;
+      }
       if(!e.boss && !antiLagMode) playSound('kill', 0.4);
       return false;
     }
@@ -2487,6 +2707,7 @@ function drawTower(tw){
   else if(tw.key==='atoom') drawAtoomTower(tw);
   else if(tw.key==='katoen') drawKatoenTower(tw);
   else if(tw.key==='tsjaadinator') drawTsjaadinator(tw);
+  else if(tw.key==='hut') drawHutTower(tw);
 
   if(tw.paragon){
     const t_par = Date.now() * 0.003;
@@ -2515,6 +2736,16 @@ function drawTower(tw){
   if(aapParagon && Math.hypot(tw.x - aapParagon.x, tw.y - aapParagon.y) <= getTowerRange(aapParagon)){
     ctx.font = '14px Arial'; ctx.textAlign = 'center';
     ctx.fillText('🐵', 0, -30/scale);
+  }
+
+  // Hut emoji above towers in hut radius (show if hut present)
+  if(tw.key !== 'hut'){
+    const nearHut = towers.find(ht => ht.key==='hut' && Math.hypot(tw.x-ht.x,tw.y-ht.y) <= getTowerRange(ht));
+    if(nearHut){
+      const yOffset = aapParagon && Math.hypot(tw.x-aapParagon.x,tw.y-aapParagon.y)<=getTowerRange(aapParagon) ? -44/scale : -30/scale;
+      ctx.font = '10px Arial'; ctx.textAlign = 'center';
+      ctx.fillText('🛖', 0, yOffset);
+    }
   }
 
   ctx.restore();
@@ -2974,6 +3205,7 @@ function draw(){
   drawRadiationEffects();
   drawNukeStrikes();
   drawCritTexts();
+  drawHutFreeTowerBanner();
 }
 
 function drawSacrificeEffects(){
@@ -3009,6 +3241,70 @@ function drawSacrificeEffects(){
     ctx.shadowBlur = 0;
     ctx.restore();
   }
+}
+
+function drawHutTower(tw){
+  const t_h = Date.now() * 0.002;
+  if(tw.paragon){
+    ctx.shadowBlur = 25; ctx.shadowColor = '#ffd700';
+    ctx.fillStyle = '#8B4513';
+    ctx.beginPath(); ctx.moveTo(-14, 8); ctx.lineTo(14, 8); ctx.lineTo(14, -2); ctx.lineTo(0, -16); ctx.lineTo(-14, -2); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath(); ctx.moveTo(-14, -2); ctx.lineTo(0, -16); ctx.lineTo(14, -2); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#c0392b'; ctx.fillRect(-4, 0, 8, 8);
+    ctx.strokeStyle = 'rgba(255,215,0,0.8)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(0, 0, 22 + Math.sin(t_h)*2, 0, Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,165,0,0.5)'; ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.arc(0, 0, 28, 0, Math.PI*2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.shadowBlur = 0;
+    return;
+  }
+  if(tw.ultimate){
+    ctx.shadowBlur = 12; ctx.shadowColor = '#ffd700';
+    ctx.fillStyle = '#7a4f2a';
+    ctx.beginPath(); ctx.moveTo(-13, 7); ctx.lineTo(13, 7); ctx.lineTo(13, -1); ctx.lineTo(0, -14); ctx.lineTo(-13, -1); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath(); ctx.moveTo(-13, -1); ctx.lineTo(0, -14); ctx.lineTo(13, -1); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#a04030'; ctx.fillRect(-3, 0, 7, 7);
+    ctx.strokeStyle = 'rgba(255,215,0,0.6)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(0, -5, 3+Math.sin(t_h*2)*1, 0, Math.PI*2); ctx.stroke();
+    ctx.shadowBlur = 0;
+    return;
+  }
+  const roofColors = ['#8b4513','#a0522d','#cd853f','#daa520'];
+  const wallColors = ['#d4b896','#c8aa80','#c4a060','#b8963a'];
+  ctx.fillStyle = wallColors[tw.level];
+  ctx.fillRect(-11, -1, 22, 10);
+  ctx.fillStyle = roofColors[tw.level];
+  ctx.beginPath(); ctx.moveTo(-13, -1); ctx.lineTo(0, -12); ctx.lineTo(13, -1); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#3d2b1a'; ctx.fillRect(-3, 1, 6, 8);
+  for(let i = 0; i < tw.level; i++){
+    ctx.fillStyle = '#ffd700';
+    ctx.font = '6px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('★', -4 + i * 4, -14);
+  }
+}
+
+function drawHutFreeTowerBanner(){
+  if(!hutFreeTowerPending) return;
+  const names = {speer:'⚔️ Speer Werper',boog:'🏹 Boog Schutter',fakkel:'🔥 Fakkel Drager',plaagdokter:'💉 Plaag Dokter',aap:'🐵 Wilde Aap',geweer:'🔫 Soldaat',atoom:'💣 Atoombommenwerper'};
+  const label = names[hutFreeTowerPending] || hutFreeTowerPending;
+  const t_b = Date.now() * 0.003;
+  const alpha = 0.85 + Math.sin(t_b * 2) * 0.1;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = 'rgba(30,20,5,0.92)';
+  ctx.strokeStyle = '#ffd700';
+  ctx.lineWidth = 2;
+  const bw = 280, bh = 36, bx = canvas.width/2 - bw/2, by = 10;
+  ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 8); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#ffd700';
+  ctx.font = 'bold 13px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(`🛖 Gratis toren: ${label} — klik om te plaatsen!`, canvas.width/2, by + 23);
+  ctx.restore();
 }
 
 function drawCritTexts(){
