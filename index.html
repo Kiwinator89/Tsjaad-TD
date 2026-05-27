@@ -881,11 +881,11 @@ function updateTooltip(tw, cx, cy){
 
   if(tw.hut){
     html += `<div class="tt-stats-title">📊 Hut Stats</div>`;
-    html += `<div class="tt-stat-row"><span class="tt-stat-label">⚔️ Dmg bonus</span><span class="tt-stat-val">+5 dmg/toren in radius</span></div>`;
+    html += `<div class="tt-stat-row"><span class="tt-stat-label">⚔️ Dmg bonus</span><span class="tt-stat-val">+5 dmg (niet speer/boog/fakkel)</span></div>`;
     html += `<div class="tt-stat-row"><span class="tt-stat-label">📏 Range</span><span class="tt-stat-val">${fmtRange(effRange)}</span></div>`;
     if(tw.level >= 1) html += `<div class="tt-passive">💰 Torens in radius verdienen +20% per kill</div>`;
     if(tw.level >= 2) html += `<div class="tt-passive">💵 +10g/s per vijand in radius</div>`;
-    if(tw.level >= 3) html += `<div class="tt-passive">🏷️ Verkoop aura: 100% verkoopwaarde</div>`;
+    if(tw.level >= 3) html += `<div class="tt-passive">🔩 Torens in radius raken metalen vijanden</div>`;
     if(tw.ultimate) html += `<div class="tt-passive">🎁 Elke ronde gratis toren te plaatsen!</div>`;
     if(tw.paragon) html += `<div class="tt-passive" style="color:#ff88ff">⭐ Speer/Boog/Fakkel in radius: ${200 + 5*(tw.paragonLevel||0)}% schade bonus!</div>`;
   } else if(tw.farm){
@@ -1026,7 +1026,7 @@ function updateTooltip(tw, cx, cy){
   } else if(tw.level < 3){
     const cost = tw.key==='hut' ? getHutUpgradeCost(tw) : getUpgradeCostForTower(tw);
     const canAfford = money >= cost;
-    const hutUpgradeDescriptions = ['💰 Torens in radius +20% kill reward','💵 +10g/s per vijand in radius','🏷️ Verkoop radius torens voor 100%!'];
+    const hutUpgradeDescriptions = ['💰 Torens in radius +20% kill reward','💵 +10g/s per vijand in radius','🔩 Torens in radius raken metalen vijanden'];
     const hutDesc = tw.key==='hut' ? hutUpgradeDescriptions[tw.level] : '';
     html += `<div class="tt-upgrade-header" style="color:${canAfford?'#4fc3f7':'#f44'}">⬆️ Upgrade Lvl ${tw.level+1} — €${cost}</div>`;
     if(hutDesc) html += `<div style="font-size:9px;color:#aaffcc;margin-top:2px;">${hutDesc}</div>`;
@@ -1252,7 +1252,7 @@ function distanceToLineSegment(px,py,x1,y1,x2,y2){
 }
 
 // ===== HUT UPGRADE COSTS =====
-const HUT_UPGRADE_COSTS = [500, 1200, 1500]; // levels 1,2,3
+const HUT_UPGRADE_COSTS = [500, 1200, 2500]; // levels 1,2,3
 const HUT_ULT_COST = 5000;
 const HUT_PARAGON_COST = 50000;
 
@@ -1272,20 +1272,9 @@ function handleHutUpgrade(t2){
   if(t2.level < 3){
     money -= cost;
     t2.level++;
-    // Upgrade 3 effect: sell all towers in radius for 100%
+    // Upgrade 3 effect: torens in radius kunnen metaal aanvallen
     if(t2.level === 3){
-      const hutRange = getTowerRange(t2);
-      const toSell = towers.filter(ot => ot !== t2 && Math.hypot(ot.x-t2.x,ot.y-t2.y) <= hutRange);
-      if(toSell.length > 0){
-        let totalSold = 0;
-        for(const ot of toSell){
-          const val = getTowerTotalInvestedCost(ot); // 100% waarde
-          money += val; totalMoneyEarned += val; totalSold += val;
-          if(ot.paragon){ paragonActive = false; paragonTower = null; }
-        }
-        towers = towers.filter(ot => !toSell.includes(ot));
-        showRoundMsg(`🛖 Hut Lvl 3: ${toSell.length} torens verkocht voor €${totalSold}!`);
-      }
+      showRoundMsg('🛖 Hut Lvl 3: Torens in radius kunnen nu metalen vijanden aanvallen!');
     }
     playSound('upgrade', 0.6);
     t2.upText = 90;
@@ -1815,18 +1804,21 @@ function update(){
             dmg: tw.dmg, tower: tw, towerKey: tw.key, gold: false, dead: false,
             paragon: !!tw.paragon,
           };
-          // Hut passive: +5 dmg to towers in radius. Hut upgrade 1: +20% kill reward multiplier tracked on target
+          // Hut passive: +5 dmg to towers in radius (NOT speer/boog/fakkel — those only get boost at paragon).
+          // Hut upgrade 1: +20% kill reward. Paragon: speer/boog/fakkel get 200%+5%/lvl extra dmg.
           {
             let hutDmgBonus = 0;
             let hutRewardMult = 1;
+            const isParagonOnlyType = tw.key==='speer' || tw.key==='boog' || tw.key==='fakkel';
             for(const ht of towers){
               if(ht.key !== 'hut' || ht === tw) continue;
               const hutRange = getTowerRange(ht);
               if(Math.hypot(tw.x-ht.x,tw.y-ht.y) <= hutRange){
-                hutDmgBonus += 5;
+                // +5 dmg bonus only for towers that are NOT speer/boog/fakkel (those only benefit at paragon)
+                if(!isParagonOnlyType) hutDmgBonus += 5;
                 if(ht.level >= 1) hutRewardMult = Math.max(hutRewardMult, 1.20);
-                // Paragon: speer/boog/fakkel do 200%+5%*paragonLevel extra
-                if(ht.paragon && (tw.key==='speer'||tw.key==='boog'||tw.key==='fakkel')){
+                // Paragon only: speer/boog/fakkel do 200%+5%*paragonLevel extra dmg
+                if(ht.paragon && isParagonOnlyType){
                   const paraMult = 2.0 + 0.05*(ht.paragonLevel||0);
                   hutDmgBonus += tw.dmg * (paraMult - 1);
                 }
@@ -1953,7 +1945,8 @@ function update(){
       if(p.target.beschermdActive){ p.dead=true; continue; }
       const _isMetal = p.target.mutation==='metalen'||p.target.mutation2==='metalen'||p.target.mutation3==='metalen'||p.target.isRoboLeeuw;
       if(_isMetal){
-        const _canDmg = p.towerKey==='fakkel'||p.towerKey==='atoom'||p.paragon||(p.tower&&(p.tower.ultimate||p.tower.secret));
+        const _hutMetalAura = p.tower && towers.some(ht => ht.key==='hut' && ht.level >= 3 && Math.hypot(p.tower.x-ht.x,p.tower.y-ht.y) <= getTowerRange(ht));
+        const _canDmg = p.towerKey==='fakkel'||p.towerKey==='atoom'||p.paragon||(p.tower&&(p.tower.ultimate||p.tower.secret))||_hutMetalAura;
         if(!_canDmg){ p.dead=true; continue; }
       }
       const dmgDealt = Math.max(0, Math.min(p.dmg, p.target.hp));
