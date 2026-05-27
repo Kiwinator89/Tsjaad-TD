@@ -50,6 +50,9 @@
   .modeBtn.tsjaad { background: linear-gradient(135deg, #ff6f00 0%, #e65100 50%, #bf360c 100%); color: #fff; text-shadow: 0 0 15px #ff9800; animation: tsjaadPulse 1.2s ease-in-out infinite; border-color: #ff9800; }
   .modeBtn.tsjaadplus { background: linear-gradient(135deg, #000000 0%, #1a0000 30%, #3d0000 60%, #ff0000 100%); color: #ffd700; text-shadow: 0 0 20px #ff0000, 0 0 40px #ff6600; animation: tsjaadPlusPulse 0.8s ease-in-out infinite; border-color: #ffd700; border-width: 6px; }
   .modeBtn.lichtsnelheid { background: linear-gradient(135deg, #00ffff 0%, #0088ff 50%, #0000ff 100%); color: #fff; text-shadow: 0 0 15px #00ffff; animation: speedPulse 0.6s ease-in-out infinite; border-color: #00ffff; }
+  .modeBtn.virus { background: linear-gradient(135deg, #001a00 0%, #003300 40%, #00ff44 100%); color: #00ff44; text-shadow: 0 0 15px #00ff44, 0 0 30px #00cc33; animation: virusPulse 1.5s ease-in-out infinite; border-color: #00ff44; border-width: 5px; }
+  @keyframes virusPulse { 0%,100%{box-shadow:0 10px 30px rgba(0,255,68,0.4);transform:scale(1);} 50%{box-shadow:0 10px 50px rgba(0,255,68,0.9),0 0 60px rgba(0,200,50,0.7);transform:scale(1.04);} }
+  .modeSelectBtn.virus { border-color:#00ff44;color:#00ff44; }
   @keyframes tsjaadPlusPulse { 0%, 100% { box-shadow: 0 10px 40px rgba(255,0,0,0.6), 0 0 80px rgba(255,100,0,0.3); transform: scale(1); } 50% { box-shadow: 0 10px 80px rgba(255,0,0,1), 0 0 120px rgba(255,100,0,0.8), inset 0 0 30px rgba(255,200,0,0.2); transform: scale(1.06); } }
   @keyframes plaagPulse { 0%, 100% { box-shadow: 0 10px 30px rgba(139,0,0,0.5); transform: scale(1); } 50% { box-shadow: 0 10px 50px rgba(255,69,0,0.8), 0 0 40px rgba(255,69,0,0.6); transform: scale(1.02); } }
   @keyframes hardPulse { 0%, 100% { box-shadow: 0 10px 30px rgba(106,5,114,0.5); transform: scale(1); } 50% { box-shadow: 0 10px 50px rgba(199,0,57,0.8), 0 0 40px rgba(255,0,128,0.6); transform: scale(1.03); } }
@@ -213,6 +216,7 @@
     <button class="modeBtn tsjaad" data-mode="tsjaadmodus">🔥 Tsjaad</button>
     <button class="modeBtn tsjaadplus" data-mode="tsjaadplus">☠️ Tsjaad+</button>
     <button class="modeBtn lichtsnelheid" data-mode="lichtsnelheid">⚡ Lichtsnelheid</button>
+    <button class="modeBtn virus" data-mode="virus">🦠 Virus Modus</button>
   </div>
 </div>
 
@@ -240,6 +244,7 @@
   </div>
   <div id="roundMsg" class="small"></div>
   <div id="autoRoundMsg" class="small" style="color:#ff6b35; font-weight:bold;"></div>
+  <div id="virusWarnEl" class="small" style="color:#00ff44;font-weight:bold;text-shadow:0 0 8px #00ff44;display:none;"></div>
   <hr style="margin:10px 0; border-color:#444;">
   <button onclick="selectTower('speer')" id="tower-speer">⚔️ Speer Werper (€80)</button>
   <button onclick="selectTower('boog')" id="tower-boog">🏹 Boog Schutter (€125)</button>
@@ -422,6 +427,9 @@ const tsjaadPlusPath = [
 const armoedePath = [
   {x:-20,y:350},{x:320,y:350},{x:320,y:180},{x:640,y:180},{x:640,y:520},{x:960,y:520},{x:960,y:350},{x:1220,y:350}
 ];
+const virusPath = [
+  {x:-20,y:300},{x:180,y:300},{x:180,y:150},{x:380,y:150},{x:380,y:450},{x:580,y:450},{x:580,y:200},{x:780,y:200},{x:780,y:500},{x:980,y:500},{x:980,y:300},{x:1220,y:300}
+];
 const lichtsnelheidPath = [
   {x:-20,y:200},{x:240,y:200},{x:240,y:480},{x:520,y:480},{x:520,y:160},{x:780,y:160},{x:780,y:520},{x:1040,y:520},{x:1040,y:280},{x:1220,y:280}
 ];
@@ -561,6 +569,8 @@ const sounds = {
   themeTsjaad:       new Audio(BASE_AUDIO + 'TsjaadModus.mp3'),
   themeDubbelHealth: new Audio(BASE_AUDIO + 'DubbelHealthModus.mp3'),
   themeArmoede:      new Audio(BASE_AUDIO + 'ArmoedeModus.mp3'),
+  themeVirus:        new Audio(BASE_AUDIO + 'VirusModus.mp3'),
+  vanish:            new Audio(BASE_AUDIO + 'Vanish.mp3'),
   // SFX
   explode:    new Audio(BASE_AUDIO + 'Explosion.mp3'),
   kill:       new Audio(BASE_AUDIO + 'Kill.mp3'),
@@ -574,7 +584,7 @@ const sounds = {
   heal:       new Audio(BASE_AUDIO + 'Heal.mp3'),
 };
 // Set music to loop at default volume
-['themeStandaard','themePlaag','themeHard','themeSpeed','themeBoss','themeMutatie','themeTsjaad','themeDubbelHealth','themeArmoede'].forEach(k=>{
+['themeStandaard','themePlaag','themeHard','themeSpeed','themeBoss','themeMutatie','themeTsjaad','themeDubbelHealth','themeArmoede','themeVirus'].forEach(k=>{
   sounds[k].loop=true; sounds[k].volume=0.5;
 });
 let currentTheme=null, musicPlaying=false;
@@ -608,7 +618,7 @@ function startGame(mode) {
     speed: racePath, armoede: armoedePath, boss: bossPath,
     mutatie: mutatiePath, dubbelhealth: dubbelHealthPath,
     tsjaadmodus: tsjaadPath, tsjaadplus: tsjaadPlusPath,
-    lichtsnelheid: lichtsnelheidPath
+    lichtsnelheid: lichtsnelheidPath, virus: virusPath
   };
   path = modePaths[mode] || standardPath;
   gamePaths = [path];
@@ -629,18 +639,20 @@ function startGame(mode) {
   document.getElementById('katoenBtn').disabled=false;
   document.getElementById('katoenBtn').classList.remove('crossed-out');
   document.getElementById('autoRoundMsg').textContent='';
+  const virusWarnEl=document.getElementById('virusWarnEl');
+  if(virusWarnEl){ virusWarnEl.style.display=(mode==='virus'?'block':'none'); virusWarnEl.textContent=mode==='virus'?'🦠 Virus: ronde 5 — duurste toren weg':''; }
 
   // Mode-specific settings
   const titleColors = {
     standard:'#daa520', plaag:'#ff6b35', hard:'#c70039', speed:'#00ffff',
     armoede:'#888', boss:'#ff0000', mutatie:'#00ff44', dubbelhealth:'#4fc3f7',
-    tsjaadmodus:'#ff9800', tsjaadplus:'#ffd700', lichtsnelheid:'#00ffff'
+    tsjaadmodus:'#ff9800', tsjaadplus:'#ffd700', lichtsnelheid:'#00ffff', virus:'#00ff44'
   };
   const color = titleColors[mode] || '#daa520';
   const modeLabels = {
     standard:'STANDAARD', plaag:'PLAAG MODUS', hard:'HARD MODUS', speed:'DUBBEL SNELHEID',
     armoede:'ARMOEDE MODUS', boss:'BOSS MODE', mutatie:'MUTATIE MODUS', dubbelhealth:'DUBBEL HEALTH',
-    tsjaadmodus:'TSJAAD MODUS', tsjaadplus:'TSJAAD MODUS PLUS', lichtsnelheid:'LICHTSNELHEID'
+    tsjaadmodus:'TSJAAD MODUS', tsjaadplus:'TSJAAD MODUS PLUS', lichtsnelheid:'LICHTSNELHEID', virus:'VIRUS MODUS'
   };
   const label = modeLabels[mode] || 'STANDAARD';
   document.getElementById('gameTitle').innerHTML = '<span style="color:'+color+'">'+label+'</span>';
@@ -656,6 +668,7 @@ function startGame(mode) {
   else if(mode==='tsjaadmodus'){ document.getElementById('roundMax').textContent='/50'; lives=1; money=800; }
   else if(mode==='tsjaadplus'){ document.getElementById('roundMax').textContent='/50'; lives=1; money=1000; }
   else if(mode==='lichtsnelheid'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=2000; enemySpeedMult=4; }
+  else if(mode==='virus'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=600; }
   else { document.getElementById('roundMax').textContent='/30'; }
 
   document.getElementById('lives').textContent=lives;
@@ -664,7 +677,7 @@ function startGame(mode) {
   const themeMap = {
     plaag:'themePlaag', hard:'themeHard', speed:'themeSpeed',
     boss:'themeBoss', mutatie:'themeMutatie', tsjaadmodus:'themeTsjaad',
-    tsjaadplus:'themeTsjaad', dubbelhealth:'themeDubbelHealth', armoede:'themeArmoede'
+    tsjaadplus:'themeTsjaad', dubbelhealth:'themeDubbelHealth', armoede:'themeArmoede', virus:'themeVirus'
   };
   if(mode==='lichtsnelheid'){
     stopMusic();
@@ -1435,6 +1448,33 @@ function handleUpgrade(t2){
 }
 
 // ===== ROUND =====
+function virusRemoveMostExpensiveTower(completedRound){
+  if(towers.length===0) return;
+  let most=towers[0];
+  for(const t of towers){ if(getTowerTotalInvestedCost(t)>getTowerTotalInvestedCost(most)) most=t; }
+  // Play vanish sound
+  if(sounds.vanish){ sounds.vanish.currentTime=0; sounds.vanish.volume=0.9; sounds.vanish.play().catch(()=>{}); }
+  // Visual flash
+  const flash=document.getElementById('sellFlash');
+  flash.style.background='rgba(0,255,68,0.25)'; flash.style.display='block';
+  setTimeout(()=>{ flash.style.display='none'; flash.style.background='rgba(255,200,0,0.18)'; },600);
+  // Show big warning msg
+  showRoundMsg(`☣️ VIRUS: ${most.key.toUpperCase()} OPGESLOKT!`);
+  towers=towers.filter(t=>t!==most);
+  if(most===hoveredTower){ hoveredTower=null; tooltipEl.style.display='none'; }
+  if(most.paragon){ paragonActive=false; paragonTower=null; }
+}
+
+function virusGetWarning(round){
+  // Returns warning string if next virus strike is imminent
+  const nextStrike=Math.ceil(round/5)*5;
+  const remaining=nextStrike-round;
+  if(remaining===0) return '☣️ VIRUS SLAAT VOLGENDE RONDE DUURSTE TOREN VERWIJDERD!';
+  if(remaining===1) return `⚠️ VIRUS: nog 1 ronde — duurste toren verdwijnt!`;
+  if(remaining<=2) return `🦠 VIRUS: nog ${remaining} rondes — duurste toren gevaar!`;
+  return null;
+}
+
 function startRound(){
   if(spawning||gameWon) return;
   playSound('round', 0.7);
@@ -1460,6 +1500,19 @@ function startRound(){
     }
   }
   showRoundMsg(farmCash>0? t('round-farms')+farmCash : t('round-label')+round);
+  if(gameMode==='virus'){
+    const warn=virusGetWarning(round);
+    if(warn){ setTimeout(()=>showRoundMsg(warn),2200); }
+    // Show persistent warning when <=2 rounds until strike
+    const nextStrike=Math.ceil(round/5)*5;
+    const rem=nextStrike-round;
+    const virusWarnEl=document.getElementById('virusWarnEl');
+    if(virusWarnEl){
+      if(rem<=2&&rem>0) virusWarnEl.textContent=`☣️ Virus slaat toe over ${rem} ronde${rem===1?'':'s'}!`;
+      else if(rem===0) virusWarnEl.textContent='☣️ VIRUS SLAAT NU TOE!';
+      else virusWarnEl.textContent=`🦠 Virus: ronde ${nextStrike} — duurste toren weg`;
+    }
+  }
   const maxRound=getMaxRound();
   if(round===maxRound){ if(gameMode==='mutatie'){ spawnLeft=3; } else { spawnLeft=1; } spawning=true; return; }
 
@@ -1481,12 +1534,13 @@ function startRound(){
   else if(gameMode==='dubbelhealth') baseEnemies=Math.floor(5+round*1.8);
   else if(gameMode==='tsjaadmodus') baseEnemies=Math.floor(8+round*2.5);
   else if(gameMode==='tsjaadplus') baseEnemies=Math.floor(8+round*3);
+  else if(gameMode==='virus') baseEnemies=Math.floor(5+round*2);
   spawnLeft=baseEnemies; spawning=true; spawnTimer=0;
   if(autoStartRounds) autoRoundCountdown=0;
 }
 
 function getMaxRound(){
-  if(gameMode==='standard'||gameMode==='speed'||gameMode==='armoede'||gameMode==='dubbelhealth'||gameMode==='lichtsnelheid') return 30;
+  if(gameMode==='standard'||gameMode==='speed'||gameMode==='armoede'||gameMode==='dubbelhealth'||gameMode==='lichtsnelheid'||gameMode==='virus') return 30;
   if(gameMode==='hard'||gameMode==='tsjaadmodus') return 50;
   if(gameMode==='boss') return 1;
   if(gameMode==='mutatie') return 35;
@@ -1526,6 +1580,7 @@ function spawnEnemy(){
   if(round===maxRound){
     if(gameMode==='mutatie'){ enemies.push(makeEnemy({...zwangereMugBossType})); return; }
     if(gameMode==='standard'||gameMode==='speed'||gameMode==='lichtsnelheid'||gameMode==='armoede'){ enemies.push(makeEnemy({...bossType})); return; }
+  if(gameMode==='virus'){ enemies.push(makeEnemy({...bossType, hp:80000, speed:0.9, size:90, reward:1500})); return; }
     if(gameMode==='hard'){ enemies.push(makeEnemy({...mutatedBossType})); return; }
     if(gameMode==='boss'){ enemies.push(makeEnemy({...slowBossType})); return; }
     if(gameMode==='dubbelhealth'){ enemies.push(makeEnemy({...bossType})); return; }
@@ -1688,6 +1743,8 @@ function update(){
       spawning=false;
       const maxRound=getMaxRound();
       if(round<maxRound) round++;
+      // Virus modus: verwijder duurste toren elke 5 rondes
+      if(gameMode==='virus' && round>1 && (round-1)%5===0) virusRemoveMostExpensiveTower(round-1);
     }
   }
 
@@ -2287,8 +2344,40 @@ function drawPath(){
       ctx.strokeStyle='#ffffff'; ctx.lineWidth=4; ctx.shadowBlur=50; ctx.shadowColor='#88ffff'; ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke();
       ctx.shadowBlur=0;
     }
+  } else if(gameMode==='virus'){
+    // Dark biohazard map — deep black with toxic green glow
+    const grad=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    grad.addColorStop(0,'#000800'); grad.addColorStop(0.5,'#001200'); grad.addColorStop(1,'#000500');
+    ctx.fillStyle=grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+    // Pulsing green toxic pools
+    const t_v=Date.now()*0.001;
+    if(!window._virusCells){ window._virusCells=[]; for(let i=0;i<18;i++) window._virusCells.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:15+Math.random()*35,p:Math.random()*Math.PI*2}); }
+    for(const cell of window._virusCells){
+      const pulse=0.4+Math.sin(t_v*1.5+cell.p)*0.3;
+      const vg=ctx.createRadialGradient(cell.x,cell.y,0,cell.x,cell.y,cell.r);
+      vg.addColorStop(0,`rgba(0,255,68,${pulse})`); vg.addColorStop(0.5,`rgba(0,180,40,${pulse*0.5})`); vg.addColorStop(1,'rgba(0,100,20,0)');
+      ctx.fillStyle=vg; ctx.beginPath(); ctx.arc(cell.x,cell.y,cell.r,0,Math.PI*2); ctx.fill();
+    }
+    // Biohazard hexagonal grid overlay
+    ctx.strokeStyle='rgba(0,255,68,0.06)'; ctx.lineWidth=1;
+    const hex=40;
+    for(let hx=0;hx<canvas.width+hex;hx+=hex*1.5){
+      for(let hy=0;hy<canvas.height+hex;hy+=hex){
+        const ox=(hy/hex)%2===0?0:hex*0.75;
+        ctx.beginPath(); for(let i=0;i<6;i++){ const a=i*Math.PI/3; ctx.lineTo(hx+ox+hex*0.5*Math.cos(a),hy+hex*0.5*Math.sin(a)); } ctx.closePath(); ctx.stroke();
+      }
+    }
+    // Toxic path
+    for(const dp of pathsToDraw){
+      ctx.strokeStyle='rgba(0,40,10,0.9)'; ctx.lineWidth=36; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke();
+      ctx.shadowBlur=20; ctx.shadowColor='#00ff44'; ctx.strokeStyle=`rgba(0,${150+Math.sin(t_v*2)*50},30,0.8)`; ctx.lineWidth=22;
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke();
+      ctx.strokeStyle='rgba(0,255,100,0.25)'; ctx.lineWidth=8;
+      ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke();
+      ctx.shadowBlur=0;
+    }
   } else {
-    ctx.fillStyle='#7ab86d'; ctx.fillRect(0,0,canvas.width,canvas.height);
     for(const dp of pathsToDraw){
       ctx.strokeStyle='#c2b280'; ctx.lineWidth=26; ctx.lineCap='round';
       ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke();
