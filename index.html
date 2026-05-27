@@ -254,6 +254,7 @@
   <button onclick="selectTower('sniper')" id="tower-sniper">🎯 Sniper (€3000)</button>
   <hr style="margin:10px 0; border-color:#444;">
   <button id="startRoundBtn" onclick="startRound()" style="background:#4CAF50; border-color:#45a049;">▶️ Start Ronde</button>
+  <button id="autoStartBtn" onclick="toggleAutoStart()" style="background:#1a3a1a; border-color:#2a5a2a; color:#6dbf6d; margin-top:4px;">⏩ Auto-Start: UIT</button>
   <p class="small" id="ui-upgrade-hint">💡 Hover toren = info & upgrade | Backspace = verkopen</p>
   <div id="utilBtns">
     <button class="util-btn" id="timerToggleBtn" onclick="toggleTimer()">⏱ Timer</button>
@@ -488,6 +489,22 @@ function toggleTimer() {
   document.getElementById('timerDisplay').style.display = timerVisible ? 'block' : 'none';
   document.getElementById('timerToggleBtn').classList.toggle('active', timerVisible);
 }
+function toggleAutoStart() {
+  autoStartRounds = !autoStartRounds;
+  const btn = document.getElementById('autoStartBtn');
+  if(autoStartRounds){
+    btn.textContent = '⏩ Auto-Start: AAN';
+    btn.style.background = '#1a4a1a';
+    btn.style.borderColor = '#4CAF50';
+    btn.style.color = '#aaffaa';
+    if(!spawning && !gameWon && enemies.length === 0) startRound();
+  } else {
+    btn.textContent = '⏩ Auto-Start: UIT';
+    btn.style.background = '#1a3a1a';
+    btn.style.borderColor = '#2a5a2a';
+    btn.style.color = '#6dbf6d';
+  }
+}
 let autoStartRounds = false;
 let autoRoundCountdown = 0;
 
@@ -500,6 +517,7 @@ let gameWon=false;
 let totalMoneyEarned = 0;
 let hoveredTower = null;
 let mouseX = 0, mouseY = 0;
+let lastMouseClientX = 0, lastMouseClientY = 0;
 let monkeyBoosts = [];
 let nuclearExplosions = [];
 let towersSlowedUntil = new Map();
@@ -603,6 +621,8 @@ function startGame(mode) {
   enemies=[]; towers=[]; projectiles=[]; explosions=[]; bananas=[]; landmines=[];
   money=500; lives=20; round=1; totalMoneyEarned=0;
   autoStartRounds=false; autoRoundCountdown=0;
+  const autoBtn = document.getElementById('autoStartBtn');
+  if(autoBtn){ autoBtn.textContent='⏩ Auto-Start: UIT'; autoBtn.style.background='#1a3a1a'; autoBtn.style.borderColor='#2a5a2a'; autoBtn.style.color='#6dbf6d'; }
   paragonActive=false; paragonTower=null;
   hutFreeTowerPending = null;
   document.getElementById('startRoundBtn').style.display='block';
@@ -741,6 +761,7 @@ const tooltipEl = document.getElementById('towerTooltip');
 canvas.onmousemove = e => {
   const r=canvas.getBoundingClientRect();
   mouseX=e.clientX-r.left; mouseY=e.clientY-r.top;
+  lastMouseClientX=e.clientX; lastMouseClientY=e.clientY;
   hoveredTower=null;
   for(const tw of towers){
     const towerSize=18*(1+tw.level*0.05);
@@ -1943,6 +1964,9 @@ function update(){
     const dx=p.tx-p.x,dy=p.ty-p.y,d=Math.hypot(dx,dy);
     if(d<p.speed){
       if(p.target.beschermdActive){ p.dead=true; continue; }
+      // Kogelvrije: immune to bullet-based towers (sniper, geweer). Explosions, fire, poison etc still work.
+      const _isKogelvrije = p.target.mutation==='kogelvrije'||p.target.mutation2==='kogelvrije'||p.target.mutation3==='kogelvrije';
+      if(_isKogelvrije && (p.towerKey==='sniper'||p.towerKey==='geweer')){ p.dead=true; continue; }
       const _isMetal = p.target.mutation==='metalen'||p.target.mutation2==='metalen'||p.target.mutation3==='metalen'||p.target.isRoboLeeuw;
       if(_isMetal){
         const _hutMetalAura = p.tower && towers.some(ht => ht.key==='hut' && ht.level >= 3 && Math.hypot(p.tower.x-ht.x,p.tower.y-ht.y) <= getTowerRange(ht));
@@ -2059,7 +2083,7 @@ function update(){
       const hasOnstabiel = e.mutation==='onstabiele' || e.mutation2==='onstabiele';
       if(hasOnstabiel && !e.onstabielExploded){ /* killed early, no explosion */ }
 
-      if(e.mutation==='radioactieve'||e.mutation2==='radioactieve'||e.mutation3==='radioactieve'){ triggerEnemyNuclearExplosion(e, false); }
+      if(e.mutation==='radioactieve'||e.mutation2==='radioactieve'||e.mutation3==='radioactieve'){ triggerEnemyNuclearExplosion(e, false); playSound('explode', 1.0); triggerRoboLeeuwStun(e); }
       if(e.isRoboLeeuw){ triggerEnemyNuclearExplosion(e, false); playSound('explode', 1.0); triggerRoboLeeuwStun(e); }
 
       const ePath=gamePaths[e.pathIndex]||path;
@@ -3316,7 +3340,7 @@ function drawCritTexts(){
   }
 }
 
-function loop(){ update(); draw(); if(!gameWon) requestAnimationFrame(loop); }
+function loop(){ update(); draw(); if(hoveredTower){ updateTooltip(hoveredTower, lastMouseClientX, lastMouseClientY); } if(!gameWon) requestAnimationFrame(loop); }
 
 console.log('🏜️ Tsjaad TD – Ultimate Edition v4 🐪');
 </script>
