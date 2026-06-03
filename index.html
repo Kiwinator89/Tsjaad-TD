@@ -644,10 +644,18 @@ function startMalariaMissie() {
 }
 
 // ===== RANDOM MISSIE =====
-const allModes = ['standard','plaag','hard','speed','armoede','mutatie','dubbelhealth','tsjaadmodus','tsjaadplus','lichtsnelheid','virus'];
-const allMusics = ['themeStandaard','themePlaag','themeHard','themeSpeed','themeBoss','themeMutatie','themeTsjaad','themeDubbelHealth','themeArmoede','themeVirus'];
+const allModes = ['standard','hard','speed','armoede','mutatie','dubbelhealth','tsjaadmodus','tsjaadplus','lichtsnelheid','virus'];
+const allMusics = ['themeStandaard','themeHard','themeSpeed','themeBoss','themeMutatie','themeTsjaad','themeDubbelHealth','themeArmoede','themeVirus'];
 const allTowerTypes = ['speer','boog','fakkel','plaagdokter','aap','geweer','atoom','katoen','tsjaadinator','sniper','hut'];
 let randomMissieAllowedTowers = null;
+let isRandomMissie = false;
+
+const modeDisplayNames = {
+  standard:'🦟 Standaard', hard:'💀 Hard', speed:'⚡ Dubbel Snelheid',
+  armoede:'💀 Armoede', mutatie:'🧬 Mutatie', dubbelhealth:'💙 Dubbel Health',
+  tsjaadmodus:'🔥 Tsjaad Modus', tsjaadplus:'☠️ Tsjaad Modus Plus',
+  lichtsnelheid:'⚡ Lichtsnelheid', virus:'🦠 Virus Modus'
+};
 
 function startRandomMissie() {
   const randomMode = allModes[Math.floor(Math.random() * allModes.length)];
@@ -655,10 +663,14 @@ function startRandomMissie() {
   // Pick 3 unique random towers
   const shuffled = [...allTowerTypes].sort(() => Math.random() - 0.5);
   randomMissieAllowedTowers = shuffled.slice(0, 3);
+  isRandomMissie = true;
 
   document.getElementById('titleScreen').style.display = 'none';
   document.getElementById('settingsBtn').style.display = 'none';
   startGame(randomMode);
+  // Force money to 2500 regardless of mode
+  money = 2500;
+  document.getElementById('money').textContent = money;
   // Override music with random
   stopMusic();
   const rAudio = sounds[randomMusic] || sounds.themeStandaard;
@@ -667,7 +679,10 @@ function startRandomMissie() {
   currentTheme = rAudio; musicPlaying = true;
   // Apply tower restriction
   applyRandomMissieTowers(randomMissieAllowedTowers);
-  document.getElementById('gameTitle').innerHTML += ' <span style="color:#cc00ff; font-size:13px;">🎲 RANDOM</span>';
+  // Show chosen mode in title
+  const chosenModeName = modeDisplayNames[randomMode] || randomMode;
+  document.getElementById('gameTitle').innerHTML =
+    `<span style="color:#cc00ff">🎲 RANDOM MISSIE</span><br><span style="font-size:13px;color:#ddaaff">${chosenModeName}</span>`;
 }
 
 function applyRandomMissieTowers(allowed) {
@@ -704,6 +719,7 @@ document.getElementById('titleScreen').addEventListener('click', function(e){
   const mode = btn.getAttribute('data-mode');
   if(!mode) return;
   randomMissieAllowedTowers = null;
+  isRandomMissie = false;
   document.getElementById('titleScreen').style.display='none';
   document.getElementById('settingsBtn').style.display='none';
   startGame(mode);
@@ -1665,7 +1681,7 @@ function handleUpgrade(t2){
 
   if(t2.ultimate){
     if(t2.key==='tsjaadinator'&&!t2.secret){
-      const sCost=300000;
+      const sCost=500000;
       if(money<sCost) return;
       money-=sCost;
       const bonusMultiplier = 5.0;
@@ -1856,7 +1872,13 @@ function spawnEnemy(){
     if(gameMode==='tsjaadplus'){ enemies.push(makeEnemy({...mutatedBossType})); return; }
   }
 
-  const availableAnimals=animalTypes.filter(a=>!a.minRound||round>=a.minRound);
+  const availableAnimals=animalTypes.filter(a=>{
+    if(!a.minRound||round>=a.minRound){
+      if(isRandomMissie && a.type==='roboleeuw') return false;
+      return true;
+    }
+    return false;
+  });
   let base=availableAnimals[Math.floor(Math.random()*availableAnimals.length)];
   let hpScale=1+round*0.14, speedScale=1+round*0.02;
   if(gameMode==='plaag'){ hpScale*=1.80; speedScale*=1.35; }
@@ -2010,6 +2032,7 @@ function update(){
     if(spawnLeft===0&&enemies.length===0){
       spawning=false;
       const maxRound=getMaxRound();
+      if(gameMode==='malariazwerm'){ winGame(); return; }
       if(round<maxRound) round++;
       // Virus modus: verwijder duurste toren elke 5 rondes
       if(gameMode==='virus' && round>1 && (round-1)%5===0) virusRemoveMostExpensiveTower(round-1);
@@ -2403,7 +2426,8 @@ function update(){
   const toSpawn=[];
   enemies=enemies.filter(e=>{
     if(e.hp<=0){
-      if(e.boss){ winGame(); return false; }
+      if(e.boss && gameMode!=='malariazwerm'){ winGame(); return false; }
+      if(e.boss && gameMode==='malariazwerm'){ money+=e.reward; totalMoneyEarned+=e.reward; document.getElementById('money').textContent=money; playSound('kill',0.8); return false; }
 
       const hasOnstabiel = e.mutation==='onstabiele' || e.mutation2==='onstabiele';
       if(hasOnstabiel && !e.onstabielExploded){ /* killed early, no explosion */ }
