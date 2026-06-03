@@ -172,6 +172,40 @@
 #modeBackBtn { margin-top:18px;padding:12px 24px;font-size:15px;border:2px solid #666;border-radius:10px;background:rgba(0,0,0,0.3);color:#888;cursor:pointer;transition:all .2s; }
 #modeBackBtn:hover { background:rgba(255,255,255,0.1);border-color:#888;color:#aaa; }
 #titleScreen { overflow-y:auto !important;overflow-x:hidden; }
+
+/* ===== MAIN MENU BUTTONS ===== */
+.main-menu-btns { display:flex; flex-direction:column; gap:20px; align-items:center; padding:20px; width:100%; max-width:600px; z-index:10; }
+.mainMenuBtn { width:100%; padding:30px 40px; font-size:28px; font-weight:900; border-radius:20px; cursor:pointer; transition:all 0.3s; text-transform:uppercase; letter-spacing:3px; border:5px solid; z-index:10; text-shadow:2px 2px 4px rgba(0,0,0,0.5); }
+.mainMenuBtn.playBtn { background:linear-gradient(135deg,#00aa44 0%,#007722 50%,#005511 100%); border-color:#00ff66; color:#fff; box-shadow:0 10px 40px rgba(0,255,100,0.4); animation:playBtnPulse 2s ease-in-out infinite; }
+@keyframes playBtnPulse { 0%,100%{box-shadow:0 10px 40px rgba(0,255,100,0.4);transform:scale(1);}50%{box-shadow:0 10px 60px rgba(0,255,100,0.8),0 0 40px rgba(0,200,80,0.5);transform:scale(1.04);} }
+.mainMenuBtn.playBtn:hover { transform:scale(1.1) !important; box-shadow:0 15px 60px rgba(0,255,100,0.9); }
+.mainMenuBtn.specialBtn { background:linear-gradient(135deg,#aa6600 0%,#cc8800 50%,#ffaa00 100%); border-color:#ffd700; color:#fff; box-shadow:0 10px 35px rgba(255,170,0,0.5); animation:specialBtnPulse 2.5s ease-in-out infinite; }
+@keyframes specialBtnPulse { 0%,100%{box-shadow:0 10px 35px rgba(255,170,0,0.5);transform:scale(1);}50%{box-shadow:0 10px 55px rgba(255,215,0,0.9),0 0 40px rgba(255,170,0,0.6);transform:scale(1.03);} }
+.mainMenuBtn.specialBtn:hover { transform:scale(1.08) !important; }
+.mainMenuBtn.tutorialBtn { background:linear-gradient(135deg,#1a3a6a 0%,#2255aa 50%,#3377cc 100%); border-color:#66aaff; color:#fff; box-shadow:0 8px 25px rgba(50,120,255,0.4); }
+.mainMenuBtn.tutorialBtn:hover { transform:scale(1.06) !important; box-shadow:0 12px 40px rgba(50,120,255,0.7); }
+.mainMenuBtn.settingsMenuBtn { background:linear-gradient(135deg,#2a2a2a 0%,#3a3a3a 50%,#4a4a4a 100%); border-color:#888; color:#ccc; box-shadow:0 6px 20px rgba(0,0,0,0.5); }
+.mainMenuBtn.settingsMenuBtn:hover { transform:scale(1.05) !important; background:linear-gradient(135deg,#3a3a3a 0%,#4a4a4a 50%,#5a5a5a 100%); }
+
+/* ===== SPECIAL MISSION BTNS ===== */
+.modeBtn.malaria { background:linear-gradient(135deg,#004400 0%,#006600 30%,#00aa00 70%,#00ff44 100%); color:#ccffcc; animation:malariaPulse 1.8s ease-in-out infinite; border-color:#00ff44; border-width:5px; }
+@keyframes malariaPulse { 0%,100%{box-shadow:0 10px 40px rgba(0,255,68,0.5),inset 0 0 20px rgba(0,100,0,0.3);transform:scale(1);}50%{box-shadow:0 10px 70px rgba(0,255,68,1),0 0 60px rgba(0,200,50,0.8),inset 0 0 30px rgba(0,150,0,0.4);transform:scale(1.05);} }
+.modeBtn.random-mission { background:linear-gradient(135deg,#330033 0%,#660066 30%,#9900cc 60%,#cc00ff 100%); color:#eeccff; animation:randomPulse 2s ease-in-out infinite; border-color:#cc00ff; border-width:5px; }
+@keyframes randomPulse { 0%,100%{box-shadow:0 10px 40px rgba(150,0,255,0.5);transform:scale(1) rotate(0deg);}50%{box-shadow:0 10px 60px rgba(200,0,255,0.9),0 0 50px rgba(150,0,255,0.6);transform:scale(1.04) rotate(0.5deg);} }
+.special-mission-btn { line-height:1.3; }
+.backBtn { padding:10px 24px; font-size:15px; border:2px solid #888; border-radius:10px; background:rgba(0,0,0,0.4); color:#aaa; cursor:pointer; margin-bottom:15px; transition:all 0.2s; width:auto; display:inline-block; }
+.backBtn:hover { background:rgba(255,255,255,0.1); border-color:#daa520; color:#daa520; transform:none; }
+
+/* ===== TUTORIAL ===== */
+.tutorial-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+.tut-tab { padding:10px 18px; font-size:13px; border:2px solid #5a3a00; border-radius:10px; background:#1a0d00; color:#cd853f; cursor:pointer; transition:all 0.2s; width:auto; margin:0; }
+.tut-tab:hover { background:#2a1800; border-color:#daa520; color:#daa520; transform:none; }
+.tut-tab.active { background:linear-gradient(135deg,#3d2000,#5a3000); border-color:#daa520; color:#ffe082; }
+.tut-content h3 { font-size:22px; color:#ffd700; margin-bottom:12px; text-shadow:0 0 10px rgba(255,215,0,0.4); }
+.tut-content p { font-size:15px; color:#ccc; line-height:1.7; margin-bottom:12px; }
+.tut-card { background:rgba(0,0,0,0.3); border:1px solid rgba(218,165,32,0.3); border-radius:10px; padding:10px 14px; margin:6px 0; font-size:14px; color:#e0c080; line-height:1.5; }
+.tut-tip { background:rgba(218,165,32,0.08); border-left:4px solid #daa520; border-radius:6px; padding:10px 14px; margin:8px 0; font-size:14px; color:#ffe082; line-height:1.5; }
+#tutorialScreen { background:rgba(0,0,0,0.25); border-radius:20px; border:2px solid rgba(139,69,19,0.4); max-height:80vh; overflow-y:auto; }
 </style>
 </head>
 <body>
@@ -201,22 +235,128 @@
   </div>
 </div>
 
+<!-- MAIN MENU -->
 <div id="titleScreen">
   <h1>🏜️ TSJAAD TD 🐪</h1>
   <div class="subtitle" id="title-subtitle">⚔️ VECHT VOOR TSJAAD!!! ⚔️</div>
-  <div class="mode-grid">
-    <button class="modeBtn standard" data-mode="standard">🦟 Standaard</button>
-    <button class="modeBtn plaag" data-mode="plaag">🌋 Plaag</button>
-    <button class="modeBtn hard" data-mode="hard">💀 Hard</button>
-    <button class="modeBtn speed" data-mode="speed">⚡ Dubbel Snelheid</button>
-    <button class="modeBtn armoede" data-mode="armoede">💀 Armoede</button>
-    <button class="modeBtn boss" data-mode="boss">👹 Boss Battle</button>
-    <button class="modeBtn mutatie" data-mode="mutatie">🧬 Mutatie</button>
-    <button class="modeBtn dubbelhealth" data-mode="dubbelhealth">💙 Dubbel Health</button>
-    <button class="modeBtn tsjaad" data-mode="tsjaadmodus">🔥 Tsjaad</button>
-    <button class="modeBtn tsjaadplus" data-mode="tsjaadplus">☠️ Tsjaad+</button>
-    <button class="modeBtn lichtsnelheid" data-mode="lichtsnelheid">⚡ Lichtsnelheid</button>
-    <button class="modeBtn virus" data-mode="virus">🦠 Virus Modus</button>
+
+  <!-- MAIN MENU SCREEN -->
+  <div id="mainMenuScreen">
+    <div class="main-menu-btns">
+      <button class="mainMenuBtn playBtn" onclick="showPlayMenu()">🎮 SPEEL</button>
+      <button class="mainMenuBtn specialBtn" onclick="showSpecialMenu()">⭐ SPECIALE MISSIES</button>
+      <button class="mainMenuBtn tutorialBtn" onclick="showTutorial()">📖 TUTORIAL</button>
+      <button class="mainMenuBtn settingsMenuBtn" onclick="openSettings()">⚙️ INSTELLINGEN</button>
+    </div>
+  </div>
+
+  <!-- PLAY MENU -->
+  <div id="playMenuScreen" style="display:none; width:100%; max-width:1400px;">
+    <button class="backBtn" onclick="showMainMenu()">← Terug</button>
+    <h2 style="color:#daa520; font-size:36px; margin:10px 0 20px; text-shadow:0 0 15px rgba(218,165,32,0.5);">🎮 KIES JE MODUS</h2>
+    <div class="mode-grid">
+      <button class="modeBtn standard" data-mode="standard">🦟 Standaard</button>
+      <button class="modeBtn plaag" data-mode="plaag">🌋 Plaag</button>
+      <button class="modeBtn hard" data-mode="hard">💀 Hard</button>
+      <button class="modeBtn speed" data-mode="speed">⚡ Dubbel Snelheid</button>
+      <button class="modeBtn armoede" data-mode="armoede">💀 Armoede</button>
+      <button class="modeBtn mutatie" data-mode="mutatie">🧬 Mutatie</button>
+      <button class="modeBtn dubbelhealth" data-mode="dubbelhealth">💙 Dubbel Health</button>
+      <button class="modeBtn tsjaad" data-mode="tsjaadmodus">🔥 Tsjaad</button>
+      <button class="modeBtn tsjaadplus" data-mode="tsjaadplus">☠️ Tsjaad+</button>
+      <button class="modeBtn lichtsnelheid" data-mode="lichtsnelheid">⚡ Lichtsnelheid</button>
+      <button class="modeBtn virus" data-mode="virus">🦠 Virus Modus</button>
+    </div>
+  </div>
+
+  <!-- SPECIAL MISSIONS MENU -->
+  <div id="specialMenuScreen" style="display:none; width:100%; max-width:900px; padding:20px;">
+    <button class="backBtn" onclick="showMainMenu()">← Terug</button>
+    <h2 style="color:#ffd700; font-size:40px; margin:10px 0 30px; text-shadow:0 0 20px rgba(255,215,0,0.6);">⭐ SPECIALE MISSIES</h2>
+    <div style="display:flex; flex-direction:column; gap:20px; align-items:center; width:100%;">
+      <button class="modeBtn boss special-mission-btn" data-mode="boss" style="width:90%; max-width:700px; padding:40px 20px; font-size:26px;">
+        👹 BOSS BATTLE<br><span style="font-size:14px; opacity:0.8; font-weight:normal;">Versla de ultieme baas!</span>
+      </button>
+      <button class="modeBtn malaria special-mission-btn" onclick="startMalariaMissie()" style="width:90%; max-width:700px; padding:40px 20px; font-size:26px;">
+        🦟 MALARIA ZWERM<br><span style="font-size:14px; opacity:0.8; font-weight:normal;">Verdedig tegen 25 malaria muggen — Start met €500.000!</span>
+      </button>
+      <button class="modeBtn random-mission special-mission-btn" onclick="startRandomMissie()" style="width:90%; max-width:700px; padding:40px 20px; font-size:26px;">
+        🎲 RANDOM MISSIE<br><span style="font-size:14px; opacity:0.8; font-weight:normal;">Random modus · random map · random muziek · 3 random torens</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TUTORIAL SCREEN -->
+  <div id="tutorialScreen" style="display:none; width:100%; max-width:900px; padding:20px 30px; text-align:left;">
+    <button class="backBtn" onclick="showMainMenu()">← Terug</button>
+    <h2 style="color:#daa520; font-size:38px; margin:10px 0 20px; text-align:center; text-shadow:0 0 15px rgba(218,165,32,0.5);">📖 TUTORIAL</h2>
+    <div class="tutorial-tabs">
+      <button class="tut-tab active" onclick="showTutTab('geld')">💰 Geld</button>
+      <button class="tut-tab" onclick="showTutTab('torens')">🏰 Torens & Upgrades</button>
+      <button class="tut-tab" onclick="showTutTab('paragons')">👑 Paragons</button>
+      <button class="tut-tab" onclick="showTutTab('vijanden')">🦟 Vijanden</button>
+      <button class="tut-tab" onclick="showTutTab('immuniteiten')">🛡️ Immuniteiten</button>
+    </div>
+    <div class="tut-content" id="tut-geld">
+      <h3>💰 Geld & Economie</h3>
+      <p>Je begint elke ronde met een vast startbedrag afhankelijk van de modus. Geld verdien je door vijanden te doden — elk dier geeft een beloning.</p>
+      <div class="tut-tip">💡 <strong>Katoen Plantage</strong> — plaatst een plantage die elke ronde passief geld genereert. Upgrade ze voor meer inkomsten!</div>
+      <div class="tut-tip">💡 <strong>De Hut</strong> — geeft een gratis toren na een aantal rondes. Altijd nuttig!</div>
+      <div class="tut-tip">💡 <strong>Armoede Modus</strong> — geen Katoen Plantages toegestaan! Elke euro telt.</div>
+      <div class="tut-tip">💡 <strong>Malaria Zwerm</strong> — start met €500.000! Gebruik het slim om de zwerm te stoppen.</div>
+    </div>
+    <div class="tut-content" id="tut-torens" style="display:none">
+      <h3>🏰 Torens & Upgrades</h3>
+      <p>Klik op een toren in het zijmenu en klik dan op het speelveld om te plaatsen. Hover over een geplaatste toren voor info & upgrades.</p>
+      <div class="tut-card">⚔️ <strong>Speer Werper (€80)</strong> — Goedkoop, laag bereik. Snel te upgraden.</div>
+      <div class="tut-card">🏹 <strong>Boog Schutter (€125)</strong> — Goed bereik en snelheid. Solide basis.</div>
+      <div class="tut-card">🔥 <strong>Fakkel Drager (€150)</strong> — Verbrandt vijanden met vuur-over-tijd schade.</div>
+      <div class="tut-card">💉 <strong>Plaag Dokter (€300)</strong> — Vergiftigt vijanden. Sterk tegen groepen.</div>
+      <div class="tut-card">🐵 <strong>Wilde Aap (€400)</strong> — Gooit bananen die vijanden vertragen.</div>
+      <div class="tut-card">🔫 <strong>Soldaat (€550)</strong> — Lang bereik, snelle aanvallen.</div>
+      <div class="tut-card">💣 <strong>Atoombommenwerper (€600)</strong> — AoE explosies. Lanceert ook nuke-aanvallen!</div>
+      <div class="tut-card">🛖 <strong>De Hut (€800)</strong> — Genereert gratis torens elke paar rondes.</div>
+      <div class="tut-card">🌾 <strong>Katoen Plantage (€950)</strong> — Passief inkomen per ronde.</div>
+      <div class="tut-card">⚡ <strong>Tsjaadinator (€2500)</strong> — Ultiem wapen. Enorm bereik en schade.</div>
+      <div class="tut-card">🎯 <strong>Sniper (€3000)</strong> — Ultralang bereik, hoge schade per schot.</div>
+      <div class="tut-tip">💡 Torens upgraden tot niveau 3, dan naar <strong>Ultimate</strong>, dan naar <strong>Paragon</strong>!</div>
+    </div>
+    <div class="tut-content" id="tut-paragons" style="display:none">
+      <h3>👑 Paragons — De Hoogste Kracht</h3>
+      <p>Een Paragon is de ultieme vorm van een toren. Ze zijn <strong>enorm krachtig</strong> maar vereisen zware investering.</p>
+      <div class="tut-tip">⚠️ Om een Paragon te maken, moet je eerst een toren naar <strong>Ultimate</strong> upgraden.</div>
+      <div class="tut-tip">💀 Bij Paragon-activatie worden <strong>ALLE andere torens van hetzelfde type opgeofferd</strong> om kracht te absorberen!</div>
+      <div class="tut-tip">⭐ Hoe meer torens opgeofferd worden, hoe hoger het <strong>Paragon Level</strong> — en hoe sterker de Paragon!</div>
+      <div class="tut-tip">🔮 Elke 25 Paragon levels bereik je een nieuwe <strong>Geest Niveau</strong> met extra multipliers op schade en aanvalssnelheid.</div>
+      <div class="tut-card">👑 <strong>Speer Werper Paragon</strong> — Geeft 30% bereik bonus aan ALLE andere torens!</div>
+    </div>
+    <div class="tut-content" id="tut-vijanden" style="display:none">
+      <h3>🦟 Vijanden</h3>
+      <p>Vijanden komen elke ronde in golven. Ze lopen het pad langs en als ze het einde bereiken verlies je levens!</p>
+      <div class="tut-card">🦒 <strong>Giraffe</strong> — Snel en relatief zwak.</div>
+      <div class="tut-card">🦁 <strong>Leeuw</strong> — Gemiddeld in alles.</div>
+      <div class="tut-card">🦏 <strong>Neushoorn</strong> — Traag maar sterk gepantserd.</div>
+      <div class="tut-card">🐘 <strong>Olifant</strong> — Heel veel HP, komt later in het spel.</div>
+      <div class="tut-card">🐆 <strong>Cheetah</strong> — Extreem snel! Verschijnt vanaf ronde 15.</div>
+      <div class="tut-card">🦛 <strong>Nijlpaard</strong> — Zeer hoge HP, traag. Vanaf ronde 12.</div>
+      <div class="tut-card">🐊 <strong>Krokodil</strong> — Sterk en griezelig. Vanaf ronde 20.</div>
+      <div class="tut-card">👹 <strong>Malaria Mug (Boss)</strong> — De eindbaas! 50.000 HP, enorm groot.</div>
+      <div class="tut-card">🦟 <strong>Malaria Zwerm</strong> — Speciale missie: 25 muggen tegelijk!</div>
+    </div>
+    <div class="tut-content" id="tut-immuniteiten" style="display:none">
+      <h3>🛡️ Vijand Immuniteiten & Mutaties</h3>
+      <p>In sommige modi krijgen vijanden mutaties die ze speciale eigenschappen geven. Let goed op!</p>
+      <div class="tut-card">🧬 <strong>Metalen Mutatie</strong> — Immuun voor explosies van de Atoombommenwerper.</div>
+      <div class="tut-card">🛡️ <strong>Kogelvrije Mutatie</strong> — Kogelgebaseerde aanvallen hebben geen effect.</div>
+      <div class="tut-card">🔄 <strong>Terugkerende Mutatie</strong> — Vijand komt terug na de dood!</div>
+      <div class="tut-card">⚡ <strong>Accelererende Mutatie</strong> — Vijand wordt steeds sneller naarmate hij het pad aflegt.</div>
+      <div class="tut-card">💊 <strong>Genezende Mutatie</strong> — Herstelt HP over tijd.</div>
+      <div class="tut-card">🌊 <strong>Hydra Mutatie</strong> — Splitst op in meerdere vijanden na de dood!</div>
+      <div class="tut-card">💀 <strong>Ondode Mutatie</strong> — Overleeft één dodelijke klap.</div>
+      <div class="tut-card">🎲 <strong>Random Mutatie</strong> — Krijgt een willekeurige extra eigenschap!</div>
+      <div class="tut-tip">💡 In <strong>Mutatie Modus</strong> krijgen vijanden elke ronde extra mutaties — het wordt steeds moeilijker!</div>
+      <div class="tut-tip">💡 Gebruik <strong>meerdere torentypes</strong> om alle immuniteiten te omzeilen!</div>
+    </div>
   </div>
 </div>
 
@@ -434,11 +574,136 @@ const lichtsnelheidPath = [
   {x:-20,y:200},{x:240,y:200},{x:240,y:480},{x:520,y:480},{x:520,y:160},{x:780,y:160},{x:780,y:520},{x:1040,y:520},{x:1040,y:280},{x:1220,y:280}
 ];
 
+// ===== MENU NAVIGATION =====
+function showMainMenu() {
+  document.getElementById('mainMenuScreen').style.display = 'flex';
+  document.getElementById('playMenuScreen').style.display = 'none';
+  document.getElementById('specialMenuScreen').style.display = 'none';
+  document.getElementById('tutorialScreen').style.display = 'none';
+}
+function showPlayMenu() {
+  document.getElementById('mainMenuScreen').style.display = 'none';
+  document.getElementById('playMenuScreen').style.display = 'block';
+}
+function showSpecialMenu() {
+  document.getElementById('mainMenuScreen').style.display = 'none';
+  document.getElementById('specialMenuScreen').style.display = 'block';
+}
+function showTutorial() {
+  document.getElementById('mainMenuScreen').style.display = 'none';
+  document.getElementById('tutorialScreen').style.display = 'block';
+}
+function showTutTab(tab) {
+  document.querySelectorAll('.tut-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.tut-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tut-' + tab).style.display = 'block';
+  event.target.classList.add('active');
+}
+
+// ===== MALARIA ZWERM MODUS =====
+const malariaZwermPath = [
+  {x:-20,y:350},{x:200,y:350},{x:200,y:180},{x:450,y:180},{x:450,y:520},{x:700,y:520},{x:700,y:180},{x:950,y:180},{x:950,y:420},{x:1220,y:420}
+];
+let malariaZwermActive = false;
+let malariaZwermAudio = null;
+
+function startMalariaMissie() {
+  malariaZwermActive = true;
+  document.getElementById('titleScreen').style.display = 'none';
+  document.getElementById('settingsBtn').style.display = 'none';
+  document.getElementById('ui').style.display = 'block';
+  gameMode = 'malariazwerm';
+  path = malariaZwermPath;
+  gamePaths = [path];
+  enemies=[]; towers=[]; projectiles=[]; explosions=[]; bananas=[]; landmines=[];
+  money = 500000; lives = 30; round = 1; totalMoneyEarned = 0;
+  autoStartRounds = false; autoRoundCountdown = 0;
+  const autoBtn = document.getElementById('autoStartBtn');
+  if(autoBtn){ autoBtn.textContent='⏩ Auto-Start: UIT'; autoBtn.style.background='#1a3a1a'; autoBtn.style.borderColor='#2a5a2a'; autoBtn.style.color='#6dbf6d'; }
+  paragonActive=false; paragonTower=null; hutFreeTowerPending=null;
+  document.getElementById('startRoundBtn').style.display='block';
+  document.getElementById('katoenBtn').disabled=false;
+  document.getElementById('katoenBtn').classList.remove('crossed-out');
+  document.getElementById('autoRoundMsg').textContent='';
+  document.getElementById('roundMax').textContent='/1';
+  document.getElementById('lives').textContent = lives;
+  document.getElementById('money').textContent = money;
+  document.getElementById('gameTitle').innerHTML = '<span style="color:#00ff44">🦟 MALARIA ZWERM</span>';
+  gameSpeedMult=1; enemySpeedMult=1;
+  const virusWarnEl=document.getElementById('virusWarnEl');
+  if(virusWarnEl) virusWarnEl.style.display='none';
+  // Play Malariazwerm music
+  stopMusic();
+  malariaZwermAudio = new Audio(BASE_AUDIO + 'Malariazwerm.mp3');
+  malariaZwermAudio.loop = true; malariaZwermAudio.volume = 0.6;
+  malariaZwermAudio.play().catch(()=>{});
+  currentTheme = malariaZwermAudio; musicPlaying = true;
+  startTimer();
+  document.getElementById('utilBtns').style.display='flex';
+  loop();
+}
+
+// ===== RANDOM MISSIE =====
+const allModes = ['standard','plaag','hard','speed','armoede','mutatie','dubbelhealth','tsjaadmodus','tsjaadplus','lichtsnelheid','virus'];
+const allMusics = ['themeStandaard','themePlaag','themeHard','themeSpeed','themeBoss','themeMutatie','themeTsjaad','themeDubbelHealth','themeArmoede','themeVirus'];
+const allTowerTypes = ['speer','boog','fakkel','plaagdokter','aap','geweer','atoom','katoen','tsjaadinator','sniper','hut'];
+let randomMissieAllowedTowers = null;
+
+function startRandomMissie() {
+  const randomMode = allModes[Math.floor(Math.random() * allModes.length)];
+  const randomMusic = allMusics[Math.floor(Math.random() * allMusics.length)];
+  // Pick 3 unique random towers
+  const shuffled = [...allTowerTypes].sort(() => Math.random() - 0.5);
+  randomMissieAllowedTowers = shuffled.slice(0, 3);
+
+  document.getElementById('titleScreen').style.display = 'none';
+  document.getElementById('settingsBtn').style.display = 'none';
+  startGame(randomMode);
+  // Override music with random
+  stopMusic();
+  const rAudio = sounds[randomMusic] || sounds.themeStandaard;
+  rAudio.loop = true; rAudio.volume = 0.5;
+  rAudio.play().catch(()=>{});
+  currentTheme = rAudio; musicPlaying = true;
+  // Apply tower restriction
+  applyRandomMissieTowers(randomMissieAllowedTowers);
+  document.getElementById('gameTitle').innerHTML += ' <span style="color:#cc00ff; font-size:13px;">🎲 RANDOM</span>';
+}
+
+function applyRandomMissieTowers(allowed) {
+  const allBtns = {
+    speer: document.getElementById('tower-speer'),
+    boog: document.getElementById('tower-boog'),
+    fakkel: document.getElementById('tower-fakkel'),
+    plaagdokter: document.getElementById('tower-plaag'),
+    aap: document.getElementById('tower-aap'),
+    geweer: document.getElementById('tower-geweer'),
+    atoom: document.getElementById('tower-atoom'),
+    katoen: document.getElementById('katoenBtn'),
+    tsjaadinator: document.getElementById('tower-tsjaad'),
+    sniper: document.getElementById('tower-sniper'),
+    hut: document.getElementById('tower-hut')
+  };
+  for(const [key, btn] of Object.entries(allBtns)) {
+    if(!btn) continue;
+    if(!allowed.includes(key)) {
+      btn.disabled = true;
+      btn.classList.add('crossed-out');
+      btn.title = '🎲 Niet beschikbaar in Random Missie';
+    }
+  }
+  // Show notification
+  const names = {speer:'⚔️ Speer',boog:'🏹 Boog',fakkel:'🔥 Fakkel',plaagdokter:'💉 Plaag Dokter',aap:'🐵 Aap',geweer:'🔫 Soldaat',atoom:'💣 Atoom',katoen:'🌾 Katoen',tsjaadinator:'⚡ Tsjaad',sniper:'🎯 Sniper',hut:'🛖 Hut'};
+  const msg = document.getElementById('autoRoundMsg');
+  if(msg) { msg.textContent = '🎲 Jouw torens: ' + allowed.map(k=>names[k]||k).join(' · '); msg.style.color='#cc88ff'; }
+}
+
 document.getElementById('titleScreen').addEventListener('click', function(e){
-  const btn = e.target.closest('.modeBtn');
+  const btn = e.target.closest('.modeBtn[data-mode]');
   if(!btn) return;
   const mode = btn.getAttribute('data-mode');
   if(!mode) return;
+  randomMissieAllowedTowers = null;
   document.getElementById('titleScreen').style.display='none';
   document.getElementById('settingsBtn').style.display='none';
   startGame(mode);
@@ -768,7 +1033,7 @@ const mutatedBossType = {name:'Gemuteerde Malaria Mug',hp:5000000,speed:0.75,siz
 const slowBossType = {name:'Malaria Mug',hp:6500000,speed:0.15,size:120,reward:1000,boss:true,type:'mug'};
 const zwangereMugBossType = {name:'ULTRA Malaria Mug',hp:300000,speed:0.6,size:110,reward:3000,boss:true,type:'zwangeremug'};
 
-function selectTower(t2){ if(gameMode==='armoede'&&t2==='katoen') return; selectedTower=t2; }
+function selectTower(t2){ if(gameMode==='armoede'&&t2==='katoen') return; if(randomMissieAllowedTowers&&!randomMissieAllowedTowers.includes(t2)) return; selectedTower=t2; }
 
 const tooltipEl = document.getElementById('towerTooltip');
 canvas.onmousemove = e => {
@@ -1514,6 +1779,7 @@ function startRound(){
     }
   }
   const maxRound=getMaxRound();
+  if(gameMode==='malariazwerm'){ spawnLeft=25; spawning=true; spawnTimer=0; return; }
   if(round===maxRound){ if(gameMode==='mutatie'){ spawnLeft=3; } else { spawnLeft=1; } spawning=true; return; }
 
   const miniBossRounds=[10,20,30,40];
@@ -1540,6 +1806,7 @@ function startRound(){
 }
 
 function getMaxRound(){
+  if(gameMode==='malariazwerm') return 1;
   if(gameMode==='standard'||gameMode==='speed'||gameMode==='armoede'||gameMode==='dubbelhealth'||gameMode==='lichtsnelheid'||gameMode==='virus') return 30;
   if(gameMode==='hard'||gameMode==='tsjaadmodus') return 50;
   if(gameMode==='boss') return 1;
@@ -1578,6 +1845,7 @@ function spawnEnemy(){
   }
 
   if(round===maxRound){
+    if(gameMode==='malariazwerm'){ enemies.push(makeEnemy({...bossType, hp:30000, speed:1.1, size:55, reward:2000, name:'Malaria Mug', type:'mug', boss:true})); return; }
     if(gameMode==='mutatie'){ enemies.push(makeEnemy({...zwangereMugBossType})); return; }
     if(gameMode==='standard'||gameMode==='speed'||gameMode==='lichtsnelheid'||gameMode==='armoede'){ enemies.push(makeEnemy({...bossType})); return; }
   if(gameMode==='virus'){ enemies.push(makeEnemy({...bossType, hp:80000, speed:0.9, size:90, reward:1500})); return; }
