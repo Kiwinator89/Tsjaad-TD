@@ -3657,45 +3657,186 @@ function drawSacrificeEffects(){
 
 function drawHutTower(tw){
   const t_h = Date.now() * 0.002;
+
+  // === PARAGON: Groot versterkt fort met gouden torens ===
   if(tw.paragon){
-    ctx.shadowBlur = 25; ctx.shadowColor = '#ffd700';
-    ctx.fillStyle = '#8B4513';
-    ctx.beginPath(); ctx.moveTo(-14, 8); ctx.lineTo(14, 8); ctx.lineTo(14, -2); ctx.lineTo(0, -16); ctx.lineTo(-14, -2); ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 30; ctx.shadowColor = '#ffd700';
+    // Buitenmuur
+    ctx.fillStyle = '#5a3010';
+    ctx.beginPath(); ctx.moveTo(-16,10); ctx.lineTo(16,10); ctx.lineTo(16,-4); ctx.lineTo(10,-4); ctx.lineTo(10,-10); ctx.lineTo(6,-10); ctx.lineTo(6,-4); ctx.lineTo(-6,-4); ctx.lineTo(-6,-10); ctx.lineTo(-10,-10); ctx.lineTo(-10,-4); ctx.lineTo(-16,-4); ctx.closePath(); ctx.fill();
+    // Kantelen links en rechts (goud)
     ctx.fillStyle = '#ffd700';
-    ctx.beginPath(); ctx.moveTo(-14, -2); ctx.lineTo(0, -16); ctx.lineTo(14, -2); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#c0392b'; ctx.fillRect(-4, 0, 8, 8);
-    ctx.strokeStyle = 'rgba(255,215,0,0.8)'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(0, 0, 22 + Math.sin(t_h)*2, 0, Math.PI*2); ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,165,0,0.5)'; ctx.lineWidth = 1;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath(); ctx.arc(0, 0, 28, 0, Math.PI*2); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.shadowBlur = 0;
+    ctx.fillRect(-16,-12,4,4); ctx.fillRect(-10,-12,4,4);
+    ctx.fillRect(6,-12,4,4);  ctx.fillRect(12,-12,4,4);
+    // Midden toren
+    ctx.fillStyle = '#7a4010';
+    ctx.fillRect(-7,-4,14,14);
+    ctx.fillStyle = '#daa520';
+    ctx.beginPath(); ctx.moveTo(-9,-4); ctx.lineTo(0,-16); ctx.lineTo(9,-4); ctx.closePath(); ctx.fill();
+    // Deur
+    ctx.fillStyle = '#1a0d00';
+    ctx.beginPath(); ctx.arc(0,10,3,Math.PI,0); ctx.lineTo(3,10); ctx.lineTo(-3,10); ctx.closePath(); ctx.fill();
+    // Ramen
+    ctx.fillStyle = '#ffee88'; ctx.shadowBlur=6; ctx.shadowColor='#ffcc00';
+    ctx.fillRect(-5,0,3,3); ctx.fillRect(2,0,3,3);
+    // Gloeiende ring
+    ctx.shadowBlur=0;
+    ctx.strokeStyle = `rgba(255,215,0,${0.6+Math.sin(t_h)*0.3})`; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(0,0,24+Math.sin(t_h)*2,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,165,0,0.35)'; ctx.lineWidth=1; ctx.setLineDash([3,5]);
+    ctx.beginPath(); ctx.arc(0,0,30,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.shadowBlur=0;
     return;
   }
+
+  // === ULTIMATE: Versterkte hut met stenen muren en vlag ===
   if(tw.ultimate){
-    ctx.shadowBlur = 12; ctx.shadowColor = '#ffd700';
-    ctx.fillStyle = '#7a4f2a';
-    ctx.beginPath(); ctx.moveTo(-13, 7); ctx.lineTo(13, 7); ctx.lineTo(13, -1); ctx.lineTo(0, -14); ctx.lineTo(-13, -1); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#ffd700';
-    ctx.beginPath(); ctx.moveTo(-13, -1); ctx.lineTo(0, -14); ctx.lineTo(13, -1); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#a04030'; ctx.fillRect(-3, 0, 7, 7);
-    ctx.strokeStyle = 'rgba(255,215,0,0.6)'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(0, -5, 3+Math.sin(t_h*2)*1, 0, Math.PI*2); ctx.stroke();
-    ctx.shadowBlur = 0;
+    ctx.shadowBlur = 10; ctx.shadowColor = '#cc8800';
+    // Stenen muur basis
+    ctx.fillStyle = '#6b4c2a';
+    ctx.fillRect(-13, 0, 26, 10);
+    // Steenpatroon
+    ctx.strokeStyle = '#4a3010'; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(-13,5); ctx.lineTo(13,5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-6,5); ctx.lineTo(-6,10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(6,5); ctx.lineTo(6,10); ctx.stroke();
+    // Dak — breder en donkerder
+    ctx.fillStyle = '#5a3500';
+    ctx.beginPath(); ctx.moveTo(-15,-1); ctx.lineTo(0,-15); ctx.lineTo(15,-1); ctx.closePath(); ctx.fill();
+    // Dakrand highlight
+    ctx.strokeStyle = '#cc8800'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(-15,-1); ctx.lineTo(0,-15); ctx.lineTo(15,-1); ctx.stroke();
+    // Deur met boog
+    ctx.fillStyle = '#1a0800';
+    ctx.beginPath(); ctx.arc(0,10,3.5,Math.PI,0); ctx.lineTo(3.5,10); ctx.lineTo(-3.5,10); ctx.closePath(); ctx.fill();
+    // Raam links
+    ctx.fillStyle = '#ffdd88'; ctx.shadowBlur=4; ctx.shadowColor='#ffaa00';
+    ctx.fillRect(-9,2,4,4);
+    ctx.strokeStyle='#8b5a00'; ctx.lineWidth=0.8;
+    ctx.strokeRect(-9,2,4,4);
+    // Vlag op dak
+    ctx.shadowBlur=0;
+    ctx.strokeStyle='#7a5a2a'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,-15); ctx.lineTo(0,-22); ctx.stroke();
+    ctx.fillStyle='#cc2200';
+    ctx.beginPath(); ctx.moveTo(0,-22); ctx.lineTo(7,-19); ctx.lineTo(0,-16); ctx.closePath(); ctx.fill();
+    ctx.shadowBlur=0;
     return;
   }
-  const roofColors = ['#8b4513','#a0522d','#cd853f','#daa520'];
-  const wallColors = ['#d4b896','#c8aa80','#c4a060','#b8963a'];
-  ctx.fillStyle = wallColors[tw.level];
-  ctx.fillRect(-11, -1, 22, 10);
-  ctx.fillStyle = roofColors[tw.level];
-  ctx.beginPath(); ctx.moveTo(-13, -1); ctx.lineTo(0, -12); ctx.lineTo(13, -1); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = '#3d2b1a'; ctx.fillRect(-3, 1, 6, 8);
-  for(let i = 0; i < tw.level; i++){
-    ctx.fillStyle = '#ffd700';
-    ctx.font = '6px Arial'; ctx.textAlign = 'center';
-    ctx.fillText('★', -4 + i * 4, -14);
+
+  // === LEVEL 0: Kleine eenvoudige strohut ===
+  if(tw.level === 0){
+    // Lemen muur
+    ctx.fillStyle = '#c8a46e';
+    ctx.fillRect(-9, 1, 18, 9);
+    // Strodag (ruiger, driehoek met ronde basis)
+    ctx.fillStyle = '#8b6914';
+    ctx.beginPath(); ctx.moveTo(-11,1); ctx.lineTo(0,-11); ctx.lineTo(11,1); ctx.closePath(); ctx.fill();
+    // Dakhighlights (stro-lijnen)
+    ctx.strokeStyle='#a07820'; ctx.lineWidth=0.7;
+    for(let i=-1;i<=1;i++){ ctx.beginPath(); ctx.moveTo(i*3,1); ctx.lineTo(i*1.5,-11); ctx.stroke(); }
+    // Deur
+    ctx.fillStyle = '#4a2e0a';
+    ctx.fillRect(-3, 2, 5, 8);
+    return;
+  }
+
+  // === LEVEL 1: Stevigere hut met raam ===
+  if(tw.level === 1){
+    // Bredere muur, iets donkerder
+    ctx.fillStyle = '#b8935a';
+    ctx.fillRect(-10, 0, 21, 10);
+    // Horizontale plank lijn
+    ctx.strokeStyle='#8a6030'; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.moveTo(-10,5); ctx.lineTo(11,5); ctx.stroke();
+    // Dak — iets breder en iets minder puntig
+    ctx.fillStyle = '#7a5515';
+    ctx.beginPath(); ctx.moveTo(-12,0); ctx.lineTo(0,-13); ctx.lineTo(12,0); ctx.closePath(); ctx.fill();
+    // Dakrand
+    ctx.strokeStyle='#5a3d08'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(-12,0); ctx.lineTo(0,-13); ctx.lineTo(12,0); ctx.stroke();
+    // Raam
+    ctx.fillStyle='#ffe8a0';
+    ctx.fillRect(3,1,5,4);
+    ctx.strokeStyle='#6b4400'; ctx.lineWidth=0.8;
+    ctx.strokeRect(3,1,5,4);
+    // Raamkruisje
+    ctx.beginPath(); ctx.moveTo(5.5,1); ctx.lineTo(5.5,5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(3,3); ctx.lineTo(8,3); ctx.stroke();
+    // Deur
+    ctx.fillStyle='#3d2008';
+    ctx.fillRect(-7,1,5,9);
+    return;
+  }
+
+  // === LEVEL 2: Grotere hut met twee ramen en versterkte deur ===
+  if(tw.level === 2){
+    // Stevige leemstenen muur
+    ctx.fillStyle = '#a07840';
+    ctx.fillRect(-12,-1,24,11);
+    // Steenlijnen
+    ctx.strokeStyle='#7a5520'; ctx.lineWidth=0.7;
+    ctx.beginPath(); ctx.moveTo(-12,4); ctx.lineTo(12,4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-3,-1); ctx.lineTo(-3,4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(5,4); ctx.lineTo(5,10); ctx.stroke();
+    // Dak — donker met twee lagen
+    ctx.fillStyle = '#5a3d0a';
+    ctx.beginPath(); ctx.moveTo(-14,-1); ctx.lineTo(0,-14); ctx.lineTo(14,-1); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#6b4a12'; // lichte daklaag
+    ctx.beginPath(); ctx.moveTo(-14,-1); ctx.lineTo(-10,-6); ctx.lineTo(10,-6); ctx.lineTo(14,-1); ctx.closePath(); ctx.fill();
+    // Dakrand
+    ctx.strokeStyle='#3d2800'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(-14,-1); ctx.lineTo(0,-14); ctx.lineTo(14,-1); ctx.stroke();
+    // Twee ramen
+    ctx.fillStyle='#ffd870';
+    ctx.fillRect(-10,0,5,4); ctx.fillRect(5,0,5,4);
+    ctx.strokeStyle='#5a3500'; ctx.lineWidth=0.8;
+    ctx.strokeRect(-10,0,5,4); ctx.strokeRect(5,0,5,4);
+    // Deur met boogvorm
+    ctx.fillStyle='#2a1500';
+    ctx.beginPath(); ctx.arc(-1,10,3,Math.PI,0); ctx.lineTo(2,10); ctx.lineTo(-4,10); ctx.closePath(); ctx.fill();
+    return;
+  }
+
+  // === LEVEL 3: Grote versterkte hut met schoorstenen ===
+  if(tw.level === 3){
+    // Brede donkere stenen muur
+    ctx.fillStyle = '#8b6330';
+    ctx.fillRect(-13,-2,26,12);
+    // Baksteenpatroon
+    ctx.strokeStyle='#5a3d14'; ctx.lineWidth=0.7;
+    ctx.beginPath(); ctx.moveTo(-13,3); ctx.lineTo(13,3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-13,8); ctx.lineTo(13,8); ctx.stroke();
+    for(let x of [-7,0,7]){ ctx.beginPath(); ctx.moveTo(x,-2); ctx.lineTo(x,3); ctx.stroke(); }
+    for(let x of [-10,-3,4,10]){ ctx.beginPath(); ctx.moveTo(x,3); ctx.lineTo(x,8); ctx.stroke(); }
+    // Dak — steil en donker
+    ctx.fillStyle = '#3d2500';
+    ctx.beginPath(); ctx.moveTo(-15,-2); ctx.lineTo(0,-17); ctx.lineTo(15,-2); ctx.closePath(); ctx.fill();
+    // Dak highlights
+    ctx.strokeStyle='#6b4510'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(-15,-2); ctx.lineTo(0,-17); ctx.lineTo(15,-2); ctx.stroke();
+    // Schoorstenen
+    ctx.fillStyle='#5a3a1a';
+    ctx.fillRect(-8,-20,4,6); ctx.fillRect(4,-18,4,5);
+    ctx.fillStyle='#3d2508';
+    ctx.fillRect(-9,-21,6,2); ctx.fillRect(3,-19,6,2);
+    // Rookpluimen
+    ctx.strokeStyle='rgba(180,160,130,0.5)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(-6,-21); ctx.quadraticCurveTo(-9,-26,-6,-29); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(6,-19); ctx.quadraticCurveTo(10,-24,7,-27); ctx.stroke();
+    // Ramen (verlicht)
+    ctx.fillStyle='#ffcc44'; ctx.shadowBlur=4; ctx.shadowColor='#ffaa00';
+    ctx.fillRect(-11,-1,5,5); ctx.fillRect(6,-1,5,5);
+    ctx.shadowBlur=0;
+    ctx.strokeStyle='#4a2c00'; ctx.lineWidth=0.8;
+    ctx.strokeRect(-11,-1,5,5); ctx.strokeRect(6,-1,5,5);
+    // Deur
+    ctx.fillStyle='#1a0900';
+    ctx.beginPath(); ctx.arc(0,10,4,Math.PI,0); ctx.lineTo(4,10); ctx.lineTo(-4,10); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='#5a3000'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(0,10,4,Math.PI,0); ctx.stroke();
+    return;
   }
 }
 
