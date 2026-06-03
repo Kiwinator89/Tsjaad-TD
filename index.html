@@ -941,7 +941,7 @@ function startGame(mode) {
   gameSpeedMult = 1; enemySpeedMult = 1;
   if(mode==='plaag'){ document.getElementById('roundMax').textContent=''; lives=12; money=700; }
   else if(mode==='hard'){ document.getElementById('roundMax').textContent='/50'; lives=20; money=300; }
-  else if(mode==='speed'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=2000; gameSpeedMult=2; enemySpeedMult=2; }
+  else if(mode==='speed'){ document.getElementById('roundMax').textContent='/30'; lives=20; money=2000; gameSpeedMult=1; enemySpeedMult=2; }
   else if(mode==='armoede'){ document.getElementById('roundMax').textContent='/30'; lives=1; money=500; document.getElementById('katoenBtn').disabled=true; document.getElementById('katoenBtn').classList.add('crossed-out'); }
   else if(mode==='boss'){ document.getElementById('roundMax').textContent='/1'; lives=20; money=1000; }
   else if(mode==='mutatie'){ document.getElementById('roundMax').textContent='/35'; lives=20; money=600; }
