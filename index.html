@@ -53,6 +53,8 @@
   .modeBtn.virus { background: linear-gradient(135deg, #001a00 0%, #003300 40%, #00ff44 100%); color: #00ff44; text-shadow: 0 0 15px #00ff44, 0 0 30px #00cc33; animation: virusPulse 1.5s ease-in-out infinite; border-color: #00ff44; border-width: 5px; }
   @keyframes virusPulse { 0%,100%{box-shadow:0 10px 30px rgba(0,255,68,0.4);transform:scale(1);} 50%{box-shadow:0 10px 50px rgba(0,255,68,0.9),0 0 60px rgba(0,200,50,0.7);transform:scale(1.04);} }
   .modeSelectBtn.virus { border-color:#00ff44;color:#00ff44; }
+  .modeBtn.tsjaaadverhaal { background: linear-gradient(135deg, #8b0000 0%, #dc143c 30%, #ff4500 60%, #ffd700 100%); color: #fff; text-shadow: 0 0 20px #ff6600, 0 0 40px #ff0000; animation: tsjaaadverhaalglow 1.3s ease-in-out infinite; border-color: #ffd700; border-width: 6px; }
+  @keyframes tsjaaadverhaalglow { 0%,100%{box-shadow:0 10px 40px rgba(255,69,0,0.6), 0 0 60px rgba(255,0,0,0.4);transform:scale(1);} 50%{box-shadow:0 10px 80px rgba(255,69,0,0.9), 0 0 100px rgba(255,215,0,0.7);transform:scale(1.08);} }
   @keyframes tsjaadPlusPulse { 0%, 100% { box-shadow: 0 10px 40px rgba(255,0,0,0.6), 0 0 80px rgba(255,100,0,0.3); transform: scale(1); } 50% { box-shadow: 0 10px 80px rgba(255,0,0,1), 0 0 120px rgba(255,100,0,0.8), inset 0 0 30px rgba(255,200,0,0.2); transform: scale(1.06); } }
   @keyframes plaagPulse { 0%, 100% { box-shadow: 0 10px 30px rgba(139,0,0,0.5); transform: scale(1); } 50% { box-shadow: 0 10px 50px rgba(255,69,0,0.8), 0 0 40px rgba(255,69,0,0.6); transform: scale(1.02); } }
   @keyframes hardPulse { 0%, 100% { box-shadow: 0 10px 30px rgba(106,5,114,0.5); transform: scale(1); } 50% { box-shadow: 0 10px 50px rgba(199,0,57,0.8), 0 0 40px rgba(255,0,128,0.6); transform: scale(1.03); } }
@@ -244,6 +246,7 @@
   <div id="mainMenuScreen">
     <div class="main-menu-btns">
       <button class="mainMenuBtn playBtn" onclick="showPlayMenu()">🎮 SPEEL</button>
+<button class="mainMenuBtn specialBtn campaignBtn" onclick="startTsjaadVerhaal()">📜 TSJAAD CAMPAGNE</button>
       <button class="mainMenuBtn specialBtn" onclick="showSpecialMenu()">⭐ SPECIALE MISSIES</button>
       <button class="mainMenuBtn tutorialBtn" onclick="showTutorial()">📖 TUTORIAL</button>
       <button class="mainMenuBtn settingsMenuBtn" onclick="openSettings()">⚙️ INSTELLINGEN</button>
@@ -266,6 +269,7 @@
       <button class="modeBtn tsjaadplus" data-mode="tsjaadplus">☠️ Tsjaad+</button>
       <button class="modeBtn lichtsnelheid" data-mode="lichtsnelheid">⚡ Lichtsnelheid</button>
       <button class="modeBtn virus" data-mode="virus">🦠 Virus Modus</button>
+      <button class="modeBtn tsjaaadverhaal" onclick="startTsjaadVerhaal()">🦁 TSJAAD CAMPAGNE 🦁</button>
     </div>
   </div>
 
@@ -1048,6 +1052,22 @@ const bossType = {name:'Malaria Mug',hp:50000,speed:0.7,size:80,reward:1000,boss
 const mutatedBossType = {name:'Gemuteerde Malaria Mug',hp:5000000,speed:0.75,size:95,reward:2500,boss:true,type:'mutatedmug'};
 const slowBossType = {name:'Malaria Mug',hp:6500000,speed:0.15,size:120,reward:1000,boss:true,type:'mug'};
 const zwangereMugBossType = {name:'ULTRA Malaria Mug',hp:300000,speed:0.6,size:110,reward:3000,boss:true,type:'zwangeremug'};
+const superRobotMalariaMugType = {name:'🤖 SUPER ROBOT MALARIA MUG 🤖',hp:400000,speed:0.85,size:100,reward:5000,boss:true,type:'super_robot_malaria_mug',special:'ultraboss'};
+
+// === GEÏNFECTEERDE DIEREN (TSJAAD VERHAAL) ===
+const infectedAnimalTypes = {
+  'infected_antelope': {name:'🦠 Geïnfecteerde Antilope',hp:5,speed:1.15,size:14,reward:15,type:'infected_antelope',infectedColor:'#ff4444'},
+  'infected_camel': {name:'🦠 Geïnfecteerde Kameel',hp:40,speed:0.45,size:20,reward:50,type:'infected_camel',infectedColor:'#ff4444'},
+  'infected_eagle': {name:'🦠 Geïnfecteerde Adelaar',hp:12,speed:1.5,size:14,reward:40,type:'infected_eagle',infectedColor:'#ff4444'},
+  'infected_snake': {name:'🦠 Geïnfecteerde Slang',hp:18,speed:1.2,size:16,reward:35,type:'infected_snake',infectedColor:'#ff4444'},
+  'infected_hyena': {name:'🦠 Geïnfecteerde Hyena',hp:14,speed:1.3,size:15,reward:30,type:'infected_hyena',infectedColor:'#ff4444'},
+  'infected_monkey': {name:'🦠 Geïnfecteerde Aap',hp:8,speed:1.4,size:13,reward:20,type:'infected_monkey',infectedColor:'#ff4444'},
+  'infected_dog': {name:'🦠 Geïnfecteerde Hond',hp:10,speed:1.35,size:14,reward:25,type:'infected_dog',infectedColor:'#ff4444'},
+  'infected_rat': {name:'🦠 Geïnfecteerde Rat',hp:3,speed:1.6,size:10,reward:8,type:'infected_rat',infectedColor:'#ff4444'},
+  'infected_mosquito': {name:'🦟 Geïnfecteerde Mug',hp:6,speed:1.8,size:11,reward:12,type:'infected_mosquito',infectedColor:'#ff4444'},
+  'infected_bat': {name:'🦠 Geïnfecteerde Vleermuis',hp:9,speed:1.5,size:12,reward:18,type:'infected_bat',infectedColor:'#ff4444'},
+  'infected_spider': {name:'🦠 Geïnfecteerde Spin',hp:7,speed:1.25,size:13,reward:16,type:'infected_spider',infectedColor:'#ff4444'}
+};
 
 function selectTower(t2){ if(gameMode==='armoede'&&t2==='katoen') return; if(randomMissieAllowedTowers&&!randomMissieAllowedTowers.includes(t2)) return; selectedTower=t2; }
 
@@ -1829,6 +1849,7 @@ function getMaxRound(){
   if(gameMode==='mutatie') return 35;
   if(gameMode==='plaag') return 999;
   if(gameMode==='tsjaadplus') return 50;
+  if(gameMode==='tsjaadstory') return roundMax || 5;
   return 30;
 }
 
@@ -3878,7 +3899,330 @@ function drawCritTexts(){
 
 function loop(){ update(); draw(); if(hoveredTower){ updateTooltip(hoveredTower, lastMouseClientX, lastMouseClientY); } if(!gameWon) requestAnimationFrame(loop); }
 
+// ===== 🦁 TSJAAD VERHAAL - 5 LEVEL STORY MODE 🦁 =====
+// Verhaal: De geheime organisatie R.E.G.E.R.I.N.G maakt een virus om vaccinaties te verkopen
+// Niemand kan het betalen, dus Tsjaadinator en zijn team gaan de plaag stoppen!
+// LEVEL 5: VULKAAN - SUPER ROBOT MALARIA MUG!
+
+let tsjaadStoryMode = false;
+let tsjaadCurrentLevel = 0;
+let tsjaadStoryAudio = null;
+
+const tsjaadStoryLevels = [
+  {
+    name: '⚔️ LEVEL 1: Het Dorp Onder Aanval',
+    description: 'R.E.G.E.R.I.N.G heeft het virus vrijgelaten! Geïnfecteerde dieren vallen het dorp aan.',
+    briefing: 'Tsjaadinator verzamelt alle 11 strijdkrachten:
+⚔️ Speer Werper
+🏹 Boog Schutter
+🔥 Fakkel Drager
+💉 Plaag Dokter
+🐵 Wilde Aap
+🔫 Soldaat
+💣 Atoombommenwerper
+🛖 De Hut
+🌾 Katoen Plantage
+⚡ Tsjaadinator
+🎯 Sniper',
+    money: 2000,
+    lives: 25,
+    rounds: 8,
+    enemies: ['infected_antelope', 'infected_monkey', 'infected_dog'],
+    path: [{x:-20,y:250},{x:150,y:250},{x:150,y:450},{x:400,y:450},{x:400,y:150},{x:650,y:150},{x:650,y:400},{x:900,y:400},{x:900,y:200},{x:1220,y:200}]
+  },
+  {
+    name: '🏜️ LEVEL 2: Woestijn Epidemie',
+    description: 'De virus verspreidt zich in de Tsjaadse woestijn. Steeds meer dieren worden besmet!',
+    briefing: 'Tsjaadinator voert aanvallen uit in:\n🐪 KAMELEN LEGIOEN\n🦅 ARENDEN SQUADRON\n🐍 SLANGENVERDEDIGERS',
+    money: 3500,
+    lives: 30,
+    rounds: 12,
+    enemies: ['infected_camel', 'infected_eagle', 'infected_snake', 'infected_hyena'],
+    path: [{x:-20,y:350},{x:200,y:350},{x:200,y:150},{x:450,y:150},{x:450,y:500},{x:700,y:500},{x:700,y:200},{x:950,y:200},{x:950,y:450},{x:1220,y:450}]
+  },
+  {
+    name: '🏙️ LEVEL 3: Stad in Paniek',
+    description: 'R.E.G.E.R.I.N.G is gevonden in de hoofdstad! Honderden mensen zijn geïnfecteerd.',
+    briefing: 'Slag om de stad:\n🏗️ GEBOUWEN VERDEDIGING\n🚁 HELIKOPTER LUCHTSTEUN\n💣 BOMBARDEERDERS INZET\n⚡ ELITE SCHERPSCHUTTERS',
+    money: 5000,
+    lives: 35,
+    rounds: 15,
+    enemies: ['infected_rat', 'infected_mosquito', 'infected_bat', 'infected_monkey', 'infected_dog'],
+    path: [{x:-20,y:200},{x:100,y:200},{x:100,y:400},{x:300,y:400},{x:300,y:100},{x:500,y:100},{x:500,y:500},{x:800,y:500},{x:800,y:250},{x:1220,y:250}]
+  },
+  {
+    name: '🏢 LEVEL 4: R.E.G.E.R.I.N.G Basis',
+    description: 'Het hoofdkwartier van R.E.G.E.R.I.N.G! Gevonden in de verlaten fabriek.',
+    briefing: 'Finale aanval op basis:\n🔬 VIRUS MUTANTEN\n🤖 MEDISCHE ROBOTS\n🛡️ PLASMA VERDEDIGING\n⚔️ ELITE GARDE',
+    money: 8000,
+    lives: 40,
+    rounds: 18,
+    enemies: ['infected_mosquito', 'infected_rat', 'infected_bat', 'infected_spider', 'infected_monkey'],
+    path: [{x:-20,y:250},{x:150,y:250},{x:150,y:100},{x:400,y:100},{x:400,y:450},{x:650,y:450},{x:650,y:150},{x:950,y:150},{x:950,y:400},{x:1220,y:400}]
+  },
+  {
+    name: '🌋 LEVEL 5: FINAL BOSS - VULKAAN',
+    description: 'SUPER ROBOT MALARIA MUG! In het hart van een actieve vulkaan!',
+    briefing: '⚠️ WAARSCHUWING ⚠️\nDe ultieme vijand wacht!\n🦟 SUPER ROBOT MALARIA MUG\n⚡ ONEINDIG VERMOGEN\n💥 DUBBELE GEZONDHEID BOSS\n🔥 VULKAAN ARENA',
+    money: 15000,
+    lives: 50,
+    rounds: 20,
+    enemies: ['infected_mosquito', 'infected_mosquito', 'super_robot_malaria_mug'],
+    path: [{x:-20,y:300},{x:150,y:300},{x:150,y:100},{x:400,y:100},{x:400,y:500},{x:650,y:500},{x:650,y:200},{x:900,y:200},{x:900,y:450},{x:1220,y:450}],
+    isBossLevel: true
+  }
+];
+
+
+function showCampaignCutscene(title, speaker, message, nextAction){
+  document.getElementById('titleScreen').innerHTML =
+  `<div style="max-width:900px;margin:40px auto;color:white;text-align:center;">
+    <h1>${title}</h1>
+    <div style="background:#111;padding:25px;border:3px solid gold;border-radius:12px;">
+      <h2>${speaker}</h2>
+      <p style="font-size:22px;line-height:1.6;">${message}</p>
+    </div>
+    <button style="padding:20px 40px;font-size:22px;margin-top:20px;" onclick="${nextAction}">Verder</button>
+  </div>`;
+}
+
+function startTsjaadVerhaal() {
+  tsjaadStoryMode = true;
+  tsjaadCurrentLevel = 0;
+  showCampaignCutscene('TSJAAD CAMPAGNE','R.E.G.E.R.I.N.G LID','Het virus is losgelaten. Tsjaadinator zal ons nooit stoppen!','showTsjaadStoryScreen()');
+}
+
+function showTsjaadStoryScreen() {
+  if(tsjaadCurrentLevel >= tsjaadStoryLevels.length) {
+    showTsjaadVictoryScreen();
+    return;
+  }
+  
+  const level = tsjaadStoryLevels[tsjaadCurrentLevel];
+  document.getElementById('titleScreen').style.display = 'flex';
+  document.getElementById('ui').style.display = 'none';
+  
+  const titleScreen = document.getElementById('titleScreen');
+  titleScreen.innerHTML = `
+    <div style="text-align:center; z-index:10; max-width:900px; margin:20px; animation:fadeIn 1s ease-in;">
+      <h1 style="color:#8b0000; font-size:72px; margin:20px; text-shadow:0 0 30px rgba(255,69,0,0.8);">${level.name}</h1>
+      <p style="font-size:36px; color:#ff6600; margin:20px; text-shadow:0 0 20px rgba(255,100,0,0.6);">🔥 TSJAAD CAMPAGNE 🔥</p>
+      <p style="font-size:20px; color:#fff; margin:30px; line-height:1.8; background:rgba(0,0,0,0.6); padding:20px; border:3px solid #ffd700; border-radius:10px;">${level.description}</p>
+      <div style="background:rgba(139,0,0,0.3); border:3px solid #dc143c; padding:25px; margin:20px; border-radius:10px; font-size:18px; color:#fff; line-height:2;">
+        ${level.briefing.split('\n').join('<br>')}
+      </div>
+      <button style="margin:20px; padding:25px 50px; font-size:24px; background:linear-gradient(135deg,#ff6600,#ff0000); color:white; border:4px solid #ffd700; border-radius:15px; cursor:pointer; font-weight:bold; transition:all 0.3s;" 
+        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" 
+        onclick="loadTsjaadLevel(${tsjaadCurrentLevel})">▶️ LAAD LEVEL ${tsjaadCurrentLevel + 1}</button>
+      <button style="margin:20px; padding:25px 50px; font-size:24px; background:#333; color:#fff; border:4px solid #666; border-radius:15px; cursor:pointer; font-weight:bold; transition:all 0.3s;"
+        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" 
+        onclick="location.reload()">↩️ TERUG</button>
+    </div>
+    <style>
+      @keyframes fadeIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+    </style>
+  `;
+}
+
+function loadTsjaadLevel(levelIdx) {
+  const level = tsjaadStoryLevels[levelIdx];
+  document.getElementById('titleScreen').style.display = 'none';
+  document.getElementById('settingsBtn').style.display = 'none';
+  document.getElementById('ui').style.display = 'block';
+  
+  gameMode = 'tsjaadstory';
+  path = level.path;
+  gamePaths = [path];
+  enemies = [];
+  towers = [];
+  projectiles = [];
+  explosions = [];
+  bananas = [];
+  landmines = [];
+  money = level.money;
+  lives = level.lives;
+  round = 1;
+  roundMax = level.rounds;
+  totalMoneyEarned = 0;
+  autoStartRounds = false;
+  paragonActive = false;
+  paragonTower = null;
+  hutFreeTowerPending = null;
+  
+  document.getElementById('startRoundBtn').style.display = 'block';
+  document.getElementById('katoenBtn').disabled = false;
+  document.getElementById('katoenBtn').classList.remove('crossed-out');
+  document.getElementById('autoRoundMsg').textContent = '';
+  document.getElementById('roundMax').textContent = '/' + roundMax;
+  document.getElementById('lives').textContent = lives;
+  document.getElementById('money').textContent = money;
+  document.getElementById('gameTitle').innerHTML = `<span style="color:#ff6600; text-shadow:0 0 20px rgba(255,100,0,0.8);">🦁 ${level.name}</span>`;
+  
+  gameSpeedMult = 1;
+  enemySpeedMult = 1;
+  
+  const virusWarnEl = document.getElementById('virusWarnEl');
+  if(virusWarnEl) virusWarnEl.style.display = 'none';
+  
+  stopMusic();
+  tsjaadStoryAudio = new Audio(BASE_AUDIO + 'Boss.mp3');
+  tsjaadStoryAudio.loop = true;
+  tsjaadStoryAudio.volume = 0.6;
+  tsjaadStoryAudio.play().catch(()=>{});
+  currentTheme = tsjaadStoryAudio;
+  musicPlaying = true;
+  
+  // Store enemy list for this level
+  window.tsjaadLevelEnemies = level.enemies;
+  window.currentTsjaadLevelConfig = level;
+  
+  startTimer();
+  document.getElementById('utilBtns').style.display = 'flex';
+  loop();
+}
+
+// Override startRound for Tsjaad Story Mode
+const originalStartRound = window.startRound;
+if(originalStartRound) {
+  window.startRound = function() {
+    if(gameMode !== 'tsjaadstory') {
+      originalStartRound();
+      return;
+    }
+    
+    // Tsjaad Story Mode wave logic
+    roundActive = true;
+    autoRoundCountdown = 0;
+    const level = window.currentTsjaadLevelConfig;
+    const enemyTypes = window.tsjaadLevelEnemies;
+    let totalEnemies = Math.floor(5 + round * 2.5);
+    
+    if(level.isBossLevel && round === roundMax) {
+      // Final boss wave
+      for(let i = 0; i < 2; i++) {
+        const enemyType = enemyTypes[Math.floor(Math.random() * (enemyTypes.length - 1))];
+        setTimeout(() => {
+          if(roundActive) spawnTsjaadStoryEnemy(enemyType, 0, 1);
+        }, i * 500);
+      }
+      // FINAL BOSS - Super Robot Malaria Mug
+      setTimeout(() => {
+        if(roundActive) spawnTsjaadStoryEnemy('super_robot_malaria_mug', 0, 2.5);
+      }, 1500);
+    } else {
+      for(let i = 0; i < totalEnemies; i++) {
+        const enemyType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+        const delay = i * (800 + round * 150);
+        setTimeout(() => {
+          if(roundActive) spawnTsjaadStoryEnemy(enemyType, 0, 1 + round * 0.08);
+        }, delay);
+      }
+    }
+  };
+}
+
+function showTsjaadVictoryScreen() {
+  document.getElementById('titleScreen').style.display = 'flex';
+  document.getElementById('ui').style.display = 'none';
+  
+  const titleScreen = document.getElementById('titleScreen');
+  titleScreen.innerHTML = `
+    <div style="text-align:center; z-index:10; max-width:900px; animation:victoryPulse 1.5s ease-in-out infinite;">
+      <h1 style="color:#ffd700; font-size:80px; margin:20px; text-shadow:0 0 40px rgba(255,215,0,0.9);">🏆 VICTORY! 🏆</h1>
+      <p style="font-size:42px; color:#ff6600; margin:20px;">DE SUPER ROBOT MALARIA MUG IS VERSLAGEN!</p>
+      <p style="font-size:32px; color:#fff; margin:30px; line-height:2;">
+        🦁 TSJAADINATOR en het team hebben de plaag gestopt!<br>
+        💊 R.E.G.E.R.I.N.G is ontmanteld!<br>
+        🌍 De wereld is gered!<br>
+        ⭐ JE BENT EEN HELD VAN TSJAAD! ⭐
+      </p>
+      <div style="background:linear-gradient(135deg,#8b0000,#ff6600); border:5px solid #ffd700; padding:30px; margin:20px; border-radius:15px; font-size:20px; color:#fff;">
+        <p style="margin:10px; font-weight:bold;">✨ De missie is voltooid in 5 epische levels! ✨</p>
+        <p style="margin:10px;">Tsjaad zal nooit dezelfde zijn... Dankzij jou!</p>
+      </div>
+      <button style="margin:20px; padding:25px 50px; font-size:24px; background:linear-gradient(135deg,#ffd700,#ffaa00); color:#000; border:4px solid #fff; border-radius:15px; cursor:pointer; font-weight:bold; transition:all 0.3s;"
+        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" 
+        onclick="location.reload()">🏠 TERUG NAAR HOOFDMENU</button>
+    </div>
+    <style>
+      @keyframes victoryPulse { 0%, 100% { transform:scale(1) rotate(0deg); } 50% { transform:scale(1.05) rotate(2deg); } }
+    </style>
+  `;
+  
+  stopMusic();
+  tsjaadStoryAudio = new Audio(BASE_AUDIO + 'Victory.mp3');
+  tsjaadStoryAudio.volume = 0.7;
+  tsjaadStoryAudio.play().catch(()=>{});
+}
+
+// Hook into game end to handle level completion
+const originalGameOver = window.gameOver;
+if(originalGameOver) {
+  window.gameOver = function(success) {
+    if(gameMode !== 'tsjaadstory') {
+      originalGameOver(success);
+      return;
+    }
+    
+    if(!success) {
+      // Lost - show defeat screen
+      document.getElementById('titleScreen').style.display = 'flex';
+      document.getElementById('ui').style.display = 'none';
+      document.getElementById('titleScreen').innerHTML = `
+        <div style="text-align:center; z-index:10; max-width:900px;">
+          <h1 style="color:#8b0000; font-size:80px; margin:20px; text-shadow:0 0 40px rgba(255,69,0,0.9);">☠️ DEFEAT ☠️</h1>
+          <p style="font-size:32px; color:#ff6600; margin:20px;">Het virus heeft gewonnen deze keer...</p>
+          <p style="font-size:24px; color:#fff; margin:30px;">Tsjaadinator zal het opnieuw proberen!</p>
+          <button style="margin:20px; padding:25px 50px; font-size:24px; background:#ff6600; color:#fff; border:4px solid #ffd700; border-radius:15px; cursor:pointer; font-weight:bold;"
+            onclick="loadTsjaadLevel(${tsjaadCurrentLevel})">🔄 PROBEER OPNIEUW</button>
+          <button style="margin:20px; padding:25px 50px; font-size:24px; background:#333; color:#fff; border:4px solid #666; border-radius:15px; cursor:pointer; font-weight:bold;"
+            onclick="location.reload()">↩️ TERUG</button>
+        </div>
+      `;
+      return;
+    }
+    
+    // Won - advance to next level
+    tsjaadCurrentLevel++;
+    setTimeout(() => showTsjaadStoryScreen(), 2000);
+  };
+}
+
+// Custom spawnEnemy for Tsjaad Story Mode
+function spawnTsjaadStoryEnemy(enemyTypeKey, pathIndex = 0, hpScale = 1) {
+  const enemyData = infectedAnimalTypes[enemyTypeKey];
+  if (!enemyData) {
+    console.warn('Unknown Tsjaad enemy type:', enemyTypeKey);
+    return null;
+  }
+  
+  // Special handling for super robot malaria mug boss
+  if(enemyTypeKey === 'super_robot_malaria_mug') {
+    const boss = makeEnemy({...superRobotMalariaMugType});
+    boss.pathIndex = pathIndex;
+    boss.infected = true;
+    enemies.push(boss);
+    return boss;
+  }
+  
+  // Regular infected enemies
+  const scaledData = {
+    ...enemyData,
+    hp: Math.floor(enemyData.hp * hpScale * (1 + round * 0.12)),
+    speed: enemyData.speed * (1 + round * 0.05),
+    reward: Math.floor(enemyData.reward * (1 + round * 0.1))
+  };
+  
+  const enemy = makeEnemy(scaledData);
+  enemy.infected = true;
+  enemy.infectedColor = enemyData.infectedColor;
+  enemy.pathIndex = pathIndex;
+  enemies.push(enemy);
+  return enemy;
+}
+
 console.log('🏜️ Tsjaad TD – Ultimate Edition v4 🐪');
+console.log('🦁 TSJAAD VERHAAL - 5 LEVEL STORY MODE GELADEN 🦁');
 </script>
 </body>
 </html>
