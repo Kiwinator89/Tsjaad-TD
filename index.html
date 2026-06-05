@@ -278,7 +278,7 @@
     <button class="backBtn" onclick="showMainMenu()">← Terug</button>
     <h2 style="color:#ffd700; font-size:40px; margin:10px 0 30px; text-shadow:0 0 20px rgba(255,215,0,0.6);">⭐ SPECIALE MISSIES</h2>
     <div style="display:flex; flex-direction:column; gap:20px; align-items:center; width:100%;">
-      <button class="modeBtn boss special-mission-btn" data-mode="boss" style="width:90%; max-width:700px; padding:40px 20px; font-size:26px;">
+      <button class="modeBtn boss special-mission-btn" onclick="document.getElementById('titleScreen').style.display='none'; document.getElementById('settingsBtn').style.display='none'; startGame('boss');" style="width:90%; max-width:700px; padding:40px 20px; font-size:26px;">
         👹 BOSS BATTLE<br><span style="font-size:14px; opacity:0.8; font-weight:normal;">Versla de ultieme baas!</span>
       </button>
       <button class="modeBtn malaria special-mission-btn" onclick="startMalariaMissie()" style="width:90%; max-width:700px; padding:40px 20px; font-size:26px;">
@@ -295,11 +295,11 @@
     <button class="backBtn" onclick="showMainMenu()">← Terug</button>
     <h2 style="color:#daa520; font-size:38px; margin:10px 0 20px; text-align:center; text-shadow:0 0 15px rgba(218,165,32,0.5);">📖 TUTORIAL</h2>
     <div class="tutorial-tabs">
-      <button class="tut-tab active" onclick="showTutTab('geld')">💰 Geld</button>
-      <button class="tut-tab" onclick="showTutTab('torens')">🏰 Torens & Upgrades</button>
-      <button class="tut-tab" onclick="showTutTab('paragons')">👑 Paragons</button>
-      <button class="tut-tab" onclick="showTutTab('vijanden')">🦟 Vijanden</button>
-      <button class="tut-tab" onclick="showTutTab('immuniteiten')">🛡️ Immuniteiten</button>
+      <button class="tut-tab active" onclick="showTutTab('geld', {currentTarget:this})">💰 Geld</button>
+      <button class="tut-tab" onclick="showTutTab('torens', {currentTarget:this})">🏰 Torens & Upgrades</button>
+      <button class="tut-tab" onclick="showTutTab('paragons', {currentTarget:this})">👑 Paragons</button>
+      <button class="tut-tab" onclick="showTutTab('vijanden', {currentTarget:this})">🦟 Vijanden</button>
+      <button class="tut-tab" onclick="showTutTab('immuniteiten', {currentTarget:this})">🛡️ Immuniteiten</button>
     </div>
     <div class="tut-content" id="tut-geld">
       <h3>💰 Geld & Economie</h3>
@@ -398,7 +398,7 @@
   <button onclick="selectTower('geweer')" id="tower-geweer">🔫 Soldaat (€550)</button>
   <button onclick="selectTower('atoom')" id="tower-atoom">💣 Atoombommenwerper (€600)</button>
   <button onclick="selectTower('hut')" id="tower-hut">🛖 De Hut (€800)</button>
-  <button id="katoenBtn" onclick="selectTower('katoen')"> Katoen Plantage🌾 (€950)</button>
+  <button id="katoenBtn" onclick="selectTower('katoen')">🌾 Katoen Plantage (€950)</button>
   <button onclick="selectTower('tsjaadinator')" id="tower-tsjaad">⚡ Tsjaadinator (€2500)</button>
   <button onclick="selectTower('sniper')" id="tower-sniper">🎯 Sniper (€3000)</button>
   <hr style="margin:10px 0; border-color:#444;">
@@ -520,7 +520,10 @@ function setLang(lang) {
 }
 
 function applyTranslations() {
-  const ids = ['stg-title','stg-lang-label','title-subtitle','btn-standard','btn-plaag','btn-hard','btn-speed','btn-armoede','btn-boss','btn-mutatie','btn-dubbelhealth','btn-tsjaad','vs-title','vs-line1','vs-line2','vs-line3','vs-rounds-label','vs-money-label','vs-restart','ds-title','ds-restart','lb-title','ui-money-label','ui-lives-label','ui-round-label','tower-speer','tower-boog','tower-fakkel','tower-plaag','tower-aap','tower-geweer','tower-atoom','tower-katoen','tower-tsjaad','tower-sniper','btn-startround','ui-upgrade-hint'];
+  const ids = ['stg-title','stg-lang-label','title-subtitle','vs-title','vs-line1','vs-line2','vs-line3','vs-rounds-label','vs-money-label','vs-restart','ds-title','ds-restart','lb-title','ui-money-label','ui-lives-label','ui-round-label','tower-speer','tower-boog','tower-fakkel','tower-plaag','tower-aap','tower-geweer','tower-atoom','tower-tsjaad','tower-sniper','ui-upgrade-hint'];
+  // Separate IDs that differ from translation keys
+  const idMap = {'tower-katoen': 'katoenBtn', 'btn-startround': 'startRoundBtn'};
+  for (const [tKey, elId] of Object.entries(idMap)) { const el = document.getElementById(elId); if (el) el.textContent = t(tKey); }
   for (const id of ids) { const el = document.getElementById(id); if (el) el.textContent = t(id); }
   const moneyEl = document.getElementById('ui-money-label');
   if (moneyEl) { const val = document.getElementById('money') ? document.getElementById('money').textContent : '500'; moneyEl.innerHTML = t('ui-money-label') + ' <strong><span id="money">' + val + '</span></strong>'; }
@@ -597,11 +600,12 @@ function showTutorial() {
   document.getElementById('mainMenuScreen').style.display = 'none';
   document.getElementById('tutorialScreen').style.display = 'block';
 }
-function showTutTab(tab) {
+function showTutTab(tab, evt) {
   document.querySelectorAll('.tut-content').forEach(el => el.style.display = 'none');
   document.querySelectorAll('.tut-tab').forEach(el => el.classList.remove('active'));
   document.getElementById('tut-' + tab).style.display = 'block';
-  event.target.classList.add('active');
+  const activeBtn = (evt && evt.currentTarget) || document.querySelector('.tut-tab[onclick*="\'' + tab + '\'"]');
+  if (activeBtn) activeBtn.classList.add('active');
 }
 
 // ===== MALARIA ZWERM MODUS =====
