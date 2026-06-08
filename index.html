@@ -1303,7 +1303,7 @@ function updateTooltip(tw, cx, cy){
     html += `<div class="tt-upgrade-header max">✅ GOD MODE ACTIEF</div>`;
   } else if(tw.paragon){
     const spiritLvl = Math.floor(tw.paragonLevel / 25);
-    const spiritNames = ['', '🌀 Spirit Lv.1', '🌀 Spirit Lv.2', '🌀 Spirit Lv.3', '⭐ MEGA TSJAAD KRACHT ⭐'];
+    const spiritNames = ['', '🌀 Tsjaad Lv.1', '🌀 Tsjaad Lv.2', '🌀 Tsjaad Lv.3', '⭐ MEGA TSJAAD KRACHT ⭐'];
     const spiritLabel = spiritNames[spiritLvl] || '';
     html += `<div class="tt-upgrade-header max">✅ PARAGON LEVEL ${tw.paragonLevel}/100</div>`;
     html += `<div style="font-size:9px;color:#ff00ff;margin-top:2px;">⭐ +${(tw.paragonLevel*1).toFixed(0)}% extra schade</div>`;
@@ -1466,7 +1466,7 @@ function confirmParagon(){
   pendingParagonTower = null;
   closeParagonDialog();
   const pCost = towerTypes[t2.key].ultCost * 10;
-  if(money < pCost){ showRoundMsg('⚠️ Niet genoeg geld voor Paragon!'); return; }
+  if(money < pCost){ showRoundMsg('⚠️ Je bent te arm voor een Paragon!'); return; }
   money -= pCost;
   t2.paragon = true;
   t2.paragonLevel = 0;
@@ -2060,8 +2060,8 @@ function triggerEnemyNuclearExplosion(e, mega=false){
 
 // ===== ROBO LEEUW STUN =====
 function triggerRoboLeeuwStun(e){
-  const stunRadius = 150;
-  const stunDuration = 180; // 3 seconden bij 60fps
+  const stunRadius = 80;
+  const stunDuration = 80; // 3 seconden bij 60fps
   for(const tw of towers){
     if(Math.hypot(tw.x-e.x, tw.y-e.y) < stunRadius){
       tw.stunned = true;
