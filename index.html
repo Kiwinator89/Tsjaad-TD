@@ -1860,6 +1860,16 @@ function showRoundMsg(txt){ const el=document.getElementById('roundMsg'); el.tex
 
 // ===== SPAWN ENEMIES =====
 function spawnEnemy(){
+  // Tsjaad Story Mode: use queue
+  if(gameMode === 'tsjaadstory') {
+    const queue = window._tsjaadStorySpawnQueue;
+    if(!queue || queue.length === 0) return;
+    const enemyTypeKey = queue.shift();
+    const hpScale = window._tsjaadStorySpawnHpScale || 1;
+    spawnTsjaadStoryEnemy(enemyTypeKey, 0, hpScale);
+    return;
+  }
+
   const maxRound=getMaxRound();
   if(gameMode==='tsjaadplus'){
     const miniBossMap={10:'giraffe',20:'leeuw',30:'cheetah',40:'nijlpaard'};
@@ -2000,6 +2010,22 @@ function loseGame(){
   gameWon=true;
   stopMusic();
   stopTimer();
+  if(gameMode === 'tsjaadstory'){
+    document.getElementById('titleScreen').style.display = 'flex';
+    document.getElementById('ui').style.display = 'none';
+    document.getElementById('titleScreen').innerHTML = `
+      <div style="text-align:center; z-index:10; max-width:900px;">
+        <h1 style="color:#8b0000; font-size:80px; margin:20px; text-shadow:0 0 40px rgba(255,69,0,0.9);">☠️ DEFEAT ☠️</h1>
+        <p style="font-size:32px; color:#ff6600; margin:20px;">Het virus heeft gewonnen deze keer...</p>
+        <p style="font-size:24px; color:#fff; margin:30px;">Tsjaadinator zal het opnieuw proberen!</p>
+        <button style="margin:20px; padding:25px 50px; font-size:24px; background:#ff6600; color:#fff; border:4px solid #ffd700; border-radius:15px; cursor:pointer; font-weight:bold;"
+          onclick="loadTsjaadLevel(${tsjaadCurrentLevel})">🔄 PROBEER OPNIEUW</button>
+        <button style="margin:20px; padding:25px 50px; font-size:24px; background:#333; color:#fff; border:4px solid #666; border-radius:15px; cursor:pointer; font-weight:bold;"
+          onclick="location.reload()">↩️ TERUG</button>
+      </div>
+    `;
+    return;
+  }
   const modeKey='mode-'+gameMode; const modeName=t(modeKey)||'STANDAARD';
   let deathMsg, deathStat;
   if(currentLang==='de'){ deathMsg=`<strong>DU HAST ${round} RUNDEN IN ${modeName} ÜBERLEBT!</strong><br>DIE FEINDE WAREN ZU STARK...`; deathStat=`💀 Gefallen in Runde: <strong>${round}</strong><br>💰 Gesamtverdienst: <strong>€${totalMoneyEarned}</strong>`; }
@@ -2057,7 +2083,18 @@ function update(){
       spawning=false;
       const maxRound=getMaxRound();
       if(gameMode==='malariazwerm'){ winGame(); return; }
-      if(round<maxRound) round++;
+      if(gameMode==='tsjaadstory'){
+        if(round >= maxRound){
+          // Level voltooid!
+          tsjaadCurrentLevel++;
+          localStorage.setItem('tsjaadTD_campaign_level', tsjaadCurrentLevel);
+          setTimeout(()=>{ showTsjaadStoryScreen(); }, 2000);
+          gameWon = true;
+          return;
+        } else {
+          round++;
+        }
+      } else if(round<maxRound) round++;
       // Virus modus: verwijder duurste toren elke 5 rondes
       if(gameMode==='virus' && round>1 && (round-1)%5===0) virusRemoveMostExpensiveTower(round-1);
     }
@@ -2450,6 +2487,17 @@ function update(){
   const toSpawn=[];
   enemies=enemies.filter(e=>{
     if(e.hp<=0){
+      if(e.boss && gameMode==='tsjaadstory'){
+        money += e.reward; totalMoneyEarned += e.reward;
+        document.getElementById('money').textContent = money;
+        playSound('kill', 0.8);
+        // Boss verslagen: level voltooid
+        tsjaadCurrentLevel++;
+        localStorage.setItem('tsjaadTD_campaign_level', tsjaadCurrentLevel);
+        gameWon = true;
+        setTimeout(() => { showTsjaadStoryScreen(); }, 2000);
+        return false;
+      }
       if(e.boss && gameMode!=='malariazwerm'){ winGame(); return false; }
       if(e.boss && gameMode==='malariazwerm'){ money+=e.reward; totalMoneyEarned+=e.reward; document.getElementById('money').textContent=money; playSound('kill',0.8); return false; }
 
@@ -2744,20 +2792,37 @@ function drawEnemy(e){
 
   if(e.mutation==='metalen'||e.mutation2==='metalen'||e.mutation3==='metalen'){ drawMetalenEnemy(e); drawEnemyHUD(e); ctx.restore(); return; }
 
+  // Map infected types to existing sprites
+  const infectedTypeMap = {
+    'infected_antelope': 'cheetah',
+    'infected_camel':    'kameel',
+    'infected_eagle':    'vogel',
+    'infected_snake':    'krokodil',
+    'infected_hyena':    'cheetah',
+    'infected_monkey':   'leeuw',
+    'infected_dog':      'giraffe',
+    'infected_rat':      'giraffe',
+    'infected_mosquito': 'mug',
+    'infected_bat':      'vogel',
+    'infected_spider':   'neushoorn',
+    'super_robot_malaria_mug': 'mutatedmug',
+  };
+  const drawType = infectedTypeMap[e.type] || e.type;
+
   if(e.isRoboLeeuw) drawRoboLeeuw(e);
-  else if(e.isBird) drawVogel(e);
-  else if(e.type==='krokodil') drawKrokodil(e,baseColor);
-  else if(e.type==='olifant') drawOlifant(e,baseColor);
-  else if(e.type==='neushoorn') drawNeushoorn(e,baseColor);
-  else if(e.type==='giraffe') drawGiraffe(e,baseColor);
-  else if(e.type==='leeuw') drawLeeuw(e,baseColor);
-  else if(e.type==='cheetah') drawCheetah(e,baseColor);
-  else if(e.type==='nijlpaard') drawNijlpaard(e,baseColor);
-  else if(e.type==='kameel') drawKameel(e,baseColor);
-  else if(e.type==='mug') drawMug(e);
-  else if(e.type==='mutatedmug') drawMutatedMug(e);
-  else if(e.type==='hydramug') drawHydraMug(e);
-  else if(e.type==='zwangeremug') drawZwangereMug(e);
+  else if(e.isBird || drawType === 'vogel') drawVogel(e);
+  else if(drawType === 'krokodil') drawKrokodil(e, baseColor);
+  else if(drawType === 'olifant') drawOlifant(e, baseColor);
+  else if(drawType === 'neushoorn') drawNeushoorn(e, baseColor);
+  else if(drawType === 'giraffe') drawGiraffe(e, baseColor);
+  else if(drawType === 'leeuw') drawLeeuw(e, baseColor);
+  else if(drawType === 'cheetah') drawCheetah(e, baseColor);
+  else if(drawType === 'nijlpaard') drawNijlpaard(e, baseColor);
+  else if(drawType === 'kameel') drawKameel(e, baseColor);
+  else if(drawType === 'mug') drawMug(e);
+  else if(drawType === 'mutatedmug') drawMutatedMug(e);
+  else if(drawType === 'hydramug') drawHydraMug(e);
+  else if(drawType === 'zwangeremug') drawZwangereMug(e);
 
   ctx.globalAlpha=1;
   drawMutationEffects(e);
@@ -3910,6 +3975,7 @@ function loop(){ update(); draw(); if(hoveredTower){ updateTooltip(hoveredTower,
 let tsjaadStoryMode = false;
 let tsjaadCurrentLevel = 0;
 let tsjaadStoryAudio = null;
+let roundActive = false;
 
 const tsjaadStoryLevels = [
   {
@@ -4081,35 +4147,36 @@ if(originalStartRound) {
       originalStartRound();
       return;
     }
-    
-    // Tsjaad Story Mode wave logic
+    if(spawning || gameWon) return;
+
+    playSound('round', 0.7);
+    document.getElementById('round').textContent = round;
+
     roundActive = true;
     autoRoundCountdown = 0;
     const level = window.currentTsjaadLevelConfig;
     const enemyTypes = window.tsjaadLevelEnemies;
-    let totalEnemies = Math.floor(5 + round * 2.5);
-    
+
+    // Build a queue of enemies to spawn for this round
+    let queue = [];
     if(level.isBossLevel && round === roundMax) {
-      // Final boss wave
       for(let i = 0; i < 2; i++) {
-        const enemyType = enemyTypes[Math.floor(Math.random() * (enemyTypes.length - 1))];
-        setTimeout(() => {
-          if(roundActive) spawnTsjaadStoryEnemy(enemyType, 0, 1);
-        }, i * 500);
+        queue.push(enemyTypes[Math.floor(Math.random() * (enemyTypes.length - 1))]);
       }
-      // FINAL BOSS - Super Robot Malaria Mug
-      setTimeout(() => {
-        if(roundActive) spawnTsjaadStoryEnemy('super_robot_malaria_mug', 0, 2.5);
-      }, 1500);
+      queue.push('super_robot_malaria_mug');
     } else {
+      const totalEnemies = Math.floor(5 + round * 2.5);
       for(let i = 0; i < totalEnemies; i++) {
-        const enemyType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
-        const delay = i * (800 + round * 150);
-        setTimeout(() => {
-          if(roundActive) spawnTsjaadStoryEnemy(enemyType, 0, 1 + round * 0.08);
-        }, delay);
+        queue.push(enemyTypes[Math.floor(Math.random() * enemyTypes.length)]);
       }
     }
+
+    // Use the normal spawning system
+    window._tsjaadStorySpawnQueue = queue;
+    window._tsjaadStorySpawnHpScale = 1 + round * 0.08;
+    spawnLeft = queue.length;
+    spawning = true;
+    spawnTimer = 0;
   };
 }
 
