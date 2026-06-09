@@ -133,6 +133,41 @@
 #paragonBtnYes:hover { background: linear-gradient(135deg, #6a0050, #aa0060); transform: scale(1.1) !important; }
 #paragonBtnNo { padding: 18px 30px; font-size: 20px; font-weight: bold; border: 3px solid #666; border-radius: 15px; cursor: pointer; background: #222; color: #888; margin: 10px; transition: all 0.3s; }
 #paragonBtnNo:hover { background: #333; border-color: #888; color: #aaa; }
+/* ===== XP / LEVEL SYSTEM ===== */
+#xpBar { display:flex; align-items:center; gap:6px; margin:8px 0 4px; }
+#xpBarBg { flex:1; height:10px; background:#1a1a1a; border-radius:5px; border:1px solid #444; overflow:hidden; }
+#xpBarFill { height:100%; background:linear-gradient(90deg,#7700ff,#cc00ff,#ff88ff); border-radius:5px; transition:width 0.4s ease; }
+#xpLabel { font-size:11px; color:#cc88ff; white-space:nowrap; }
+#levelBadge { font-size:13px; font-weight:bold; color:#ff88ff; text-shadow:0 0 8px rgba(255,0,255,0.5); white-space:nowrap; }
+#levelUpOverlay { position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:4000; display:flex; justify-content:center; align-items:flex-start; padding-top:80px; }
+#levelUpBanner { background:linear-gradient(135deg,#2a0040,#4a0060,#1a0030); border:3px solid #ff00ff; border-radius:20px; padding:24px 50px; text-align:center; opacity:0; transform:translateY(-40px) scale(0.8); transition:all 0.4s ease; pointer-events:none; box-shadow:0 0 60px rgba(255,0,255,0.6); }
+#levelUpBanner.show { opacity:1; transform:translateY(0) scale(1); }
+#levelUpBanner h2 { font-size:32px; color:#ff88ff; text-shadow:0 0 20px rgba(255,0,255,0.8); margin-bottom:6px; }
+#levelUpBanner p { font-size:18px; color:#cc88ff; }
+#xpShopOverlay { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:3500; display:none; justify-content:center; align-items:center; backdrop-filter:blur(8px); }
+#xpShopOverlay.open { display:flex; }
+#xpShopPanel { background:linear-gradient(160deg,#1a0030,#2a0050,#0a0020); border:4px solid #cc00ff; border-radius:24px; padding:30px 35px; width:min(720px,95vw); max-height:85vh; overflow-y:auto; box-shadow:0 0 80px rgba(200,0,255,0.4); position:relative; }
+#xpShopPanel h2 { font-size:28px; color:#ff88ff; text-align:center; margin-bottom:6px; text-shadow:0 0 20px rgba(255,0,255,0.6); }
+#xpShopBalance { text-align:center; font-size:16px; color:#cc88ff; margin-bottom:18px; }
+.xp-tab-bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+.xp-tab { flex:1; min-width:80px; padding:10px 6px; font-size:13px; font-weight:bold; border:2px solid #550077; border-radius:10px; background:#1a0030; color:#cc88ff; cursor:pointer; transition:all 0.2s; text-align:center; }
+.xp-tab:hover { background:#2a0050; border-color:#cc00ff; }
+.xp-tab.active { background:linear-gradient(135deg,#3a0060,#5a0090); border-color:#ff00ff; color:#ff88ff; }
+.xp-shop-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media(max-width:500px){ .xp-shop-grid { grid-template-columns:1fr; } }
+.xp-item { background:rgba(80,0,120,0.25); border:2px solid #550077; border-radius:12px; padding:12px; cursor:pointer; transition:all 0.2s; }
+.xp-item:hover:not(.xp-item-owned):not(.xp-item-locked) { background:rgba(120,0,180,0.4); border-color:#cc00ff; transform:scale(1.02); }
+.xp-item-owned { border-color:#00cc66 !important; background:rgba(0,100,50,0.2) !important; cursor:default; }
+.xp-item-locked { opacity:0.45; cursor:not-allowed; }
+.xp-item-name { font-size:14px; font-weight:bold; color:#ff88ff; margin-bottom:3px; }
+.xp-item-desc { font-size:11px; color:#aaa; margin-bottom:6px; line-height:1.4; }
+.xp-item-cost { font-size:13px; color:#cc88ff; font-weight:bold; }
+.xp-item-cost.affordable { color:#ff00ff; text-shadow:0 0 8px rgba(255,0,255,0.4); }
+.xp-item-owned-label { font-size:12px; color:#00cc66; font-weight:bold; }
+#closeXpShop { position:absolute; top:14px; right:18px; background:none; border:none; color:#cc88ff; font-size:26px; cursor:pointer; width:auto; margin:0; padding:0; }
+#closeXpShop:hover { color:#ff88ff; }
+#xpShopBtn { background:linear-gradient(135deg,#2a0040,#4a0060); border-color:#cc00ff !important; color:#ff88ff !important; font-size:12px; padding:8px; margin-top:4px; }
+#xpShopBtn:hover { background:linear-gradient(135deg,#3a0060,#6a0090) !important; }
 /* Map Selection */
 #mapSelection { display:flex; flex-direction:column; gap:16px; padding:20px; max-width:1400px; z-index:10; width:100%; }
 .tier-section { background:rgba(0,0,0,0.25); border-radius:16px; padding:12px 18px; border:2px solid rgba(139,69,19,0.3); }
@@ -234,6 +269,28 @@
         <button class="lang-btn" id="lang-de" onclick="setLang('de')"><span class="flag">🇩🇪</span><span>Deutsch</span></button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- LEVEL UP BANNER -->
+<div id="levelUpOverlay">
+  <div id="levelUpBanner">
+    <h2>⭐ LEVEL UP! ⭐</h2>
+    <p id="levelUpText">Je bent nu Level 2!</p>
+  </div>
+</div>
+
+<!-- XP SHOP -->
+<div id="xpShopOverlay">
+  <div id="xpShopPanel">
+    <button id="closeXpShop" onclick="closeXpShop()">✕</button>
+    <h2>⭐ TOREN WINKEL</h2>
+    <div id="xpShopBalance">✨ <span id="xpShopXP">0</span> XP beschikbaar | Level <span id="xpShopLevel">1</span></div>
+    <div class="xp-tab-bar">
+      <button class="xp-tab active" onclick="showXpTab('upgrades',this)">⬆️ Tier 4</button>
+      <button class="xp-tab" onclick="showXpTab('paragons',this)">👑 Paragons</button>
+    </div>
+    <div id="xpShopContent"></div>
   </div>
 </div>
 
@@ -388,6 +445,12 @@
   <div id="autoRoundMsg" class="small" style="color:#ff6b35; font-weight:bold;"></div>
   <div id="virusWarnEl" class="small" style="color:#00ff44;font-weight:bold;text-shadow:0 0 8px #00ff44;display:none;"></div>
   <hr style="margin:10px 0; border-color:#444;">
+  <div id="xpBar">
+    <span id="levelBadge">Lv.1</span>
+    <div id="xpBarBg"><div id="xpBarFill" style="width:0%"></div></div>
+    <span id="xpLabel">0/50 XP</span>
+  </div>
+  <button id="xpShopBtn" onclick="openXpShop()">⭐ Toren Winkel</button>
   <button onclick="selectTower('speer')" id="tower-speer">⚔️ Speer Werper (€80)</button>
   <button onclick="selectTower('boog')" id="tower-boog">🏹 Boog Schutter (€125)</button>
   <button onclick="selectTower('fakkel')" id="tower-fakkel">🔥 Fakkel Drager (€150)</button>
@@ -539,6 +602,7 @@ function handleOverlayClick(e) { if (e.target === document.getElementById('setti
 (function loadSettings() {
   const savedLang = localStorage.getItem('tsjaadTD_lang');
   if (savedLang) { currentLang = savedLang; document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active')); const btn = document.getElementById('lang-' + savedLang); if (btn) btn.classList.add('active'); applyTranslations(); }
+  loadXP();
 })();
 
 // ===== PATH DATA =====
@@ -623,6 +687,7 @@ function startMalariaMissie() {
   gamePaths = [path];
   enemies=[]; towers=[]; projectiles=[]; explosions=[]; bananas=[]; landmines=[];
   money = 500000; lives = 30; round = 1; totalMoneyEarned = 0;
+  _xpEnemiesThisGame=0; _xpRoundsThisGame=0;
   autoStartRounds = false; autoRoundCountdown = 0;
   const autoBtn = document.getElementById('autoStartBtn');
   if(autoBtn){ autoBtn.textContent='⏩ Auto-Start: UIT'; autoBtn.style.background='#1a3a1a'; autoBtn.style.borderColor='#2a5a2a'; autoBtn.style.color='#6dbf6d'; }
@@ -869,6 +934,7 @@ const sounds = {
   sniper:     new Audio(BASE_AUDIO + 'Sniper.mp3'),
   upgrade:    new Audio(BASE_AUDIO + 'Upgrade.mp3'),
   heal:       new Audio(BASE_AUDIO + 'Heal.mp3'),
+  levelup:    new Audio(BASE_AUDIO + 'LevelUp.mp3'),
 };
 // Set music to loop at default volume
 ['themeStandaard','themePlaag','themeHard','themeSpeed','themeBoss','themeMutatie','themeTsjaad','themeDubbelHealth','themeArmoede','themeVirus'].forEach(k=>{
@@ -897,6 +963,204 @@ function playSound(name, vol=0.7) {
   } catch(e){}
 }
 
+// ===== XP / LEVEL SYSTEM =====
+const XP_SAVE_KEY = 'tsjaadTD_xp_v1';
+const XP_UNLOCKS_KEY = 'tsjaadTD_unlocks_v1';
+
+let playerXP = 0;
+let playerLevel = 1;
+let xpUnlocks = {}; // {itemId: true}
+
+// XP needed to go from level N to N+1: base 50, +10 per extra level lost (tracked separately)
+// Each life lost during a game adds 10 to the threshold of all future level-ups
+let xpLostLives = 0; // accumulated lives lost across all games (saved)
+const XP_LOST_LIVES_KEY = 'tsjaadTD_lostlives_v1';
+
+function xpThreshold(level) {
+  // 50 xp per level + 10 per accumulated lost life
+  return (level * 50) + (xpLostLives * 10);
+}
+
+function loadXP() {
+  const raw = localStorage.getItem(XP_SAVE_KEY);
+  if(raw){ const d = JSON.parse(raw); playerXP = d.xp||0; playerLevel = d.level||1; }
+  const rawU = localStorage.getItem(XP_UNLOCKS_KEY);
+  if(rawU) xpUnlocks = JSON.parse(rawU);
+  const rawL = localStorage.getItem(XP_LOST_LIVES_KEY);
+  if(rawL) xpLostLives = parseInt(rawL)||0;
+  updateXpUI();
+}
+
+function saveXP() {
+  localStorage.setItem(XP_SAVE_KEY, JSON.stringify({xp: playerXP, level: playerLevel}));
+  localStorage.setItem(XP_UNLOCKS_KEY, JSON.stringify(xpUnlocks));
+  localStorage.setItem(XP_LOST_LIVES_KEY, String(xpLostLives));
+}
+
+function addXP(amount, label) {
+  if(!amount || amount <= 0) return;
+  playerXP += amount;
+  saveXP();
+  updateXpUI();
+  checkLevelUp();
+}
+
+function onLifeLost() {
+  xpLostLives++;
+  saveXP();
+}
+
+function checkLevelUp() {
+  let leveled = false;
+  while(playerXP >= xpThreshold(playerLevel)) {
+    playerXP -= xpThreshold(playerLevel);
+    playerLevel++;
+    leveled = true;
+    saveXP();
+    updateXpUI();
+  }
+  if(leveled) showLevelUpBanner();
+}
+
+function updateXpUI() {
+  const levelEl = document.getElementById('levelBadge');
+  const fillEl = document.getElementById('xpBarFill');
+  const labelEl = document.getElementById('xpLabel');
+  if(!levelEl) return;
+  const threshold = xpThreshold(playerLevel);
+  const pct = Math.min(100, Math.floor((playerXP / threshold) * 100));
+  levelEl.textContent = 'Lv.' + playerLevel;
+  fillEl.style.width = pct + '%';
+  labelEl.textContent = playerXP + '/' + threshold + ' XP';
+}
+
+let _lvlUpTimeout = null;
+function showLevelUpBanner() {
+  const banner = document.getElementById('levelUpBanner');
+  const text = document.getElementById('levelUpText');
+  text.textContent = 'Je bent nu Level ' + playerLevel + '! 🎉';
+  banner.classList.add('show');
+  playSound('levelup', 0.8);
+  if(_lvlUpTimeout) clearTimeout(_lvlUpTimeout);
+  _lvlUpTimeout = setTimeout(()=>{ banner.classList.remove('show'); }, 3500);
+}
+
+// XP rewards at game end
+const MODE_XP_BONUS = {
+  standard: 100, plaag: 200, hard: 500, speed: 200,
+  armoede: 200, boss: 200, mutatie: 200, dubbelhealth: 200,
+  tsjaadmodus: 800, tsjaadplus: 2500, lichtsnelheid: 300,
+  virus: 200, malariazwerm: 200
+};
+
+let _xpEnemiesThisGame = 0;
+let _xpRoundsThisGame = 0;
+
+function xpOnEnemyKill() {
+  _xpEnemiesThisGame += 2;
+}
+function xpOnRoundComplete() {
+  _xpRoundsThisGame += 5;
+}
+function xpOnGameEnd() {
+  const modeBonus = MODE_XP_BONUS[gameMode] || 100;
+  const total = _xpEnemiesThisGame + _xpRoundsThisGame + modeBonus;
+  _xpEnemiesThisGame = 0; _xpRoundsThisGame = 0;
+  if(total > 0) addXP(total);
+}
+
+// ===== XP SHOP ITEMS =====
+const XP_SHOP_ITEMS = {
+  upgrades: [
+    { id:'t4_speer',    name:'⚔️ Speer Tier 4',       desc:'Unlocks Tier 4 upgrade voor Speer Werper: +50% schade, ketting-aanval',    cost:150 },
+    { id:'t4_boog',     name:'🏹 Boog Tier 4',         desc:'Unlocks Tier 4 upgrade voor Boog Schutter: +50% schade, vergif aura',       cost:150 },
+    { id:'t4_fakkel',   name:'🔥 Fakkel Tier 4',       desc:'Unlocks Tier 4 voor Fakkel Drager: brand verspreidt naar nabije vijanden',   cost:150 },
+    { id:'t4_plaag',    name:'💉 Plaag Tier 4',         desc:'Unlocks Tier 4 voor Plaag Dokter: vergif stopt vijand volledig',            cost:200 },
+    { id:'t4_aap',      name:'🐵 Aap Tier 4',           desc:'Unlocks Tier 4 voor Wilde Aap: gooit 3 bananen tegelijk',                  cost:200 },
+    { id:'t4_geweer',   name:'🔫 Soldaat Tier 4',       desc:'Unlocks Tier 4 voor Soldaat: doorboort meerdere vijanden per schot',       cost:200 },
+    { id:'t4_atoom',    name:'💣 Atoom Tier 4',         desc:'Unlocks Tier 4 voor Atoom: dubbele AoE straal, hogere nuke schade',        cost:250 },
+    { id:'t4_sniper',   name:'🎯 Sniper Tier 4',        desc:'Unlocks Tier 4 voor Sniper: één schot doodt alles behalve bosses',         cost:300 },
+    { id:'t4_tsjaad',   name:'⚡ Tsjaadinator Tier 4',  desc:'Unlocks Tier 4 voor Tsjaadinator: raak alle vijanden op het scherm',       cost:400 },
+    { id:'t4_hut',      name:'🛖 Hut Tier 4',           desc:'Unlocks Tier 4 voor Hut: geeft +25% aanvalssnelheid aan alle torens',     cost:300 },
+    { id:'t4_katoen',   name:'🌾 Katoen Tier 4',        desc:'Unlocks Tier 4 voor Katoen: genereert ook XP per ronde',                  cost:250 },
+  ],
+  paragons: [
+    { id:'para_speer',    name:'👑 Speer Paragon',        desc:'Paragon unlock voor Speer Werper — oneindige range + wereldwijde range boost',    cost:200 },
+    { id:'para_boog',     name:'👑 Boog Paragon',          desc:'Paragon unlock voor Boog Schutter — HP drain op zwakke vijanden',                cost:200 },
+    { id:'para_fakkel',   name:'👑 Fakkel Paragon',        desc:'Paragon unlock voor Fakkel Drager — mega brand (120 dmg/s)',                     cost:200 },
+    { id:'para_plaag',    name:'👑 Plaag Dokter Paragon',  desc:'Paragon unlock voor Plaag Dokter — geeft levens terug elke paar rondes',         cost:250 },
+    { id:'para_aap',      name:'👑 Aap Paragon',           desc:'Paragon unlock voor Wilde Aap — +35% aanvalssnelheid voor torens in radius',     cost:250 },
+    { id:'para_geweer',   name:'👑 Soldaat Paragon',       desc:'Paragon unlock voor Soldaat — laser doorboort metalen vijanden',                  cost:250 },
+    { id:'para_atoom',    name:'👑 Atoom Paragon',         desc:'Paragon unlock voor Atoom — straling verspreidt bij elke hit',                   cost:300 },
+    { id:'para_katoen',   name:'👑 Katoen Paragon',        desc:'Paragon unlock voor Katoen — compound groei + -30% ult kosten aura',             cost:300 },
+    { id:'para_sniper',   name:'👑 Sniper Paragon',        desc:'Paragon unlock voor Sniper — elke 5s: explosie verdooft alle vijanden',          cost:350 },
+    { id:'para_hut',      name:'👑 Hut Paragon',           desc:'Paragon unlock voor Hut — +300% aanvalssnelheid voor Speer/Boog/Fakkel',         cost:400 },
+    { id:'para_tsjaad',   name:'⭐ GODDELIJKE TSJAADINATOR', desc:'Paragon unlock voor Tsjaadinator — ONMOGELIJKE KRACHT. Vernietigt alles!',    cost:1000 },
+  ]
+};
+
+// Check if a paragon/upgrade is allowed based on unlocks
+function isParagonUnlocked(towerKey) {
+  const id = 'para_' + (towerKey === 'plaagdokter' ? 'plaag' : towerKey === 'geweer' ? 'geweer' : towerKey === 'tsjaadinator' ? 'tsjaad' : towerKey);
+  return !!xpUnlocks[id];
+}
+function isTier4Unlocked(towerKey) {
+  const keyMap = {plaagdokter:'plaag', geweer:'geweer', tsjaadinator:'tsjaad'};
+  const id = 't4_' + (keyMap[towerKey] || towerKey);
+  return !!xpUnlocks[id];
+}
+
+let _xpActiveTab = 'upgrades';
+function openXpShop() {
+  document.getElementById('xpShopOverlay').classList.add('open');
+  document.getElementById('xpShopXP').textContent = playerXP;
+  document.getElementById('xpShopLevel').textContent = playerLevel;
+  renderXpShop(_xpActiveTab);
+}
+function closeXpShop() {
+  document.getElementById('xpShopOverlay').classList.remove('open');
+}
+function showXpTab(tab, btn) {
+  _xpActiveTab = tab;
+  document.querySelectorAll('.xp-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderXpShop(tab);
+}
+function renderXpShop(tab) {
+  document.getElementById('xpShopXP').textContent = playerXP;
+  const items = XP_SHOP_ITEMS[tab] || [];
+  let html = '<div class="xp-shop-grid">';
+  for(const item of items) {
+    const owned = !!xpUnlocks[item.id];
+    const canAfford = playerXP >= item.cost;
+    let cls = 'xp-item';
+    if(owned) cls += ' xp-item-owned';
+    html += `<div class="${cls}" onclick="${owned?'':'buyXpItem(\''+item.id+'\','+item.cost+')'}">`;
+    html += `<div class="xp-item-name">${item.name}</div>`;
+    html += `<div class="xp-item-desc">${item.desc}</div>`;
+    if(owned){
+      html += `<div class="xp-item-owned-label">✅ Unlocked!</div>`;
+    } else {
+      html += `<div class="xp-item-cost ${canAfford?'affordable':''}">⭐ ${item.cost} XP${canAfford?' ← kopen':' (te weinig XP)'}</div>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  document.getElementById('xpShopContent').innerHTML = html;
+}
+function buyXpItem(id, cost) {
+  if(xpUnlocks[id]) return;
+  if(playerXP < cost){ showRoundMsg('⭐ Niet genoeg XP!'); return; }
+  playerXP -= cost;
+  xpUnlocks[id] = true;
+  saveXP();
+  updateXpUI();
+  renderXpShop(_xpActiveTab);
+  document.getElementById('xpShopXP').textContent = playerXP;
+  playSound('upgrade', 0.7);
+  showRoundMsg('✅ Unlock gekocht!');
+}
+
 // ===== GAME MODE SELECTION =====
 function startGame(mode) {
   gameMode = mode;
@@ -917,6 +1181,7 @@ function startGame(mode) {
   // Reset per-game state
   enemies=[]; towers=[]; projectiles=[]; explosions=[]; bananas=[]; landmines=[];
   money=500; lives=20; round=1; totalMoneyEarned=0;
+  _xpEnemiesThisGame=0; _xpRoundsThisGame=0;
   autoStartRounds=false; autoRoundCountdown=0;
   const autoBtn = document.getElementById('autoStartBtn');
   if(autoBtn){ autoBtn.textContent='⏩ Auto-Start: UIT'; autoBtn.style.background='#1a3a1a'; autoBtn.style.borderColor='#2a5a2a'; autoBtn.style.color='#6dbf6d'; }
@@ -1338,11 +1603,13 @@ function updateTooltip(tw, cx, cy){
     if(tw.key === 'hut'){
       const paraCost = HUT_PARAGON_COST;
       const canAffordPara = money >= paraCost;
-      html += `<div class="tt-upgrade-header ult" style="color:${canAffordPara&&!paragonActive?'#ff00ff':'#f44'}">⭐ PARAGON — €${paraCost}${paragonActive?' ⚠️':''}</div>`;
+      const hutParaUnlocked = isParagonUnlocked('hut');
+      html += `<div class="tt-upgrade-header ult" style="color:${hutParaUnlocked&&canAffordPara&&!paragonActive?'#ff00ff':'#f44'}">⭐ PARAGON — €${paraCost}${paragonActive?' ⚠️':''}${!hutParaUnlocked?' 🔒 (Toren Winkel)':''}</div>`;
       html += `<div style="font-size:9px;color:#88ddff;margin-top:2px;">⭐ Speer/Boog/Fakkel in radius: 300%+5%/lvl extra aanvalssnelheid</div>`;
     } else {
     const cost = cfg.ultCost * 10;
     const canAfford = money >= cost;
+    const paraUnlocked = tw.key==='tsjaadinator' ? !!xpUnlocks['para_tsjaad'] : isParagonUnlocked(tw.key);
     const specTexts2={
       speer:'♾️ Oneindige range + wereldwijde range boost',
       boog:'💜 Zwakke mutatie - HP% drain',
@@ -1355,7 +1622,7 @@ function updateTooltip(tw, cx, cy){
       sniper:'💥 Explosie verdooft alle vijanden in radius',
     };
     const sameTypeCount = towers.filter(t => t !== tw && t.key === tw.key).length;
-    html += `<div class="tt-upgrade-header ult" style="color:${canAfford&&!paragonActive?'#ff00ff':'#f44'}">⭐ PARAGON — €${cost}${paragonActive?' ⚠️':''}</div>`;
+    html += `<div class="tt-upgrade-header ult" style="color:${paraUnlocked&&canAfford&&!paragonActive?'#ff00ff':'#f44'}">⭐ ${tw.key==='tsjaadinator'?'GOD MODE — €500,000':'PARAGON — €'+cost}${paragonActive?' ⚠️':''}${!paraUnlocked?' 🔒 (Toren Winkel)':''}</div>`;
     if(paragonActive) html += `<div style="font-size:9px;color:#ff6b35;margin-top:2px;">⚠️ Verkoop andere Paragon eerst! Zoveel Tsjaad kracht is onmogelijk!!!</div>`;
     if(sameTypeCount > 0){
       const ultSameType = towers.filter(t => t !== tw && t.key === tw.key && t.ultimate).length;
@@ -1640,6 +1907,7 @@ function handleHutUpgrade(t2){
   }
   if(!t2.paragon){
     // Paragon
+    if(!isParagonUnlocked('hut')){ showRoundMsg('⭐ Hut Paragon vereist unlock in Toren Winkel!'); return; }
     if(paragonActive){ showRoundMsg('⚠️ Er is al een Paragon actief!'); return; }
     money -= cost;
     t2.paragon = true; t2.paragonLevel = 0; t2.level = 5;
@@ -1717,6 +1985,10 @@ function handleUpgrade(t2){
 
   if(t2.ultimate){
     if(t2.key==='tsjaadinator'&&!t2.secret){
+      if(!xpUnlocks['para_tsjaad']){
+        showRoundMsg('⭐ Goddelijke Tsjaadinator vereist unlock (1000 XP) in Toren Winkel!');
+        return;
+      }
       const sCost=500000;
       if(money<sCost) return;
       money-=sCost;
@@ -1726,6 +1998,10 @@ function handleUpgrade(t2){
       playSound('sacrifice', 0.8);
       t2.upText=200;
     } else if(!t2.paragon && t2.key!=='tsjaadinator'){
+      if(!isParagonUnlocked(t2.key)){
+        showRoundMsg('⭐ Paragon vereist unlock in Toren Winkel!');
+        return;
+      }
       if(paragonActive){
         showRoundMsg('⚠️ Er is al een Paragon actief!');
         return;
@@ -2001,6 +2277,7 @@ function makeEnemy(t2){
 // ===== WIN & LOSS =====
 function winGame(){
   gameWon=true;
+  xpOnGameEnd();
   stopMusic();
   stopTimer();
   document.getElementById('finalRound').textContent=round;
@@ -2010,6 +2287,7 @@ function winGame(){
 }
 function loseGame(){
   gameWon=true;
+  xpOnGameEnd();
   stopMusic();
   stopTimer();
   const modeKey='mode-'+gameMode; const modeName=t(modeKey)||'STANDAARD';
@@ -2067,7 +2345,7 @@ function update(){
     if(spawnTimer<=0&&spawnLeft>0){ spawnEnemy(); spawnLeft--; spawnTimer=60-Math.min(40,round); }
     if(spawnLeft===0&&enemies.length===0){
       spawning=false;
-      const maxRound=getMaxRound();
+      xpOnRoundComplete();
       if(gameMode==='malariazwerm'){ winGame(); return; }
       if(round<maxRound) round++;
       // Virus modus: verwijder duurste toren elke 5 rondes
@@ -2487,11 +2765,12 @@ function update(){
         money += earnedReward; totalMoneyEarned += earnedReward;
       }
       if(!e.boss && !antiLagMode) playSound('kill', 0.4);
+      xpOnEnemyKill();
       return false;
     }
     const ePathEnd=gamePaths[e.pathIndex]||path;
     if(e.i>=ePathEnd.length-1){
-      if(e.mutation==='dodelijke'||e.mutation2==='dodelijke'||e.mutation3==='dodelijke') lives-=5; else lives--;
+      if(e.mutation==='dodelijke'||e.mutation2==='dodelijke'||e.mutation3==='dodelijke'){ lives-=5; onLifeLost(); } else { lives--; onLifeLost(); }
       if(towers.some(t=>t.key==='aap')){ monkeyRageTimer=600; if(!antiLagMode) playSound('monkey', 0.8); }
       if(e.mutation==='terugkerende'&&e.terugkerendeCount>0){ e.terugkerendeCount--; e.i=0; e.x=ePathEnd[0].x; e.y=ePathEnd[0].y; lives--; if(lives<=0){ loseGame(); return false; } return true; }
       if(lives<=0){ loseGame(); return false; }
