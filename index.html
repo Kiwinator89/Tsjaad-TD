@@ -246,7 +246,6 @@
   <div id="mainMenuScreen">
     <div class="main-menu-btns">
       <button class="mainMenuBtn playBtn" onclick="showPlayMenu()">🎮 SPEEL</button>
-<button class="mainMenuBtn specialBtn campaignBtn" onclick="startTsjaadVerhaal()">📜 TSJAAD CAMPAGNE</button>
       <button class="mainMenuBtn specialBtn" onclick="showSpecialMenu()">⭐ SPECIALE MISSIES</button>
       <button class="mainMenuBtn tutorialBtn" onclick="showTutorial()">📖 TUTORIAL</button>
       <button class="mainMenuBtn settingsMenuBtn" onclick="openSettings()">⚙️ INSTELLINGEN</button>
@@ -1015,6 +1014,11 @@ function getTowerRange(tw) {
       range *= (1 + boostPct);
     }
   }
+  // Hut upgrade 2: boogschutters in radius krijgen 50% extra range
+  if(tw.key === 'boog'){
+    const hutNearby = towers.find(ht => ht.key === 'hut' && ht.level >= 2 && Math.hypot(tw.x-ht.x, tw.y-ht.y) <= (towerBaseRanges['hut'] || towerTypes['hut'].range || 80) * (1 + ht.level * 0.05));
+    if(hutNearby) range *= 1.50;
+  }
   return range;
 }
 
@@ -1222,10 +1226,10 @@ function updateTooltip(tw, cx, cy){
     html += `<div class="tt-stat-row"><span class="tt-stat-label">⚔️ Dmg bonus</span><span class="tt-stat-val">+5 dmg (speer/boog/fakkel)</span></div>`;
     html += `<div class="tt-stat-row"><span class="tt-stat-label">📏 Range</span><span class="tt-stat-val">${fmtRange(effRange)}</span></div>`;
     if(tw.level >= 1) html += `<div class="tt-passive">💰 Torens in radius verdienen +20% per kill</div>`;
-    if(tw.level >= 2) html += `<div class="tt-passive">💵 +10g/s per vijand in radius</div>`;
+    if(tw.level >= 2) html += `<div class="tt-passive">🏹 Boogschutters in radius +50% range</div>`;
     if(tw.level >= 3) html += `<div class="tt-passive">🔩 Torens in radius raken metalen vijanden</div>`;
     if(tw.ultimate) html += `<div class="tt-passive">🎁 Elke ronde gratis toren te plaatsen!</div>`;
-    if(tw.paragon) html += `<div class="tt-passive" style="color:#ff88ff">⭐ Speer/Boog/Fakkel in radius: ${200 + 5*(tw.paragonLevel||0)}% schade bonus!</div>`;
+    if(tw.paragon) html += `<div class="tt-passive" style="color:#ff88ff">⭐ Speer/Boog/Fakkel in radius: ${300 + 5*(tw.paragonLevel||0)}% extra aanvalssnelheid!</div>`;
   } else if(tw.farm){
     let curIncome;
     if(tw.paragon){
@@ -1326,7 +1330,7 @@ function updateTooltip(tw, cx, cy){
     // Hut paragon
     if(tw.key==='hut'){
       const paraDmgPct = 200 + 5*(tw.paragonLevel||0);
-      html += `<div style="font-size:9px;color:#ff88ff;margin-top:2px;">⭐ Speer/Boog/Fakkel in radius: +${paraDmgPct}% schade</div>`;
+      html += `<div style="font-size:9px;color:#ff88ff;margin-top:2px;">⭐ Speer/Boog/Fakkel in radius: +${paraDmgPct}% aanvalssnelheid</div>`;
       html += `<div style="font-size:9px;color:#aaa;margin-top:2px;">+5% per paragon level</div>`;
     }
   } else if(tw.ultimate && tw.key!=='tsjaadinator'){
@@ -1335,7 +1339,7 @@ function updateTooltip(tw, cx, cy){
       const paraCost = HUT_PARAGON_COST;
       const canAffordPara = money >= paraCost;
       html += `<div class="tt-upgrade-header ult" style="color:${canAffordPara&&!paragonActive?'#ff00ff':'#f44'}">⭐ PARAGON — €${paraCost}${paragonActive?' ⚠️':''}</div>`;
-      html += `<div style="font-size:9px;color:#88ddff;margin-top:2px;">⭐ Speer/Boog/Fakkel doen 200%+5%/lvl meer schade in radius</div>`;
+      html += `<div style="font-size:9px;color:#88ddff;margin-top:2px;">⭐ Speer/Boog/Fakkel in radius: 300%+5%/lvl extra aanvalssnelheid</div>`;
     } else {
     const cost = cfg.ultCost * 10;
     const canAfford = money >= cost;
@@ -1364,7 +1368,7 @@ function updateTooltip(tw, cx, cy){
   } else if(tw.level < 3){
     const cost = tw.key==='hut' ? getHutUpgradeCost(tw) : getUpgradeCostForTower(tw);
     const canAfford = money >= cost;
-    const hutUpgradeDescriptions = ['💰 Torens in radius +20% kill reward','💵 +10g/s per vijand in radius','🔩 Torens in radius raken metalen vijanden'];
+    const hutUpgradeDescriptions = ['💰 Torens in radius +20% kill reward','🏹 Boogschutters in radius +50% extra range','🔩 Torens in radius raken metalen vijanden'];
     const hutDesc = tw.key==='hut' ? hutUpgradeDescriptions[tw.level] : '';
     html += `<div class="tt-upgrade-header" style="color:${canAfford?'#4fc3f7':'#f44'}">⬆️ Upgrade Lvl ${tw.level+1} — €${cost}</div>`;
     if(hutDesc) html += `<div style="font-size:9px;color:#aaffcc;margin-top:2px;">${hutDesc}</div>`;
@@ -1458,6 +1462,9 @@ function showParagonDialog(tw, cost){
 function closeParagonDialog(){
   pendingParagonTower = null;
   document.getElementById('paragonOverlay').classList.remove('open');
+  // Restore yes/no buttons to default state
+  document.getElementById('paragonBtnYes').style.display = '';
+  document.getElementById('paragonBtnNo').textContent = '❌ Annuleren';
 }
 function confirmParagon(){
   const t2 = pendingParagonTower;
@@ -1639,7 +1646,13 @@ function handleHutUpgrade(t2){
     paragonActive = true; paragonTower = t2;
     playSound('sacrifice', 0.8);
     t2.upText = 200;
-    showRoundMsg('⭐ Hut Paragon! Alle speerwerpers, boogschutters & fakkeldragers doen 200% extra schade!');
+    // Show paragon overlay notification
+    document.getElementById('paraCostDisplay').textContent = '⭐ Hut Paragon Actief!';
+    document.getElementById('paraSacrificeDisplay').innerHTML = '⚡ Speerwerpers, Boogschutters & Fakkeldragers in radius:<br><strong style="color:#ff88ff">+300% aanvalssnelheid (+5% per paragon level)</strong>';
+    document.getElementById('paragonOverlay').classList.add('open');
+    document.getElementById('paragonBtnYes').style.display = 'none';
+    document.getElementById('paragonBtnNo').textContent = '✅ Begrepen!';
+    showRoundMsg('⭐ Hut Paragon! Speer/Boog/Fakkel krijgen 300% extra aanvalssnelheid!');
   }
 }
 
@@ -1852,7 +1865,6 @@ function getMaxRound(){
   if(gameMode==='mutatie') return 35;
   if(gameMode==='plaag') return 999;
   if(gameMode==='tsjaadplus') return 50;
-  if(gameMode==='tsjaadstory') return roundMax || 5;
   return 30;
 }
 
@@ -1860,16 +1872,6 @@ function showRoundMsg(txt){ const el=document.getElementById('roundMsg'); el.tex
 
 // ===== SPAWN ENEMIES =====
 function spawnEnemy(){
-  // Tsjaad Story Mode: use queue
-  if(gameMode === 'tsjaadstory') {
-    const queue = window._tsjaadStorySpawnQueue;
-    if(!queue || queue.length === 0) return;
-    const enemyTypeKey = queue.shift();
-    const hpScale = window._tsjaadStorySpawnHpScale || 1;
-    spawnTsjaadStoryEnemy(enemyTypeKey, 0, hpScale);
-    return;
-  }
-
   const maxRound=getMaxRound();
   if(gameMode==='tsjaadplus'){
     const miniBossMap={10:'giraffe',20:'leeuw',30:'cheetah',40:'nijlpaard'};
@@ -2010,22 +2012,6 @@ function loseGame(){
   gameWon=true;
   stopMusic();
   stopTimer();
-  if(gameMode === 'tsjaadstory'){
-    document.getElementById('titleScreen').style.display = 'flex';
-    document.getElementById('ui').style.display = 'none';
-    document.getElementById('titleScreen').innerHTML = `
-      <div style="text-align:center; z-index:10; max-width:900px;">
-        <h1 style="color:#8b0000; font-size:80px; margin:20px; text-shadow:0 0 40px rgba(255,69,0,0.9);">☠️ DEFEAT ☠️</h1>
-        <p style="font-size:32px; color:#ff6600; margin:20px;">Het virus heeft gewonnen deze keer...</p>
-        <p style="font-size:24px; color:#fff; margin:30px;">Tsjaadinator zal het opnieuw proberen!</p>
-        <button style="margin:20px; padding:25px 50px; font-size:24px; background:#ff6600; color:#fff; border:4px solid #ffd700; border-radius:15px; cursor:pointer; font-weight:bold;"
-          onclick="loadTsjaadLevel(${tsjaadCurrentLevel})">🔄 PROBEER OPNIEUW</button>
-        <button style="margin:20px; padding:25px 50px; font-size:24px; background:#333; color:#fff; border:4px solid #666; border-radius:15px; cursor:pointer; font-weight:bold;"
-          onclick="location.reload()">↩️ TERUG</button>
-      </div>
-    `;
-    return;
-  }
   const modeKey='mode-'+gameMode; const modeName=t(modeKey)||'STANDAARD';
   let deathMsg, deathStat;
   if(currentLang==='de'){ deathMsg=`<strong>DU HAST ${round} RUNDEN IN ${modeName} ÜBERLEBT!</strong><br>DIE FEINDE WAREN ZU STARK...`; deathStat=`💀 Gefallen in Runde: <strong>${round}</strong><br>💰 Gesamtverdienst: <strong>€${totalMoneyEarned}</strong>`; }
@@ -2083,18 +2069,7 @@ function update(){
       spawning=false;
       const maxRound=getMaxRound();
       if(gameMode==='malariazwerm'){ winGame(); return; }
-      if(gameMode==='tsjaadstory'){
-        if(round >= maxRound){
-          // Level voltooid!
-          tsjaadCurrentLevel++;
-          localStorage.setItem('tsjaadTD_campaign_level', tsjaadCurrentLevel);
-          setTimeout(()=>{ showTsjaadStoryScreen(); }, 2000);
-          gameWon = true;
-          return;
-        } else {
-          round++;
-        }
-      } else if(round<maxRound) round++;
+      if(round<maxRound) round++;
       // Virus modus: verwijder duurste toren elke 5 rondes
       if(gameMode==='virus' && round>1 && (round-1)%5===0) virusRemoveMostExpensiveTower(round-1);
     }
@@ -2239,6 +2214,7 @@ function update(){
           {
             let hutDmgBonus = 0;
             let hutRewardMult = 1;
+            let hutRateBoost = 1;
             const isBuffedType = tw.key==='speer' || tw.key==='boog' || tw.key==='fakkel';
             for(const ht of towers){
               if(ht.key !== 'hut' || ht === tw) continue;
@@ -2247,15 +2223,19 @@ function update(){
                 // +5 dmg bonus ONLY for speer/boog/fakkel
                 if(isBuffedType) hutDmgBonus += 5;
                 if(ht.level >= 1) hutRewardMult = Math.max(hutRewardMult, 1.20);
-                // Paragon: speer/boog/fakkel do 200%+5%*paragonLevel extra dmg
+                // Paragon: speer/boog/fakkel krijgen 300%+5%*paragonLevel extra aanvalssnelheid
                 if(ht.paragon && isBuffedType){
-                  const paraMult = 2.0 + 0.05*(ht.paragonLevel||0);
-                  hutDmgBonus += tw.dmg * (paraMult - 1);
+                  const speedMult = 3.0 + 0.05*(ht.paragonLevel||0);
+                  hutRateBoost = Math.max(hutRateBoost, speedMult);
                 }
               }
             }
             p.dmg += hutDmgBonus;
             p.hutRewardMult = hutRewardMult;
+            // Apply attack speed boost: lower cool means faster attacks
+            if(hutRateBoost > 1){
+              tw.cool = Math.max(1, Math.floor(tw.rate / (gameSpeedMult||1) / hutRateBoost / (tw.monkey && monkeyRageTimer>0 ? 2 : 1)));
+            }
           }
           if(tw.key==='sniper'){
             p.sniperSlowOnHit = !!tw.sniperSlowOnHit || tw.ultimate;
@@ -2306,24 +2286,8 @@ function update(){
     }
     if(tw.boosted&&tw.boostEndTime>0){ tw.boostEndTime--; if(tw.boostEndTime<=0) tw.boosted=false; }
 
-    // Hut: upgrade 2 — earn 10 gold/sec per enemy in radius
-    if(tw.key==='hut' && tw.level >= 2){
-      const hutRange = getTowerRange(tw);
-      tw.hutTickTimer = (tw.hutTickTimer||0) + 1;
-      if(tw.hutTickTimer >= 60){
-        tw.hutTickTimer = 0;
-        let enemiesInRange = 0;
-        for(const e of enemies){
-          if(Math.hypot(e.x-tw.x,e.y-tw.y) < hutRange) enemiesInRange++;
-        }
-        if(enemiesInRange > 0){
-          const earned = enemiesInRange * 10;
-          money += earned;
-          totalMoneyEarned += earned;
-          document.getElementById('money').textContent = money;
-        }
-      }
-    }
+    // Hut: upgrade 2 — boogschutters in radius krijgen 50% extra range (applied via getTowerRange)
+    // (effect is handled in getTowerRange — see hutBoogRangeBoost flag)
   }
 
   const eggsToHatch = birdEggs.filter(e=>e.timer<=0&&!e.destroyed);
@@ -2487,17 +2451,6 @@ function update(){
   const toSpawn=[];
   enemies=enemies.filter(e=>{
     if(e.hp<=0){
-      if(e.boss && gameMode==='tsjaadstory'){
-        money += e.reward; totalMoneyEarned += e.reward;
-        document.getElementById('money').textContent = money;
-        playSound('kill', 0.8);
-        // Boss verslagen: level voltooid
-        tsjaadCurrentLevel++;
-        localStorage.setItem('tsjaadTD_campaign_level', tsjaadCurrentLevel);
-        gameWon = true;
-        setTimeout(() => { showTsjaadStoryScreen(); }, 2000);
-        return false;
-      }
       if(e.boss && gameMode!=='malariazwerm'){ winGame(); return false; }
       if(e.boss && gameMode==='malariazwerm'){ money+=e.reward; totalMoneyEarned+=e.reward; document.getElementById('money').textContent=money; playSound('kill',0.8); return false; }
 
@@ -3967,321 +3920,7 @@ function drawCritTexts(){
 
 function loop(){ update(); draw(); if(hoveredTower){ updateTooltip(hoveredTower, lastMouseClientX, lastMouseClientY); } if(!gameWon) requestAnimationFrame(loop); }
 
-// ===== 🦁 TSJAAD VERHAAL - 5 LEVEL STORY MODE 🦁 =====
-// Verhaal: De geheime organisatie R.E.G.E.R.I.N.G maakt een virus om vaccinaties te verkopen
-// Niemand kan het betalen, dus Tsjaadinator en zijn team gaan de plaag stoppen!
-// LEVEL 5: VULKAAN - SUPER ROBOT MALARIA MUG!
-
-let tsjaadStoryMode = false;
-let tsjaadCurrentLevel = 0;
-let tsjaadStoryAudio = null;
-let roundActive = false;
-
-const tsjaadStoryLevels = [
-  {
-    name: '⚔️ LEVEL 1: Het Dorp Onder Aanval',
-    description: 'R.E.G.E.R.I.N.G heeft het virus vrijgelaten! Geïnfecteerde dieren vallen het dorp aan.',
-    briefing: 'Tsjaadinator verzamelt alle 11 strijdkrachten:\n⚔️ Speer Werper\n🏹 Boog Schutter\n🔥 Fakkel Drager\n💉 Plaag Dokter\n🐵 Wilde Aap\n🔫 Soldaat\n💣 Atoombommenwerper\n🛖 De Hut\n🌾 Katoen Plantage\n⚡ Tsjaadinator\n🎯 Sniper',
-    money: 2000,
-    lives: 25,
-    rounds: 8,
-    enemies: ['infected_antelope', 'infected_monkey', 'infected_dog'],
-    path: [{x:-20,y:250},{x:150,y:250},{x:150,y:450},{x:400,y:450},{x:400,y:150},{x:650,y:150},{x:650,y:400},{x:900,y:400},{x:900,y:200},{x:1220,y:200}]
-  },
-  {
-    name: '🏜️ LEVEL 2: Woestijn Epidemie',
-    description: 'De virus verspreidt zich in de Tsjaadse woestijn. Steeds meer dieren worden besmet!',
-    briefing: 'Tsjaadinator voert aanvallen uit in:\n🐪 KAMELEN LEGIOEN\n🦅 ARENDEN SQUADRON\n🐍 SLANGENVERDEDIGERS',
-    money: 3500,
-    lives: 30,
-    rounds: 12,
-    enemies: ['infected_camel', 'infected_eagle', 'infected_snake', 'infected_hyena'],
-    path: [{x:-20,y:350},{x:200,y:350},{x:200,y:150},{x:450,y:150},{x:450,y:500},{x:700,y:500},{x:700,y:200},{x:950,y:200},{x:950,y:450},{x:1220,y:450}]
-  },
-  {
-    name: '🏙️ LEVEL 3: Stad in Paniek',
-    description: 'R.E.G.E.R.I.N.G is gevonden in de hoofdstad! Honderden mensen zijn geïnfecteerd.',
-    briefing: 'Slag om de stad:\n🏗️ GEBOUWEN VERDEDIGING\n🚁 HELIKOPTER LUCHTSTEUN\n💣 BOMBARDEERDERS INZET\n⚡ ELITE SCHERPSCHUTTERS',
-    money: 5000,
-    lives: 35,
-    rounds: 15,
-    enemies: ['infected_rat', 'infected_mosquito', 'infected_bat', 'infected_monkey', 'infected_dog'],
-    path: [{x:-20,y:200},{x:100,y:200},{x:100,y:400},{x:300,y:400},{x:300,y:100},{x:500,y:100},{x:500,y:500},{x:800,y:500},{x:800,y:250},{x:1220,y:250}]
-  },
-  {
-    name: '🏢 LEVEL 4: R.E.G.E.R.I.N.G Basis',
-    description: 'Het hoofdkwartier van R.E.G.E.R.I.N.G! Gevonden in de verlaten fabriek.',
-    briefing: 'Finale aanval op basis:\n🔬 VIRUS MUTANTEN\n🤖 MEDISCHE ROBOTS\n🛡️ PLASMA VERDEDIGING\n⚔️ ELITE GARDE',
-    money: 8000,
-    lives: 40,
-    rounds: 18,
-    enemies: ['infected_mosquito', 'infected_rat', 'infected_bat', 'infected_spider', 'infected_monkey'],
-    path: [{x:-20,y:250},{x:150,y:250},{x:150,y:100},{x:400,y:100},{x:400,y:450},{x:650,y:450},{x:650,y:150},{x:950,y:150},{x:950,y:400},{x:1220,y:400}]
-  },
-  {
-    name: '🌋 LEVEL 5: FINAL BOSS - VULKAAN',
-    description: 'SUPER ROBOT MALARIA MUG! In het hart van een actieve vulkaan!',
-    briefing: '⚠️ WAARSCHUWING ⚠️\nDe ultieme vijand wacht!\n🦟 SUPER ROBOT MALARIA MUG\n⚡ ONEINDIG VERMOGEN\n💥 DUBBELE GEZONDHEID BOSS\n🔥 VULKAAN ARENA',
-    money: 15000,
-    lives: 50,
-    rounds: 20,
-    enemies: ['infected_mosquito', 'infected_mosquito', 'super_robot_malaria_mug'],
-    path: [{x:-20,y:300},{x:150,y:300},{x:150,y:100},{x:400,y:100},{x:400,y:500},{x:650,y:500},{x:650,y:200},{x:900,y:200},{x:900,y:450},{x:1220,y:450}],
-    isBossLevel: true
-  }
-];
-
-
-function showCampaignCutscene(title, speaker, message, nextAction){
-  document.getElementById('titleScreen').innerHTML =
-  `<div style="max-width:900px;margin:40px auto;color:white;text-align:center;">
-    <h1>${title}</h1>
-    <div style="background:#111;padding:25px;border:3px solid gold;border-radius:12px;">
-      <h2>${speaker}</h2>
-      <p style="font-size:22px;line-height:1.6;">${message}</p>
-    </div>
-    <button style="padding:20px 40px;font-size:22px;margin-top:20px;" onclick="${nextAction}">Verder</button>
-  </div>`;
-}
-
-function startTsjaadVerhaal() {
-  tsjaadStoryMode = true;
-  tsjaadCurrentLevel = 0;
-  showCampaignCutscene('TSJAAD CAMPAGNE','R.E.G.E.R.I.N.G LID','Het virus is losgelaten. Tsjaadinator zal ons nooit stoppen!','showTsjaadStoryScreen()');
-}
-
-function showTsjaadStoryScreen() {
-  if(tsjaadCurrentLevel >= tsjaadStoryLevels.length) {
-    showTsjaadVictoryScreen();
-    return;
-  }
-  
-  const level = tsjaadStoryLevels[tsjaadCurrentLevel];
-  document.getElementById('titleScreen').style.display = 'flex';
-  document.getElementById('ui').style.display = 'none';
-  
-  const titleScreen = document.getElementById('titleScreen');
-  titleScreen.innerHTML = `
-    <div style="text-align:center; z-index:10; max-width:900px; margin:20px; animation:fadeIn 1s ease-in;">
-      <h1 style="color:#8b0000; font-size:72px; margin:20px; text-shadow:0 0 30px rgba(255,69,0,0.8);">${level.name}</h1>
-      <p style="font-size:36px; color:#ff6600; margin:20px; text-shadow:0 0 20px rgba(255,100,0,0.6);">🔥 TSJAAD CAMPAGNE 🔥</p>
-      <p style="font-size:20px; color:#fff; margin:30px; line-height:1.8; background:rgba(0,0,0,0.6); padding:20px; border:3px solid #ffd700; border-radius:10px;">${level.description}</p>
-      <div style="background:rgba(139,0,0,0.3); border:3px solid #dc143c; padding:25px; margin:20px; border-radius:10px; font-size:18px; color:#fff; line-height:2;">
-        ${level.briefing.split('\n').join('<br>')}
-      </div>
-      <button style="margin:20px; padding:25px 50px; font-size:24px; background:linear-gradient(135deg,#ff6600,#ff0000); color:white; border:4px solid #ffd700; border-radius:15px; cursor:pointer; font-weight:bold; transition:all 0.3s;" 
-        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" 
-        onclick="loadTsjaadLevel(${tsjaadCurrentLevel})">▶️ LAAD LEVEL ${tsjaadCurrentLevel + 1}</button>
-      <button style="margin:20px; padding:25px 50px; font-size:24px; background:#333; color:#fff; border:4px solid #666; border-radius:15px; cursor:pointer; font-weight:bold; transition:all 0.3s;"
-        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" 
-        onclick="location.reload()">↩️ TERUG</button>
-    </div>
-    <style>
-      @keyframes fadeIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
-    </style>
-  `;
-}
-
-function loadTsjaadLevel(levelIdx) {
-  const level = tsjaadStoryLevels[levelIdx];
-  document.getElementById('titleScreen').style.display = 'none';
-  document.getElementById('settingsBtn').style.display = 'none';
-  document.getElementById('ui').style.display = 'block';
-  
-  gameMode = 'tsjaadstory';
-  path = level.path;
-  gamePaths = [path];
-  enemies = [];
-  towers = [];
-  projectiles = [];
-  explosions = [];
-  bananas = [];
-  landmines = [];
-  money = level.money;
-  lives = level.lives;
-  round = 1;
-  roundMax = level.rounds;
-  totalMoneyEarned = 0;
-  autoStartRounds = false;
-  paragonActive = false;
-  paragonTower = null;
-  hutFreeTowerPending = null;
-  
-  document.getElementById('startRoundBtn').style.display = 'block';
-  document.getElementById('katoenBtn').disabled = false;
-  document.getElementById('katoenBtn').classList.remove('crossed-out');
-  document.getElementById('autoRoundMsg').textContent = '';
-  document.getElementById('roundMax').textContent = '/' + roundMax;
-  document.getElementById('lives').textContent = lives;
-  document.getElementById('money').textContent = money;
-  document.getElementById('gameTitle').innerHTML = `<span style="color:#ff6600; text-shadow:0 0 20px rgba(255,100,0,0.8);">🦁 ${level.name}</span>`;
-  
-  gameSpeedMult = 1;
-  enemySpeedMult = 1;
-  
-  const virusWarnEl = document.getElementById('virusWarnEl');
-  if(virusWarnEl) virusWarnEl.style.display = 'none';
-  
-  stopMusic();
-  tsjaadStoryAudio = new Audio(BASE_AUDIO + 'Boss.mp3');
-  tsjaadStoryAudio.loop = true;
-  tsjaadStoryAudio.volume = 0.6;
-  tsjaadStoryAudio.play().catch(()=>{});
-  currentTheme = tsjaadStoryAudio;
-  musicPlaying = true;
-  
-  // Store enemy list for this level
-  window.tsjaadLevelEnemies = level.enemies;
-  window.currentTsjaadLevelConfig = level;
-  
-  startTimer();
-  document.getElementById('utilBtns').style.display = 'flex';
-  loop();
-}
-
-// Override startRound for Tsjaad Story Mode
-const originalStartRound = window.startRound;
-if(originalStartRound) {
-  window.startRound = function() {
-    if(gameMode !== 'tsjaadstory') {
-      originalStartRound();
-      return;
-    }
-    if(spawning || gameWon) return;
-
-    playSound('round', 0.7);
-    document.getElementById('round').textContent = round;
-
-    roundActive = true;
-    autoRoundCountdown = 0;
-    const level = window.currentTsjaadLevelConfig;
-    const enemyTypes = window.tsjaadLevelEnemies;
-
-    // Build a queue of enemies to spawn for this round
-    let queue = [];
-    if(level.isBossLevel && round === roundMax) {
-      for(let i = 0; i < 2; i++) {
-        queue.push(enemyTypes[Math.floor(Math.random() * (enemyTypes.length - 1))]);
-      }
-      queue.push('super_robot_malaria_mug');
-    } else {
-      const totalEnemies = Math.floor(5 + round * 2.5);
-      for(let i = 0; i < totalEnemies; i++) {
-        queue.push(enemyTypes[Math.floor(Math.random() * enemyTypes.length)]);
-      }
-    }
-
-    // Use the normal spawning system
-    window._tsjaadStorySpawnQueue = queue;
-    window._tsjaadStorySpawnHpScale = 1 + round * 0.08;
-    spawnLeft = queue.length;
-    spawning = true;
-    spawnTimer = 0;
-  };
-}
-
-function showTsjaadVictoryScreen() {
-  document.getElementById('titleScreen').style.display = 'flex';
-  document.getElementById('ui').style.display = 'none';
-  
-  const titleScreen = document.getElementById('titleScreen');
-  titleScreen.innerHTML = `
-    <div style="text-align:center; z-index:10; max-width:900px; animation:victoryPulse 1.5s ease-in-out infinite;">
-      <h1 style="color:#ffd700; font-size:80px; margin:20px; text-shadow:0 0 40px rgba(255,215,0,0.9);">🏆 VICTORY! 🏆</h1>
-      <p style="font-size:42px; color:#ff6600; margin:20px;">DE SUPER ROBOT MALARIA MUG IS VERSLAGEN!</p>
-      <p style="font-size:32px; color:#fff; margin:30px; line-height:2;">
-        🦁 TSJAADINATOR en het team hebben de plaag gestopt!<br>
-        💊 R.E.G.E.R.I.N.G is ontmanteld!<br>
-        🌍 De wereld is gered!<br>
-        ⭐ JE BENT EEN HELD VAN TSJAAD! ⭐
-      </p>
-      <div style="background:linear-gradient(135deg,#8b0000,#ff6600); border:5px solid #ffd700; padding:30px; margin:20px; border-radius:15px; font-size:20px; color:#fff;">
-        <p style="margin:10px; font-weight:bold;">✨ De missie is voltooid in 5 epische levels! ✨</p>
-        <p style="margin:10px;">Tsjaad zal nooit dezelfde zijn... Dankzij jou!</p>
-      </div>
-      <button style="margin:20px; padding:25px 50px; font-size:24px; background:linear-gradient(135deg,#ffd700,#ffaa00); color:#000; border:4px solid #fff; border-radius:15px; cursor:pointer; font-weight:bold; transition:all 0.3s;"
-        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" 
-        onclick="location.reload()">🏠 TERUG NAAR HOOFDMENU</button>
-    </div>
-    <style>
-      @keyframes victoryPulse { 0%, 100% { transform:scale(1) rotate(0deg); } 50% { transform:scale(1.05) rotate(2deg); } }
-    </style>
-  `;
-  
-  stopMusic();
-  tsjaadStoryAudio = new Audio(BASE_AUDIO + 'Victory.mp3');
-  tsjaadStoryAudio.volume = 0.7;
-  tsjaadStoryAudio.play().catch(()=>{});
-}
-
-// Hook into game end to handle level completion
-const originalGameOver = window.gameOver;
-if(originalGameOver) {
-  window.gameOver = function(success) {
-    if(gameMode !== 'tsjaadstory') {
-      originalGameOver(success);
-      return;
-    }
-    
-    if(!success) {
-      // Lost - show defeat screen
-      document.getElementById('titleScreen').style.display = 'flex';
-      document.getElementById('ui').style.display = 'none';
-      document.getElementById('titleScreen').innerHTML = `
-        <div style="text-align:center; z-index:10; max-width:900px;">
-          <h1 style="color:#8b0000; font-size:80px; margin:20px; text-shadow:0 0 40px rgba(255,69,0,0.9);">☠️ DEFEAT ☠️</h1>
-          <p style="font-size:32px; color:#ff6600; margin:20px;">Het virus heeft gewonnen deze keer...</p>
-          <p style="font-size:24px; color:#fff; margin:30px;">Tsjaadinator zal het opnieuw proberen!</p>
-          <button style="margin:20px; padding:25px 50px; font-size:24px; background:#ff6600; color:#fff; border:4px solid #ffd700; border-radius:15px; cursor:pointer; font-weight:bold;"
-            onclick="loadTsjaadLevel(${tsjaadCurrentLevel})">🔄 PROBEER OPNIEUW</button>
-          <button style="margin:20px; padding:25px 50px; font-size:24px; background:#333; color:#fff; border:4px solid #666; border-radius:15px; cursor:pointer; font-weight:bold;"
-            onclick="location.reload()">↩️ TERUG</button>
-        </div>
-      `;
-      return;
-    }
-    
-    // Won - advance to next level
-    tsjaadCurrentLevel++;
-    setTimeout(() => showTsjaadStoryScreen(), 2000);
-  };
-}
-
-// Custom spawnEnemy for Tsjaad Story Mode
-function spawnTsjaadStoryEnemy(enemyTypeKey, pathIndex = 0, hpScale = 1) {
-  const enemyData = infectedAnimalTypes[enemyTypeKey];
-  if (!enemyData) {
-    console.warn('Unknown Tsjaad enemy type:', enemyTypeKey);
-    return null;
-  }
-  
-  // Special handling for super robot malaria mug boss
-  if(enemyTypeKey === 'super_robot_malaria_mug') {
-    const boss = makeEnemy({...superRobotMalariaMugType});
-    boss.pathIndex = pathIndex;
-    boss.infected = true;
-    enemies.push(boss);
-    return boss;
-  }
-  
-  // Regular infected enemies
-  const scaledData = {
-    ...enemyData,
-    hp: Math.floor(enemyData.hp * hpScale * (1 + round * 0.12)),
-    speed: enemyData.speed * (1 + round * 0.05),
-    reward: Math.floor(enemyData.reward * (1 + round * 0.1))
-  };
-  
-  const enemy = makeEnemy(scaledData);
-  enemy.infected = true;
-  enemy.infectedColor = enemyData.infectedColor;
-  enemy.pathIndex = pathIndex;
-  enemies.push(enemy);
-  return enemy;
-}
-
 console.log('🏜️ Tsjaad TD – Ultimate Edition v4 🐪');
-console.log('🦁 TSJAAD VERHAAL - 5 LEVEL STORY MODE GELADEN 🦁');
 </script>
 </body>
 </html>
