@@ -2259,6 +2259,16 @@ function winGame(){
   document.getElementById('finalRound').textContent=round;
   document.getElementById('finalMoney').textContent=totalMoneyEarned;
   document.getElementById('finalTime').textContent=formatTime(timerElapsed);
+  // Pas overwinningsbericht aan voor EilandModus
+  if(gameMode==='eiland'){
+    document.getElementById('vs-line1').textContent='GEFELICITEERD! JE HEBT DE SCHEURBEUK MUG VERSLAGEN!';
+    document.getElementById('vs-line2').textContent='HET EILAND IS GERED!';
+    document.getElementById('vs-line3').textContent='JE BENT EEN ECHTE EILANDHELD!!!';
+  } else {
+    document.getElementById('vs-line1').textContent=t('vs-line1');
+    document.getElementById('vs-line2').textContent=t('vs-line2');
+    document.getElementById('vs-line3').textContent=t('vs-line3');
+  }
   document.getElementById('victoryScreen').style.display='flex';
 }
 function loseGame(){
@@ -2827,6 +2837,12 @@ function update(){
   visualEffects=visualEffects.filter(v=>v.t>0);
   for(const ns of nukeStrikes) ns.t--;
   nukeStrikes=nukeStrikes.filter(ns=>ns.t>0);
+  // Fix: decrement en filter nuclearExplosions (anders blijven ze eeuwig staan)
+  for(const ne of nuclearExplosions) ne.t--;
+  nuclearExplosions=nuclearExplosions.filter(ne=>ne.t>0);
+  // Fix: decrement en filter critTexts (anders blijven CRIT-teksten permanent staan)
+  for(const ct of critTexts) ct.t--;
+  critTexts=critTexts.filter(ct=>ct.t>0);
   projectiles=projectiles.filter(p=>!p.dead);
   document.getElementById('money').textContent=money;
   document.getElementById('lives').textContent=lives;
