@@ -50,6 +50,10 @@
   .modeBtn.tsjaad { background: linear-gradient(135deg, #ff6f00 0%, #e65100 50%, #bf360c 100%); color: #fff; text-shadow: 0 0 15px #ff9800; animation: tsjaadPulse 1.2s ease-in-out infinite; border-color: #ff9800; }
   .modeBtn.tsjaadplus { background: linear-gradient(135deg, #000000 0%, #1a0000 30%, #3d0000 60%, #ff0000 100%); color: #ffd700; text-shadow: 0 0 20px #ff0000, 0 0 40px #ff6600; animation: tsjaadPlusPulse 0.8s ease-in-out infinite; border-color: #ffd700; border-width: 6px; }
   .modeBtn.lichtsnelheid { background: linear-gradient(135deg, #00ffff 0%, #0088ff 50%, #0000ff 100%); color: #fff; text-shadow: 0 0 15px #00ffff; animation: speedPulse 0.6s ease-in-out infinite; border-color: #00ffff; }
+/* ===== EILAND MODUS STIJL ===== */
+@keyframes eilandPulse { 0%,100%{box-shadow:0 10px 40px rgba(0,153,255,0.5);transform:scale(1);}50%{box-shadow:0 10px 70px rgba(0,204,255,0.9),0 0 60px rgba(0,153,255,0.6);transform:scale(1.05);} }
+/* Boot knop in UI zijbalk - alleen zichtbaar in EilandModus */
+#tower-boot { display: none; background: linear-gradient(135deg, #002266, #0044aa); border-color: #0099ff; color: #aaddff; }
   .modeBtn.virus { background: linear-gradient(135deg, #001a00 0%, #003300 40%, #00ff44 100%); color: #00ff44; text-shadow: 0 0 15px #00ff44, 0 0 30px #00cc33; animation: virusPulse 1.5s ease-in-out infinite; border-color: #00ff44; border-width: 5px; }
   @keyframes virusPulse { 0%,100%{box-shadow:0 10px 30px rgba(0,255,68,0.4);transform:scale(1);} 50%{box-shadow:0 10px 50px rgba(0,255,68,0.9),0 0 60px rgba(0,200,50,0.7);transform:scale(1.04);} }
   .modeSelectBtn.virus { border-color:#00ff44;color:#00ff44; }
@@ -246,7 +250,6 @@
   <div id="mainMenuScreen">
     <div class="main-menu-btns">
       <button class="mainMenuBtn playBtn" onclick="showPlayMenu()">🎮 SPEEL</button>
-<button class="mainMenuBtn specialBtn campaignBtn" onclick="startTsjaadVerhaal()">📜 TSJAAD CAMPAGNE</button>
       <button class="mainMenuBtn specialBtn" onclick="showSpecialMenu()">⭐ SPECIALE MISSIES</button>
       <button class="mainMenuBtn tutorialBtn" onclick="showTutorial()">📖 TUTORIAL</button>
       <button class="mainMenuBtn settingsMenuBtn" onclick="openSettings()">⚙️ INSTELLINGEN</button>
@@ -285,6 +288,10 @@
       </button>
       <button class="modeBtn random-mission special-mission-btn" onclick="startRandomMissie()" style="width:90%; max-width:700px; padding:40px 20px; font-size:26px;">
         🎲 RANDOM MISSIE<br><span style="font-size:14px; opacity:0.8; font-weight:normal;">Random modus · random map · random muziek · 3 random torens</span>
+      </button>
+      <!-- ===== EILAND MODUS KNOP ===== -->
+      <button class="modeBtn eiland special-mission-btn" onclick="startEilandModus()" style="width:90%; max-width:700px; padding:40px 20px; font-size:26px; background:linear-gradient(135deg,#001a4d 0%,#003399 30%,#0055cc 60%,#0099ff 100%); color:#aaddff; border-color:#00ccff; border-width:5px; animation:eilandPulse 2s ease-in-out infinite;">
+        🏝️ EILAND MODUS<br><span style="font-size:14px; opacity:0.8; font-weight:normal;">Verdedig een klein eiland omringd door water · Bouw boten als platforms!</span>
       </button>
     </div>
   </div>
@@ -400,6 +407,8 @@
   <button id="katoenBtn" onclick="selectTower('katoen')">🌾 Katoen Plantage (€950)</button>
   <button onclick="selectTower('tsjaadinator')" id="tower-tsjaad">⚡ Tsjaadinator (€2500)</button>
   <button onclick="selectTower('sniper')" id="tower-sniper">🎯 Sniper (€3000)</button>
+  <!-- Boot toren: alleen zichtbaar in EilandModus -->
+  <button onclick="selectTower('boot')" id="tower-boot">⛵ Boot Platform (€3000)</button>
   <hr style="margin:10px 0; border-color:#444;">
   <button id="startRoundBtn" onclick="startRound()" style="background:#4CAF50; border-color:#45a049;">▶️ Start Ronde</button>
   <button id="autoStartBtn" onclick="toggleAutoStart()" style="background:#1a3a1a; border-color:#2a5a2a; color:#6dbf6d; margin-top:4px;">⏩ Auto-Start: UIT</button>
@@ -580,6 +589,56 @@ const lichtsnelheidPath = [
   {x:-20,y:200},{x:240,y:200},{x:240,y:480},{x:520,y:480},{x:520,y:160},{x:780,y:160},{x:780,y:520},{x:1040,y:520},{x:1040,y:280},{x:1220,y:280}
 ];
 
+// ===== EILAND MODUS PAD =====
+// Vijanden zwemmen door het water vanuit het westen, slingeren rond het eiland, en verlaten het oosten.
+// Het pad loopt via de waterzijde RONDOM het eiland.
+const eilandPath = [
+  {x:-20,y:350},   // binnenkomst links (water)
+  {x:200,y:350},   // water links
+  {x:200,y:500},   // water zuidwest
+  {x:400,y:500},   // water zuidkant
+  {x:600,y:500},   // water zuidoost  
+  {x:800,y:500},   // water oost-onder
+  {x:1000,y:350},  // water oost
+  {x:1220,y:350}   // uitgang rechts
+];
+
+// Eiland: rechthoek in het midden van de canvas (1200x700).
+// Torens mogen ALLEEN hier geplaatst worden (tenzij boot-platform).
+const EILAND_X = 280;   // linkerrand eiland
+const EILAND_Y = 170;   // bovenrand eiland
+const EILAND_W = 640;   // breedte eiland
+const EILAND_H = 280;   // hoogte eiland
+
+// Boot-platforms: array van {x, y, radius} die als geldig bouwterrein tellen op water
+let bootPlatforms = [];
+
+// Controleert of een positie op het eiland ligt
+function isOpEiland(x, y) {
+  return x >= EILAND_X && x <= EILAND_X + EILAND_W &&
+         y >= EILAND_Y && y <= EILAND_Y + EILAND_H;
+}
+
+// Controleert of een positie op een boot-platform ligt
+function isOpBootPlatform(x, y) {
+  for (const bp of bootPlatforms) {
+    if (Math.hypot(x - bp.x, y - bp.y) <= bp.radius) return true;
+  }
+  return false;
+}
+
+// Controleert of een positie op water is (niet eiland, niet boot-platform)
+function isOpWater(x, y) {
+  if (isOpEiland(x, y)) return false;
+  if (isOpBootPlatform(x, y)) return false;
+  return true;
+}
+
+// Controleert of een reguliere toren hier geplaatst mag worden (eiland OF boot-platform)
+function isGeldigTorenTerrein(x, y) {
+  return isOpEiland(x, y) || isOpBootPlatform(x, y);
+}
+
 // ===== MENU NAVIGATION =====
 function showMainMenu() {
   document.getElementById('mainMenuScreen').style.display = 'flex';
@@ -614,6 +673,85 @@ const malariaZwermPath = [
 let malariaZwermActive = false;
 let malariaZwermAudio = null;
 
+// ===== SCHEURBEUK MUG BAAS (exclusief voor EilandModus, ronde 30) =====
+const scheurbeukMugType = {
+  name: '💀 Scheurbeuk Mug',  // naam die boven de healthbar verschijnt
+  hp: 120000,                  // sterker dan normale Malaria Mug (50.000 HP)
+  speed: 0.65,
+  size: 90,
+  reward: 2500,
+  boss: true,
+  type: 'scheurbeuk_mug',
+  isScheurbeuk: true           // vlag voor speciale renderlogica
+};
+
+// ===== EILAND MODUS =====
+let eilandModusAudio = null;
+
+function startEilandModus() {
+  // Speel het EilandModus intro-geluid één keer af
+  eilandModusAudio = new Audio(BASE_AUDIO + 'EilandModus.mp3');
+  eilandModusAudio.volume = 0.85;
+  eilandModusAudio.play().catch(() => {});
+
+  // Reset boot-platforms voor nieuw spel
+  bootPlatforms = [];
+
+  document.getElementById('titleScreen').style.display = 'none';
+  document.getElementById('settingsBtn').style.display = 'none';
+  document.getElementById('ui').style.display = 'block';
+
+  gameMode = 'eiland';
+  path = eilandPath;
+  gamePaths = [eilandPath];
+
+  // Reset spelstatus
+  enemies = []; towers = []; projectiles = []; explosions = [];
+  bananas = []; landmines = [];
+  money = 600; lives = 20; round = 1; totalMoneyEarned = 0;
+  autoStartRounds = false; autoRoundCountdown = 0;
+  paragonActive = false; paragonTower = null; hutFreeTowerPending = null;
+
+  const autoBtn = document.getElementById('autoStartBtn');
+  if (autoBtn) {
+    autoBtn.textContent = '⏩ Auto-Start: UIT';
+    autoBtn.style.background = '#1a3a1a';
+    autoBtn.style.borderColor = '#2a5a2a';
+    autoBtn.style.color = '#6dbf6d';
+  }
+
+  document.getElementById('startRoundBtn').style.display = 'block';
+  document.getElementById('katoenBtn').disabled = false;
+  document.getElementById('katoenBtn').classList.remove('crossed-out');
+  document.getElementById('autoRoundMsg').textContent = '';
+  document.getElementById('roundMax').textContent = '/30';
+  document.getElementById('lives').textContent = lives;
+  document.getElementById('money').textContent = money;
+
+  // Toon de Boot-knop in de UI, verberg bij andere modi (zie ook startGame)
+  const bootBtn = document.getElementById('tower-boot');
+  if (bootBtn) bootBtn.style.display = 'block';
+
+  document.getElementById('gameTitle').innerHTML =
+    '<span style="color:#00ccff">🏝️ EILAND MODUS</span>';
+
+  gameSpeedMult = 1; enemySpeedMult = 1;
+
+  const virusWarnEl = document.getElementById('virusWarnEl');
+  if (virusWarnEl) virusWarnEl.style.display = 'none';
+
+  // Speel oceaan/eiland muziek — valt terug op standaard als bestand niet bestaat
+  stopMusic();
+  const islandAudio = new Audio(BASE_AUDIO + 'EilandModus.mp3');
+  islandAudio.loop = true; islandAudio.volume = 0.5;
+  islandAudio.play().catch(() => {});
+  currentTheme = islandAudio; musicPlaying = true;
+
+  startTimer();
+  document.getElementById('utilBtns').style.display = 'flex';
+  loop();
+}
+
 function startMalariaMissie() {
   malariaZwermActive = true;
   document.getElementById('titleScreen').style.display = 'none';
@@ -636,6 +774,10 @@ function startMalariaMissie() {
   document.getElementById('lives').textContent = lives;
   document.getElementById('money').textContent = money;
   document.getElementById('gameTitle').innerHTML = '<span style="color:#00ff44">🦟 MALARIA ZWERM</span>';
+  // Boot-knop verbergen buiten EilandModus
+  const bootBtnMz = document.getElementById('tower-boot');
+  if(bootBtnMz) bootBtnMz.style.display = 'none';
+  bootPlatforms = [];
   gameSpeedMult=1; enemySpeedMult=1;
   const virusWarnEl=document.getElementById('virusWarnEl');
   if(virusWarnEl) virusWarnEl.style.display='none';
@@ -929,6 +1071,11 @@ function startGame(mode) {
   document.getElementById('autoRoundMsg').textContent='';
   const virusWarnEl=document.getElementById('virusWarnEl');
   if(virusWarnEl){ virusWarnEl.style.display=(mode==='virus'?'block':'none'); virusWarnEl.textContent=mode==='virus'?'🦠 Virus: ronde 5 — duurste toren weg':''; }
+  // Boot-knop: alleen zichtbaar in EilandModus (hier altijd verbergen; startEilandModus toont hem)
+  const bootBtn2 = document.getElementById('tower-boot');
+  if(bootBtn2) bootBtn2.style.display = 'none';
+  // Reset boot-platforms bij nieuw spel via startGame (niet EilandModus)
+  bootPlatforms = [];
 
   // Mode-specific settings
   const titleColors = {
@@ -940,7 +1087,8 @@ function startGame(mode) {
   const modeLabels = {
     standard:'STANDAARD', plaag:'PLAAG MODUS', hard:'HARD MODUS', speed:'DUBBEL SNELHEID',
     armoede:'ARMOEDE MODUS', boss:'BOSS MODE', mutatie:'MUTATIE MODUS', dubbelhealth:'DUBBEL HEALTH',
-    tsjaadmodus:'TSJAAD MODUS', tsjaadplus:'TSJAAD MODUS PLUS', lichtsnelheid:'LICHTSNELHEID', virus:'VIRUS MODUS'
+    tsjaadmodus:'TSJAAD MODUS', tsjaadplus:'TSJAAD MODUS PLUS', lichtsnelheid:'LICHTSNELHEID', virus:'VIRUS MODUS',
+    eiland:'EILAND MODUS'
   };
   const label = modeLabels[mode] || 'STANDAARD';
   document.getElementById('gameTitle').innerHTML = '<span style="color:'+color+'">'+label+'</span>';
@@ -983,7 +1131,8 @@ function startGame(mode) {
 // ===== TOWERS =====
 const towerBaseRanges = {
   speer:90, boog:130, plaagdokter:140, geweer:240, sniper:550,
-  tsjaadinator:180, atoom:180, katoen:0, aap:120, fakkel:95, hut:110
+  tsjaadinator:180, atoom:180, katoen:0, aap:120, fakkel:95, hut:110,
+  boot:0  // Boot heeft geen aanvalsbereik
 };
 
 const towerTypes={
@@ -997,7 +1146,9 @@ const towerTypes={
   katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
   aap:{range:120,rate:70,dmg:0.8,speed:0,cost:400,ultCost:2500,monkey:true},
   fakkel:{range:95,rate:50,dmg:2,speed:8,cost:150,ultCost:4000,fire:true},
-  hut:{range:110,rate:9999,dmg:0,speed:0,cost:800,hut:true,ultCost:5000}
+  hut:{range:110,rate:9999,dmg:0,speed:0,cost:800,hut:true,ultCost:5000},
+  // Boot: water-platform, geen aanval, alleen in EilandModus
+  boot:{range:0,rate:9999,dmg:0,speed:0,cost:3000,farm:false,isBoot:true,ultCost:99999}
 };
 
 function getTowerRange(tw) {
@@ -1096,7 +1247,7 @@ canvas.onmousemove = e => {
 canvas.onmouseleave=()=>{ hoveredTower=null; tooltipEl.style.display='none'; };
 
 function getTowerName(key){
-  const names={speer:'Speer Werper',boog:'Boog Schutter',fakkel:'Fakkel Drager',plaagdokter:'Plaag Dokter',aap:'Wilde Aap',geweer:'Soldaat',atoom:'Atoombommenwerper',katoen:'Katoen Plantage',tsjaadinator:'Tsjaadinator',sniper:'Sniper',hut:'De Hut'};
+  const names={speer:'Speer Werper',boog:'Boog Schutter',fakkel:'Fakkel Drager',plaagdokter:'Plaag Dokter',aap:'Wilde Aap',geweer:'Soldaat',atoom:'Atoombommenwerper',katoen:'Katoen Plantage',tsjaadinator:'Tsjaadinator',sniper:'Sniper',hut:'De Hut',boot:'Boot Platform'};
   return names[key]||key;
 }
 
@@ -1216,6 +1367,27 @@ function updateTooltip(tw, cx, cy){
   if(canUpgrade && !isMaxed) next = getNextLevelStats(tw);
 
   let html = '';
+
+  // Boot platform: speciale tooltip
+  if(tw.key === 'boot'){
+    html += `<div class="tt-stats-title">⛵ Boot Platform</div>`;
+    html += `<div class="tt-stat-row"><span class="tt-stat-label">🏗️ Platform radius</span><span class="tt-stat-val">${tw.platformRadius || 45}px</span></div>`;
+    html += `<div class="tt-stat-row"><span class="tt-stat-label">⚔️ Aanval</span><span class="tt-stat-val">Geen</span></div>`;
+    html += `<div style="font-size:10px;color:#88ddff;margin-top:4px;">🌊 Creëert een bouwplatform op het water.<br>Plaats hier torens om het eiland te verdedigen!</div>`;
+    html += `<hr class="tt-divider">`;
+    html += `<div class="tt-upgrade-header max" style="color:#888">⛵ Kan niet geüpgraded worden</div>`;
+    document.getElementById('tt-stats-section').innerHTML = html;
+    const sellVal2 = Math.floor(getTowerTotalInvestedCost(tw) * 0.8);
+    document.getElementById('tt-sell').textContent = `🗑️ [Backspace] Verkopen: €${sellVal2}`;
+    let tx2 = cx + 18, ty2 = cy - 10;
+    const ttW2 = 280, ttH2 = 200;
+    if(tx2 + ttW2 > window.innerWidth) tx2 = cx - ttW2 - 10;
+    if(ty2 + ttH2 > window.innerHeight) ty2 = cy - ttH2 + 10;
+    if(ty2 < 0) ty2 = 5;
+    tooltipEl.style.left = tx2 + 'px';
+    tooltipEl.style.top = ty2 + 'px';
+    return;
+  }
 
   if(tw.hut){
     html += `<div class="tt-stats-title">📊 Hut Stats</div>`;
@@ -1495,7 +1667,7 @@ function confirmParagon(){
 
   const spiritLvl = Math.floor(t2.paragonLevel / 25);
   const spiritNames = ['', '🌀 Tsjaad kracht', '🌀 Super Tsjaad kracht', '⚔️ Tsjaad krijger', '⭐ MEGA ULTIME TSJAADTASTISCHE KRACHT ⭐'];
-  showRoundMsg('⭐ PARAGON GEMAAKT! Lvl ' + t2.paragonLevel + ' ' + (spiritNames[spiritLvl] || ''));
+  showRoundMsg('⭐ PARAGON GEMAAKT! Lvl ' + t2.paragonLevel + ' ' + (spiritNames[spiritLvl] || ''), true);
   playSound('sacrifice', 0.8);
   t2.upText = 200;
 }
@@ -1524,6 +1696,17 @@ function sellTower(tw){
     paragonActive = false;
     paragonTower = null;
   }
+  // Als een boot wordt verkocht, verwijder ook het bijbehorende platform
+  if(tw.key === 'boot'){
+    // Verwijder het platform dat het dichtstbij de boot-positie staat
+    let closestIdx = -1, closestDist = Infinity;
+    for(let i = 0; i < bootPlatforms.length; i++){
+      const d = Math.hypot(bootPlatforms[i].x - tw.x, bootPlatforms[i].y - tw.y);
+      if(d < closestDist){ closestDist = d; closestIdx = i; }
+    }
+    if(closestIdx >= 0) bootPlatforms.splice(closestIdx, 1);
+    showRoundMsg('⛵ Boot verkocht – platform verwijderd!');
+  }
   hoveredTower = null;
   tooltipEl.style.display = 'none';
   const flash = document.getElementById('sellFlash');
@@ -1548,14 +1731,51 @@ canvas.onclick=e=>{
         if(distanceToLineSegment(x,y,p1.x,p1.y,p2.x,p2.y)<30) return;
       }
     }
+    // In EilandModus: gratis torens ook alleen op eiland/boot-platform
+    if(gameMode === 'eiland' && !isGeldigTorenTerrein(x, y)){
+      showRoundMsg('⚠️ Gratis toren moet op het eiland of een boot-platform!');
+      return;
+    }
     applyHutFreeTower(x, y);
     return;
   }
 
   if(!selectedTower) return;
   const cfg=towerTypes[selectedTower];
+  if(!cfg) return;
   if(money<cfg.cost) return;
-  if(selectedTower!=='aap'){
+
+  // ===== EILAND MODUS PLAATSINGSREGELS =====
+  if(gameMode === 'eiland') {
+    if(selectedTower === 'boot') {
+      // Boot mag ALLEEN op water (niet op eiland, niet op bestaand platform)
+      if(!isOpWater(x, y)){
+        showRoundMsg('⛵ Boot kan alleen op water geplaatst worden!');
+        return;
+      }
+      // Controleer ook pad-collisie voor boot
+      const pathsToCheck3 = gamePaths.length ? gamePaths : [path];
+      for(const checkPath of pathsToCheck3){
+        for(let i=0;i<checkPath.length-1;i++){
+          const p1=checkPath[i],p2=checkPath[i+1];
+          if(distanceToLineSegment(x,y,p1.x,p1.y,p2.x,p2.y)<35) return;
+        }
+      }
+    } else {
+      // Reguliere torens: alleen op eiland of boot-platform
+      if(!isGeldigTorenTerrein(x, y)){
+        if(isOpWater(x, y)){
+          showRoundMsg('🌊 Torens kunnen niet op water! Plaats een Boot voor een platform.');
+        } else {
+          showRoundMsg('⚠️ Toren moet op het eiland of een boot-platform staan!');
+        }
+        return;
+      }
+    }
+  }
+
+  // Normale pad-collisiecontrole (niet voor aap en boot)
+  if(selectedTower!=='aap' && selectedTower!=='boot'){
     const pathsToCheck = gamePaths.length ? gamePaths : [path];
     for(const checkPath of pathsToCheck){
       for(let i=0;i<checkPath.length-1;i++){
@@ -1565,6 +1785,25 @@ canvas.onclick=e=>{
     }
   }
   money-=cfg.cost;
+
+  // ===== BOOT: maak een platform aan op het water =====
+  if(selectedTower === 'boot') {
+    const platformRadius = 45; // straal van het bouwplatform dat de boot aanmaakt
+    bootPlatforms.push({x, y, radius: platformRadius});
+    const bootTower={
+      x, y, key:'boot', cool:0, dmg:0, rate:9999, level:0,
+      ultimate:false, upText:60, farm:false, slow:false,
+      monkey:false, fire:false, monkeyTimer:0, boosted:false,
+      boostEndTime:0, nukeTimer:0, investedCost:cfg.cost,
+      speerRangeBoostUntil:0, totalDamage:0,
+      isBoot:true, platformRadius,
+    };
+    towers.push(bootTower);
+    playSound('placement', 0.6);
+    showRoundMsg('⛵ Boot geplaatst! Bouw nu torens op het platform.');
+    return;
+  }
+
   const newTower={
     x,y,key:selectedTower,cool:0,dmg:cfg.dmg,rate:cfg.rate,level:0,
     ultimate:false,upText:0,farm:cfg.farm||false,slow:cfg.slow||false,
@@ -1639,7 +1878,7 @@ function handleHutUpgrade(t2){
     paragonActive = true; paragonTower = t2;
     playSound('sacrifice', 0.8);
     t2.upText = 200;
-    showRoundMsg('⭐ Hut Paragon! Alle speerwerpers, boogschutters & fakkeldragers doen 200% extra schade!');
+    showRoundMsg('⭐ Hut Paragon! Alle speerwerpers, boogschutters & fakkeldragers doen 200% extra schade!', true);
   }
 }
 
@@ -1680,6 +1919,11 @@ function applyHutFreeTower(x, y){
 }
 
 function handleUpgrade(t2){
+  // Boot mag niet worden geüpgraded (het is enkel een platform)
+  if(t2.key === 'boot'){
+    showRoundMsg('⛵ Boot kan niet worden geüpgraded. Verkoop met Backspace.');
+    return;
+  }
   // Hut has custom upgrade costs/logic
   if(t2.key === 'hut'){
     handleHutUpgrade(t2);
@@ -1840,13 +2084,15 @@ function startRound(){
   else if(gameMode==='tsjaadmodus') baseEnemies=Math.floor(8+round*2.5);
   else if(gameMode==='tsjaadplus') baseEnemies=Math.floor(8+round*3);
   else if(gameMode==='virus') baseEnemies=Math.floor(5+round*2);
+  // EilandModus: vergelijkbaar met standaard maar iets meer vijanden (de ruimte is beperkt)
+  else if(gameMode==='eiland') baseEnemies=Math.floor(5+round*2);
   spawnLeft=baseEnemies; spawning=true; spawnTimer=0;
   if(autoStartRounds) autoRoundCountdown=0;
 }
 
 function getMaxRound(){
   if(gameMode==='malariazwerm') return 1;
-  if(gameMode==='standard'||gameMode==='speed'||gameMode==='armoede'||gameMode==='dubbelhealth'||gameMode==='lichtsnelheid'||gameMode==='virus') return 30;
+  if(gameMode==='standard'||gameMode==='speed'||gameMode==='armoede'||gameMode==='dubbelhealth'||gameMode==='lichtsnelheid'||gameMode==='virus'||gameMode==='eiland') return 30;
   if(gameMode==='hard'||gameMode==='tsjaadmodus') return 50;
   if(gameMode==='boss') return 1;
   if(gameMode==='mutatie') return 35;
@@ -1856,7 +2102,14 @@ function getMaxRound(){
   return 30;
 }
 
-function showRoundMsg(txt){ const el=document.getElementById('roundMsg'); el.textContent=txt; setTimeout(()=>el.textContent='',2000); }
+let _roundMsgTimeout = null;
+function showRoundMsg(txt, priority = false){
+  const el = document.getElementById('roundMsg');
+  // Cancel any pending clear
+  if(_roundMsgTimeout) clearTimeout(_roundMsgTimeout);
+  el.textContent = txt;
+  _roundMsgTimeout = setTimeout(() => { el.textContent = ''; _roundMsgTimeout = null; }, priority ? 4000 : 2000);
+}
 
 // ===== SPAWN ENEMIES =====
 function spawnEnemy(){
@@ -1897,6 +2150,8 @@ function spawnEnemy(){
   if(round===maxRound){
     if(gameMode==='malariazwerm'){ enemies.push(makeEnemy({...bossType, hp:30000, speed:1.1, size:55, reward:2000, name:'Malaria Mug', type:'mug', boss:true})); return; }
     if(gameMode==='mutatie'){ enemies.push(makeEnemy({...zwangereMugBossType})); return; }
+    // ===== EILAND MODUS: Scheurbeuk Mug als eindbaas op ronde 30 =====
+    if(gameMode==='eiland'){ enemies.push(makeEnemy({...scheurbeukMugType})); return; }
     if(gameMode==='standard'||gameMode==='speed'||gameMode==='lichtsnelheid'||gameMode==='armoede'){ enemies.push(makeEnemy({...bossType})); return; }
   if(gameMode==='virus'){ enemies.push(makeEnemy({...bossType, hp:80000, speed:0.9, size:90, reward:1500})); return; }
     if(gameMode==='hard'){ enemies.push(makeEnemy({...mutatedBossType})); return; }
@@ -2197,6 +2452,7 @@ function update(){
     if(tw.stunned && tw.stunTimer > 0){ tw.stunTimer -= (gameSpeedMult||1); if(tw.stunTimer<=0){ tw.stunned=false; tw.stunTimer=0; } }
     if(tw.cool>0) tw.cool -= (gameSpeedMult||1);
     if(tw.stunned) continue; // Gestunde torens schieten niet
+    if(tw.key === 'boot') continue; // Boot-platform heeft geen aanval
     if(tw.cool<=0 && !tw.farm && !tw.hut && (enemies.length>0 || tw.monkey)){
       const effRange = getTowerRange(tw);
       let target = null;
@@ -2594,6 +2850,181 @@ function makeGhostEnemy(original){
 }
 
 // ===== DRAW =====
+// ===== SCHEURBEUK MUG TEKENFUNCTIE =====
+// De Scheurbeuk Mug is de eindbaas van EilandModus. Hij ziet er gevaarlijker uit dan de normale mug.
+function drawScheurbeukMug(e){
+  const t2 = Date.now() * 0.004;
+  const pulse = 1 + Math.sin(t2 * 1.8) * 0.07;
+  const sz = e.size || 90;
+
+  ctx.save();
+
+  // Omineuze rode gloed rondom
+  const glowGrad = ctx.createRadialGradient(0, 0, sz * 0.2, 0, 0, sz * 0.9);
+  glowGrad.addColorStop(0, 'rgba(180,0,0,0.0)');
+  glowGrad.addColorStop(0.6, 'rgba(180,0,0,0.15)');
+  glowGrad.addColorStop(1,   'rgba(255,0,0,0.35)');
+  ctx.fillStyle = glowGrad;
+  ctx.beginPath(); ctx.arc(0, 0, sz * 0.9, 0, Math.PI * 2); ctx.fill();
+
+  // Lichaam: donker paars-rood, groter dan normale mug
+  const bodyGrad = ctx.createRadialGradient(-8, -8, 4, 0, 5, sz * 0.5 * pulse);
+  bodyGrad.addColorStop(0, '#cc0044');
+  bodyGrad.addColorStop(0.4, '#770022');
+  bodyGrad.addColorStop(0.8, '#440011');
+  bodyGrad.addColorStop(1, '#1a0006');
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath();
+  ctx.ellipse(0, 5, sz * 0.38 * pulse, sz * 0.52 * pulse, 0.1, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Schouder-stekels (onderscheidend kenmerk van Scheurbeuk)
+  ctx.fillStyle = '#ff2200';
+  ctx.shadowBlur = 10; ctx.shadowColor = '#ff0000';
+  for(let s = 0; s < 5; s++){
+    const ang = -Math.PI * 0.85 + s * (Math.PI * 0.45);
+    const bx = Math.cos(ang) * sz * 0.38;
+    const by = Math.sin(ang) * sz * 0.38 + 5;
+    ctx.save();
+    ctx.translate(bx, by);
+    ctx.rotate(ang);
+    ctx.beginPath();
+    ctx.moveTo(0, 0); ctx.lineTo(-4, -16); ctx.lineTo(4, -16);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+  ctx.shadowBlur = 0;
+
+  // Vleugels — breder dan normale mug, donkerblauw met rood randje
+  ctx.fillStyle = 'rgba(80, 0, 160, 0.55)';
+  ctx.strokeStyle = 'rgba(255,0,100,0.6)'; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse(-sz * 0.45, -sz * 0.18, sz * 0.38, sz * 0.2, -0.45, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(sz * 0.45, -sz * 0.18, sz * 0.38, sz * 0.2, 0.45, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
+
+  // Hoofd
+  const headGrad = ctx.createRadialGradient(-4, -sz*0.4, 2, 0, -sz*0.42, sz*0.22);
+  headGrad.addColorStop(0, '#dd0033');
+  headGrad.addColorStop(0.5, '#880022');
+  headGrad.addColorStop(1, '#440011');
+  ctx.fillStyle = headGrad;
+  ctx.beginPath();
+  ctx.arc(0, -sz * 0.42, sz * 0.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Gloeiende ogen — geel (anders dan normale rode mug)
+  ctx.shadowBlur = 16; ctx.shadowColor = '#ffcc00';
+  ctx.fillStyle = '#ffcc00';
+  ctx.beginPath(); ctx.arc(-sz*0.08, -sz*0.45, sz*0.05, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(sz*0.08,  -sz*0.45, sz*0.05, 0, Math.PI*2); ctx.fill();
+  // Pupillen
+  ctx.fillStyle = '#3a0000';
+  ctx.beginPath(); ctx.arc(-sz*0.075,-sz*0.452,sz*0.022,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(sz*0.075, -sz*0.452,sz*0.022,0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Zuigsnuit — langer en met tanden
+  ctx.strokeStyle = '#cc0000'; ctx.lineWidth = sz * 0.04;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(sz * 0.16, -sz * 0.38);
+  ctx.lineTo(sz * 0.55, -sz * 0.28);
+  ctx.stroke();
+  // Tanden langs snuit
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5;
+  for(let t3 = 0; t3 < 3; t3++){
+    const tx2 = sz * 0.25 + t3 * sz * 0.08;
+    const ty2 = -sz * 0.36 + t3 * sz * 0.025;
+    ctx.beginPath();
+    ctx.moveTo(tx2, ty2);
+    ctx.lineTo(tx2 + sz*0.025, ty2 - sz*0.055);
+    ctx.stroke();
+  }
+
+  // Poten
+  ctx.strokeStyle = '#550022'; ctx.lineWidth = sz * 0.025;
+  for(let i = -2; i <= 2; i++){
+    ctx.beginPath();
+    ctx.moveTo(i * sz * 0.1, sz * 0.28);
+    ctx.lineTo(i * sz * 0.14, sz * 0.52);
+    ctx.stroke();
+  }
+
+  // Naam BOVEN healthbar (op de vijand zelf)
+  ctx.fillStyle = '#ffaa00';
+  ctx.font = `bold ${Math.round(sz * 0.14)}px Arial`;
+  ctx.textAlign = 'center';
+  ctx.shadowBlur = 6; ctx.shadowColor = '#ff0000';
+  ctx.fillText('💀 Scheurbeuk Mug', 0, -sz * 0.80);
+  ctx.shadowBlur = 0;
+
+  ctx.restore();
+}
+
+// ===== BOOT TOREN TEKENFUNCTIE =====
+// Toont een kleine boot op het water met een zichtbaar platform eromheen.
+function drawBootTower(tw){
+  const t2 = Date.now() * 0.002;
+  const platformR = tw.platformRadius || 45;
+
+  // Platform-cirkel (zandkleurig bouwterrein op het water)
+  ctx.save();
+  const platGrad = ctx.createRadialGradient(0, 0, platformR * 0.3, 0, 0, platformR);
+  platGrad.addColorStop(0, 'rgba(210,180,100,0.65)');
+  platGrad.addColorStop(0.7, 'rgba(180,140,70,0.45)');
+  platGrad.addColorStop(1, 'rgba(100,80,30,0)');
+  ctx.fillStyle = platGrad;
+  ctx.beginPath(); ctx.arc(0, 0, platformR, 0, Math.PI*2); ctx.fill();
+  // Platform rand (gestippeld)
+  ctx.strokeStyle = `rgba(255,220,100,${0.5 + Math.sin(t2)*0.2})`;
+  ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+  ctx.beginPath(); ctx.arc(0, 0, platformR, 0, Math.PI*2); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  // Romp van de boot
+  ctx.save();
+  ctx.fillStyle = '#5a3010';
+  ctx.beginPath();
+  ctx.moveTo(-14, 4);
+  ctx.lineTo(14, 4);
+  ctx.lineTo(12, 10);
+  ctx.lineTo(-12, 10);
+  ctx.closePath();
+  ctx.fill();
+  // Boegbeschermstrip
+  ctx.fillStyle = '#8b5520';
+  ctx.fillRect(-14, 3, 28, 3);
+
+  // Mast
+  ctx.strokeStyle = '#3a2000'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(0, 4); ctx.lineTo(0, -14); ctx.stroke();
+
+  // Vlaggetje
+  ctx.fillStyle = '#0099ff';
+  ctx.beginPath();
+  ctx.moveTo(0, -14);
+  ctx.lineTo(8, -10);
+  ctx.lineTo(0, -6);
+  ctx.closePath();
+  ctx.fill();
+
+  // Zachte golf-animatie
+  ctx.strokeStyle = `rgba(100,180,255,${0.3 + Math.sin(t2 * 2.5) * 0.15})`;
+  ctx.lineWidth = 1.5;
+  for(let w = 0; w < 2; w++){
+    const wOff = w * 8 + Math.sin(t2 * 2 + w) * 3;
+    ctx.beginPath();
+    ctx.moveTo(-18 + wOff, 12);
+    ctx.quadraticCurveTo(-10 + wOff, 9, -2 + wOff, 12);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function drawTsjaadPlusBg(){
   const t_now = Date.now() * 0.001;
   const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
@@ -2741,6 +3172,106 @@ function drawPath(){
       ctx.beginPath(); ctx.moveTo(dp[0].x,dp[0].y); for(const p of dp) ctx.lineTo(p.x,p.y); ctx.stroke();
       ctx.shadowBlur=0;
     }
+  } else if(gameMode==='eiland'){
+    // ===== EILAND MODUS: blauw water met centraal eiland =====
+    const t_e = Date.now() * 0.0008;
+
+    // Achtergrond: diep oceaanblauw water
+    const waterGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    waterGrad.addColorStop(0, '#001a4d');
+    waterGrad.addColorStop(0.4, '#002266');
+    waterGrad.addColorStop(0.7, '#003399');
+    waterGrad.addColorStop(1, '#001a4d');
+    ctx.fillStyle = waterGrad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Golfpatroon over het hele canvas (subtiel)
+    if(!window._eilandWaves){
+      window._eilandWaves = [];
+      for(let i = 0; i < 25; i++){
+        window._eilandWaves.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          w: 40 + Math.random() * 80,
+          p: Math.random() * Math.PI * 2,
+          a: 0.05 + Math.random() * 0.10
+        });
+      }
+    }
+    for(const wave of window._eilandWaves){
+      const alpha = wave.a * (0.6 + Math.sin(t_e * 2 + wave.p) * 0.4);
+      ctx.strokeStyle = `rgba(100,180,255,${alpha})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(wave.x, wave.y);
+      ctx.quadraticCurveTo(
+        wave.x + wave.w * 0.5, wave.y - 5 + Math.sin(t_e*3+wave.p)*4,
+        wave.x + wave.w, wave.y
+      );
+      ctx.stroke();
+    }
+
+    // Eiland: zand-textuur op het midden van de canvas
+    // Schaduw/rand van eiland
+    ctx.shadowBlur = 30; ctx.shadowColor = 'rgba(0,50,150,0.6)';
+    const islandGrad = ctx.createLinearGradient(EILAND_X, EILAND_Y, EILAND_X, EILAND_Y + EILAND_H);
+    islandGrad.addColorStop(0, '#d4aa60');
+    islandGrad.addColorStop(0.3, '#c09040');
+    islandGrad.addColorStop(0.7, '#a87830');
+    islandGrad.addColorStop(1, '#8b6020');
+    ctx.fillStyle = islandGrad;
+    ctx.beginPath();
+    ctx.roundRect(EILAND_X, EILAND_Y, EILAND_W, EILAND_H, 40);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Strand-rand (lichtere kleur langs de randen van het eiland)
+    ctx.strokeStyle = '#e8c878';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.roundRect(EILAND_X + 4, EILAND_Y + 4, EILAND_W - 8, EILAND_H - 8, 36);
+    ctx.stroke();
+
+    // Palmboom-silhouetten op het eiland (decoratief)
+    function drawPalm(px, py, size){
+      ctx.save();
+      ctx.translate(px, py);
+      // Stam
+      ctx.strokeStyle = '#5a3010'; ctx.lineWidth = size * 0.12;
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(size*0.05, -size); ctx.stroke();
+      // Bladeren
+      ctx.fillStyle = '#2d7a1a';
+      const leafAngles = [-0.6, 0, 0.6, -1.1, 1.1];
+      for(const la of leafAngles){
+        ctx.save();
+        ctx.translate(size*0.05, -size);
+        ctx.rotate(la - 0.3);
+        ctx.beginPath();
+        ctx.ellipse(size*0.3, 0, size*0.35, size*0.1, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+    drawPalm(EILAND_X + 80, EILAND_Y + EILAND_H - 40, 55);
+    drawPalm(EILAND_X + EILAND_W - 90, EILAND_Y + EILAND_H - 35, 50);
+    drawPalm(EILAND_X + EILAND_W * 0.5, EILAND_Y + 50, 45);
+
+    // Pad tekenen (vijanden zwemmen op het water — geanimeerde zwem-stroom)
+    for(const dp of pathsToDraw){
+      // Waterstroom (donkerder blauw)
+      ctx.strokeStyle = 'rgba(0,30,100,0.5)'; ctx.lineWidth = 50; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(dp[0].x, dp[0].y);
+      for(const p of dp) ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      // Schuimrand
+      ctx.strokeStyle = `rgba(100,180,255,${0.25 + Math.sin(t_e*4)*0.1})`; ctx.lineWidth = 10;
+      ctx.setLineDash([20, 15]);
+      ctx.beginPath(); ctx.moveTo(dp[0].x, dp[0].y);
+      for(const p of dp) ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
   } else {
     // Desert theme background
     const grad=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
@@ -2823,6 +3354,8 @@ function drawEnemy(e){
   else if(drawType === 'mutatedmug') drawMutatedMug(e);
   else if(drawType === 'hydramug') drawHydraMug(e);
   else if(drawType === 'zwangeremug') drawZwangereMug(e);
+  // ===== SCHEURBEUK MUG (EilandModus baas) =====
+  else if(drawType === 'scheurbeuk_mug') drawScheurbeukMug(e);
 
   ctx.globalAlpha=1;
   drawMutationEffects(e);
@@ -3204,6 +3737,8 @@ function drawTower(tw){
   else if(tw.key==='katoen') drawKatoenTower(tw);
   else if(tw.key==='tsjaadinator') drawTsjaadinator(tw);
   else if(tw.key==='hut') drawHutTower(tw);
+  // Boot toren (EilandModus water-platform)
+  else if(tw.key==='boot') drawBootTower(tw);
 
   if(tw.paragon){
     const t_par = Date.now() * 0.003;
