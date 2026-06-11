@@ -408,7 +408,7 @@
   <button onclick="selectTower('tsjaadinator')" id="tower-tsjaad">⚡ Tsjaadinator (€2500)</button>
   <button onclick="selectTower('sniper')" id="tower-sniper">🎯 Sniper (€3000)</button>
   <!-- Boot toren: alleen zichtbaar in EilandModus -->
-  <button onclick="selectTower('boot')" id="tower-boot">⛵ Boot Platform (€3000)</button>
+  <button onclick="selectTower('boot')" id="tower-boot">⛵ Boot Platform (€1000)</button>
   <hr style="margin:10px 0; border-color:#444;">
   <button id="startRoundBtn" onclick="startRound()" style="background:#4CAF50; border-color:#45a049;">▶️ Start Ronde</button>
   <button id="autoStartBtn" onclick="toggleAutoStart()" style="background:#1a3a1a; border-color:#2a5a2a; color:#6dbf6d; margin-top:4px;">⏩ Auto-Start: UIT</button>
@@ -605,10 +605,10 @@ const eilandPath = [
 
 // Eiland: rechthoek in het midden van de canvas (1200x700).
 // Torens mogen ALLEEN hier geplaatst worden (tenzij boot-platform).
-const EILAND_X = 280;   // linkerrand eiland
-const EILAND_Y = 170;   // bovenrand eiland
-const EILAND_W = 640;   // breedte eiland
-const EILAND_H = 280;   // hoogte eiland
+const EILAND_X = 410;   // linkerrand eiland
+const EILAND_Y = 225;   // bovenrand eiland
+const EILAND_W = 380;   // breedte eiland
+const EILAND_H = 200;   // hoogte eiland
 
 // Boot-platforms: array van {x, y, radius} die als geldig bouwterrein tellen op water
 let bootPlatforms = [];
@@ -1148,7 +1148,7 @@ const towerTypes={
   fakkel:{range:95,rate:50,dmg:2,speed:8,cost:150,ultCost:4000,fire:true},
   hut:{range:110,rate:9999,dmg:0,speed:0,cost:800,hut:true,ultCost:5000},
   // Boot: water-platform, geen aanval, alleen in EilandModus
-  boot:{range:0,rate:9999,dmg:0,speed:0,cost:3000,farm:false,isBoot:true,ultCost:99999}
+  boot:{range:0,rate:9999,dmg:0,speed:0,cost:1000,farm:false,isBoot:true,ultCost:99999}
 };
 
 function getTowerRange(tw) {
@@ -1368,19 +1368,16 @@ function updateTooltip(tw, cx, cy){
 
   let html = '';
 
-  // Boot platform: speciale tooltip
+  // Boot platform: simpele tekst, geen tooltip
   if(tw.key === 'boot'){
-    html += `<div class="tt-stats-title">⛵ Boot Platform</div>`;
-    html += `<div class="tt-stat-row"><span class="tt-stat-label">🏗️ Platform radius</span><span class="tt-stat-val">${tw.platformRadius || 45}px</span></div>`;
-    html += `<div class="tt-stat-row"><span class="tt-stat-label">⚔️ Aanval</span><span class="tt-stat-val">Geen</span></div>`;
-    html += `<div style="font-size:10px;color:#88ddff;margin-top:4px;">🌊 Creëert een bouwplatform op het water.<br>Plaats hier torens om het eiland te verdedigen!</div>`;
+    html += `<div style="font-size:13px;color:#aaddff;line-height:1.6;padding:6px 0;">⛵ Boot platform is de beste vriend van al de inwoners in het Tsjaad meer! Plaats hem en je troepen kunnen op water staan.</div>`;
     html += `<hr class="tt-divider">`;
     html += `<div class="tt-upgrade-header max" style="color:#888">⛵ Kan niet geüpgraded worden</div>`;
     document.getElementById('tt-stats-section').innerHTML = html;
     const sellVal2 = Math.floor(getTowerTotalInvestedCost(tw) * 0.8);
     document.getElementById('tt-sell').textContent = `🗑️ [Backspace] Verkopen: €${sellVal2}`;
     let tx2 = cx + 18, ty2 = cy - 10;
-    const ttW2 = 280, ttH2 = 200;
+    const ttW2 = 280, ttH2 = 160;
     if(tx2 + ttW2 > window.innerWidth) tx2 = cx - ttW2 - 10;
     if(ty2 + ttH2 > window.innerHeight) ty2 = cy - ttH2 + 10;
     if(ty2 < 0) ty2 = 5;
@@ -1792,7 +1789,7 @@ canvas.onclick=e=>{
     bootPlatforms.push({x, y, radius: platformRadius});
     const bootTower={
       x, y, key:'boot', cool:0, dmg:0, rate:9999, level:0,
-      ultimate:false, upText:60, farm:false, slow:false,
+      ultimate:false, upText:0, farm:false, slow:false,
       monkey:false, fire:false, monkeyTimer:0, boosted:false,
       boostEndTime:0, nukeTimer:0, investedCost:cfg.cost,
       speerRangeBoostUntil:0, totalDamage:0,
@@ -3269,9 +3266,9 @@ function drawPath(){
       }
       ctx.restore();
     }
-    drawPalm(EILAND_X + 80, EILAND_Y + EILAND_H - 40, 55);
-    drawPalm(EILAND_X + EILAND_W - 90, EILAND_Y + EILAND_H - 35, 50);
-    drawPalm(EILAND_X + EILAND_W * 0.5, EILAND_Y + 50, 45);
+    drawPalm(EILAND_X + 55, EILAND_Y + EILAND_H - 30, 40);
+    drawPalm(EILAND_X + EILAND_W - 65, EILAND_Y + EILAND_H - 28, 38);
+    drawPalm(EILAND_X + EILAND_W * 0.5, EILAND_Y + 35, 35);
 
     // Pad tekenen (vijanden zwemmen op het water — geanimeerde zwem-stroom)
     for(const dp of pathsToDraw){
