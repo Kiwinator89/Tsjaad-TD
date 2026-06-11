@@ -52,6 +52,9 @@
   .modeBtn.lichtsnelheid { background: linear-gradient(135deg, #00ffff 0%, #0088ff 50%, #0000ff 100%); color: #fff; text-shadow: 0 0 15px #00ffff; animation: speedPulse 0.6s ease-in-out infinite; border-color: #00ffff; }
 /* ===== EILAND MODUS STIJL ===== */
 @keyframes eilandPulse { 0%,100%{box-shadow:0 10px 40px rgba(0,153,255,0.5);transform:scale(1);}50%{box-shadow:0 10px 70px rgba(0,204,255,0.9),0 0 60px rgba(0,153,255,0.6);transform:scale(1.05);} }
+/* ===== KAMPEER MODUS STIJL ===== */
+@keyframes kampeerPulse { 0%,100%{box-shadow:0 10px 40px rgba(255,120,0,0.5),0 0 30px rgba(255,80,0,0.3);transform:scale(1);}50%{box-shadow:0 10px 70px rgba(255,160,0,0.9),0 0 60px rgba(255,100,0,0.7),inset 0 0 20px rgba(255,180,50,0.15);transform:scale(1.05);} }
+.modeBtn.kampeer { background:linear-gradient(135deg,#0a0a1a 0%,#1a0d00 30%,#2a1500 60%,#3d1f00 100%); color:#ffcc66; text-shadow:0 0 15px #ff6600,0 0 30px #ff3300; animation:kampeerPulse 2s ease-in-out infinite; border-color:#ff8800; border-width:5px; }
 /* Boot knop in UI zijbalk - alleen zichtbaar in EilandModus */
 #tower-boot { display: none; background: linear-gradient(135deg, #002266, #0044aa); border-color: #0099ff; color: #aaddff; }
   .modeBtn.virus { background: linear-gradient(135deg, #001a00 0%, #003300 40%, #00ff44 100%); color: #00ff44; text-shadow: 0 0 15px #00ff44, 0 0 30px #00cc33; animation: virusPulse 1.5s ease-in-out infinite; border-color: #00ff44; border-width: 5px; }
@@ -292,6 +295,10 @@
       <!-- ===== EILAND MODUS KNOP ===== -->
       <button class="modeBtn eiland special-mission-btn" onclick="startEilandModus()" style="width:90%; max-width:700px; padding:40px 20px; font-size:26px; background:linear-gradient(135deg,#001a4d 0%,#003399 30%,#0055cc 60%,#0099ff 100%); color:#aaddff; border-color:#00ccff; border-width:5px; animation:eilandPulse 2s ease-in-out infinite;">
         🏝️ EILAND MODUS<br><span style="font-size:14px; opacity:0.8; font-weight:normal;">Verdedig een klein eiland omringd door water · Bouw boten als platforms!</span>
+      </button>
+      <!-- ===== KAMPEER MODUS KNOP ===== -->
+      <button class="modeBtn kampeer special-mission-btn" onclick="startKampeerModus()" style="width:90%; max-width:700px; padding:40px 20px; font-size:26px;">
+        🔥 KAMPEER MODUS<br><span style="font-size:14px; opacity:0.8; font-weight:normal;">Woestijn in de nacht · Breid het kampvuur uit voor meer licht · Ninja Malaria Mug eindbaas!</span>
       </button>
     </div>
   </div>
@@ -603,7 +610,10 @@ const eilandPath = [
   {x:1220,y:350}   // uitgang rechts
 ];
 
-// Eiland: rechthoek in het midden van de canvas (1200x700).
+// Kampeer Modus pad — woestijn nacht, vijanden komen van links en rechts naar het midden
+const kampeerPath = [
+  {x:-20,y:350},{x:200,y:350},{x:200,y:200},{x:420,y:200},{x:420,y:480},{x:600,y:480},{x:600,y:350},{x:780,y:350},{x:780,y:150},{x:1020,y:150},{x:1020,y:420},{x:1220,y:420}
+];
 // Torens mogen ALLEEN hier geplaatst worden (tenzij boot-platform).
 const EILAND_X = 410;   // linkerrand eiland
 const EILAND_Y = 225;   // bovenrand eiland
@@ -685,8 +695,23 @@ const scheurbeukMugType = {
   isScheurbeuk: true           // vlag voor speciale renderlogica
 };
 
-// ===== EILAND MODUS =====
-let eilandModusAudio = null;
+// ===== NINJA MALARIA MUG BAAS (exclusief voor KampeerModus, ronde 30) =====
+const ninjaMalariaMugType = {
+  name:'🥷 Ninja Malaria Mug',
+  hp: 80000, speed: 1.2, size: 80, reward: 2000, boss: true,
+  type: 'ninja_mug', isNinjaMug: true
+};
+
+// ===== KAMPVUUR (KampeerModus) =====
+let kampvuurRadius = 180;       // lichtradius van kampvuur (pixels)
+let kampvuurLevel  = 0;         // aantal uitbreidingen
+const KAMPVUUR_CX  = 600;       // canvas midden x
+const KAMPVUUR_CY  = 350;       // canvas midden y
+const KAMPVUUR_BASE_COST = 500; // eerste uitbreiding
+const KAMPVUUR_COST_STEP = 200; // elke volgende uitbreiding +200
+function getKampvuurUpgradeCost() {
+  return KAMPVUUR_BASE_COST + kampvuurLevel * KAMPVUUR_COST_STEP;
+}
 
 function startEilandModus() {
   // Speel het EilandModus intro-geluid één keer af
@@ -746,6 +771,58 @@ function startEilandModus() {
   islandAudio.loop = true; islandAudio.volume = 0.5;
   islandAudio.play().catch(() => {});
   currentTheme = islandAudio; musicPlaying = true;
+
+  startTimer();
+  document.getElementById('utilBtns').style.display = 'flex';
+  loop();
+}
+
+// ===== KAMPEER MODUS =====
+let kampeerModusAudio = null;
+
+function startKampeerModus() {
+  document.getElementById('titleScreen').style.display = 'none';
+  document.getElementById('settingsBtn').style.display = 'none';
+  document.getElementById('ui').style.display = 'block';
+
+  gameMode = 'kampeer';
+  path = kampeerPath;
+  gamePaths = [kampeerPath];
+
+  kampvuurRadius = 180;
+  kampvuurLevel  = 0;
+
+  enemies = []; towers = []; projectiles = []; explosions = [];
+  bananas = []; landmines = [];
+  money = 600; lives = 20; round = 1; totalMoneyEarned = 0;
+  autoStartRounds = false; autoRoundCountdown = 0;
+  paragonActive = false; paragonTower = null; hutFreeTowerPending = null;
+
+  const autoBtn = document.getElementById('autoStartBtn');
+  if (autoBtn) { autoBtn.textContent = '⏩ Auto-Start: UIT'; autoBtn.style.background = '#1a3a1a'; autoBtn.style.borderColor = '#2a5a2a'; autoBtn.style.color = '#6dbf6d'; }
+
+  document.getElementById('startRoundBtn').style.display = 'block';
+  document.getElementById('katoenBtn').disabled = false;
+  document.getElementById('katoenBtn').classList.remove('crossed-out');
+  document.getElementById('autoRoundMsg').textContent = '';
+  document.getElementById('roundMax').textContent = '/30';
+  document.getElementById('lives').textContent = lives;
+  document.getElementById('money').textContent = money;
+
+  const bootBtn = document.getElementById('tower-boot');
+  if (bootBtn) bootBtn.style.display = 'none';
+  bootPlatforms = [];
+
+  document.getElementById('gameTitle').innerHTML = '<span style="color:#ff8800">🔥 KAMPEER MODUS</span>';
+  gameSpeedMult = 1; enemySpeedMult = 1;
+  const virusWarnEl = document.getElementById('virusWarnEl');
+  if (virusWarnEl) virusWarnEl.style.display = 'none';
+
+  stopMusic();
+  kampeerModusAudio = new Audio(BASE_AUDIO + 'Kamperen.mp3');
+  kampeerModusAudio.loop = true; kampeerModusAudio.volume = 0.6;
+  kampeerModusAudio.play().catch(() => {});
+  currentTheme = kampeerModusAudio; musicPlaying = true;
 
   startTimer();
   document.getElementById('utilBtns').style.display = 'flex';
@@ -1048,7 +1125,8 @@ function startGame(mode) {
     speed: racePath, armoede: armoedePath, boss: bossPath,
     mutatie: mutatiePath, dubbelhealth: dubbelHealthPath,
     tsjaadmodus: tsjaadPath, tsjaadplus: tsjaadPlusPath,
-    lichtsnelheid: lichtsnelheidPath, virus: virusPath
+    lichtsnelheid: lichtsnelheidPath, virus: virusPath,
+    kampeer: kampeerPath
   };
   path = modePaths[mode] || standardPath;
   gamePaths = [path];
@@ -1240,6 +1318,11 @@ canvas.onmousemove = e => {
   if(hoveredTower){
     updateTooltip(hoveredTower, e.clientX, e.clientY);
     tooltipEl.style.display='block';
+  } else if(gameMode==='kampeer' && Math.hypot(mouseX-KAMPVUUR_CX, mouseY-KAMPVUUR_CY) < 30){
+    const cost = getKampvuurUpgradeCost();
+    tooltipEl.innerHTML = `<div class="tt-name">🔥 Kampvuur</div><div class="tt-level">Niveau ${kampvuurLevel} · Lichtradius: ${Math.round(kampvuurRadius)}px</div><hr class="tt-divider"><div class="tt-upgrade-header">Breid kampvuur uit — €${cost} (+40 radius)</div><div class="tt-sell" style="color:#ffcc44">Klik om uit te breiden!</div>`;
+    tooltipEl.style.display='block';
+    updateTooltipPosition(e.clientX, e.clientY);
   } else {
     tooltipEl.style.display='none';
   }
@@ -1598,7 +1681,15 @@ function updateTooltip(tw, cx, cy){
   tooltipEl.style.top = ty + 'px';
 }
 
-document.addEventListener('keydown', e => {
+function updateTooltipPosition(cx, cy){
+  let tx = cx + 18, ty = cy - 10;
+  const ttW = 280, ttH = 160;
+  if(tx + ttW > window.innerWidth) tx = cx - ttW - 10;
+  if(ty + ttH > window.innerHeight) ty = cy - ttH + 10;
+  if(ty < 0) ty = 5;
+  tooltipEl.style.left = tx + 'px';
+  tooltipEl.style.top = ty + 'px';
+}
   if(e.key === 'Backspace' && hoveredTower && !gameWon){
     e.preventDefault();
     sellTower(hoveredTower);
@@ -1716,6 +1807,26 @@ canvas.onclick=e=>{
   if(gameWon) return;
   const r=canvas.getBoundingClientRect();
   const x=e.clientX-r.left, y=e.clientY-r.top;
+
+  // Kampeer Modus: klik op kampvuur om uit te breiden
+  if(gameMode==='kampeer'){
+    const distToFire = Math.hypot(x - KAMPVUUR_CX, y - KAMPVUUR_CY);
+    if(distToFire < 30){
+      const cost = getKampvuurUpgradeCost();
+      if(money >= cost){
+        money -= cost;
+        kampvuurRadius += 40;
+        kampvuurLevel++;
+        document.getElementById('money').textContent = money;
+        showRoundMsg('🔥 Kampvuur uitgebreid! Radius: ' + Math.round(kampvuurRadius) + 'px · Volgende: €' + getKampvuurUpgradeCost());
+        playSound('upgrade', 0.6);
+      } else {
+        showRoundMsg('💸 Niet genoeg geld! Kampvuur uitbreiden kost €' + cost);
+      }
+      return;
+    }
+  }
+
   for(const tw of towers){ const towerSize=18*(1+tw.level*0.05); if(Math.hypot(tw.x-x,tw.y-y)<towerSize){ handleUpgrade(tw); return; } }
 
   // Hut free tower placement
@@ -2083,13 +2194,14 @@ function startRound(){
   else if(gameMode==='virus') baseEnemies=Math.floor(5+round*2);
   // EilandModus: vergelijkbaar met standaard maar iets meer vijanden (de ruimte is beperkt)
   else if(gameMode==='eiland') baseEnemies=Math.floor(5+round*2);
+  else if(gameMode==='kampeer') baseEnemies=Math.floor(5+round*1.8);
   spawnLeft=baseEnemies; spawning=true; spawnTimer=0;
   if(autoStartRounds) autoRoundCountdown=0;
 }
 
 function getMaxRound(){
   if(gameMode==='malariazwerm') return 1;
-  if(gameMode==='standard'||gameMode==='speed'||gameMode==='armoede'||gameMode==='dubbelhealth'||gameMode==='lichtsnelheid'||gameMode==='virus'||gameMode==='eiland') return 30;
+  if(gameMode==='standard'||gameMode==='speed'||gameMode==='armoede'||gameMode==='dubbelhealth'||gameMode==='lichtsnelheid'||gameMode==='virus'||gameMode==='eiland'||gameMode==='kampeer') return 30;
   if(gameMode==='hard'||gameMode==='tsjaadmodus') return 50;
   if(gameMode==='boss') return 1;
   if(gameMode==='mutatie') return 35;
@@ -2149,6 +2261,7 @@ function spawnEnemy(){
     if(gameMode==='mutatie'){ enemies.push(makeEnemy({...zwangereMugBossType})); return; }
     // ===== EILAND MODUS: Scheurbeuk Mug als eindbaas op ronde 30 =====
     if(gameMode==='eiland'){ enemies.push(makeEnemy({...scheurbeukMugType})); return; }
+    if(gameMode==='kampeer'){ enemies.push(makeEnemy({...ninjaMalariaMugType})); return; }
     if(gameMode==='standard'||gameMode==='speed'||gameMode==='lichtsnelheid'||gameMode==='armoede'){ enemies.push(makeEnemy({...bossType})); return; }
   if(gameMode==='virus'){ enemies.push(makeEnemy({...bossType, hp:80000, speed:0.9, size:90, reward:1500})); return; }
     if(gameMode==='hard'){ enemies.push(makeEnemy({...mutatedBossType})); return; }
@@ -2466,6 +2579,10 @@ function update(){
       for(const e of enemies){
         if(e.mutation==='onzichtbare'||e.mutation2==='onzichtbare'||e.mutation3==='onzichtbare'){
           if(Math.hypot(e.x-tw.x,e.y-tw.y) > effRange + e.size) continue;
+        }
+        // Kampeer Modus: torens kunnen alleen vijanden raken die in het licht van het kampvuur staan
+        if(gameMode==='kampeer'){
+          if(Math.hypot(e.x-KAMPVUUR_CX,e.y-KAMPVUUR_CY) > kampvuurRadius + e.size) continue;
         }
         if(Math.hypot(e.x-tw.x,e.y-tw.y) < effRange + e.size){
           if(!target || e.i > target.i || (e.i===target.i&&e.hp<target.hp)) target = e;
@@ -3068,6 +3185,149 @@ function drawTsjaadPlusBg(){
   }
 }
 
+// ===== KAMPVUUR TEKENFUNCTIE =====
+function drawKampvuur(cx, cy, t_k){
+  ctx.save();
+  ctx.translate(cx, cy + 8);
+
+  // Stenen kring
+  ctx.fillStyle = '#3a2a10';
+  for(let i = 0; i < 8; i++){
+    const a = (i / 8) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.ellipse(Math.cos(a)*14, Math.sin(a)*7, 5, 4, a, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // Houtblokken
+  ctx.strokeStyle = '#5a2a08'; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(-12, 4); ctx.lineTo(12, 4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-9, -2); ctx.lineTo(9, 8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(9, -2); ctx.lineTo(-9, 8); ctx.stroke();
+
+  // Vlam animatie
+  const f1 = Math.sin(t_k * 6.3) * 0.2 + 1;
+  const f2 = Math.sin(t_k * 8.1 + 1) * 0.15 + 1;
+  const f3 = Math.sin(t_k * 11 + 2) * 0.18 + 1;
+
+  // Buitenste vlam (oranje)
+  ctx.fillStyle = 'rgba(255,100,10,0.8)';
+  ctx.beginPath();
+  ctx.moveTo(-10, 0); ctx.quadraticCurveTo(-12*f1, -18*f1, 0, -28*f1); ctx.quadraticCurveTo(12*f1, -18*f1, 10, 0);
+  ctx.closePath(); ctx.fill();
+
+  // Middelste vlam (geel-oranje)
+  ctx.fillStyle = 'rgba(255,180,20,0.9)';
+  ctx.beginPath();
+  ctx.moveTo(-7, 0); ctx.quadraticCurveTo(-5*f2, -16*f2, 0, -22*f2); ctx.quadraticCurveTo(5*f2, -16*f2, 7, 0);
+  ctx.closePath(); ctx.fill();
+
+  // Kern vlam (geel-wit)
+  ctx.fillStyle = 'rgba(255,240,100,0.95)';
+  ctx.beginPath();
+  ctx.moveTo(-4, 0); ctx.quadraticCurveTo(-2*f3, -10*f3, 0, -14*f3); ctx.quadraticCurveTo(2*f3, -10*f3, 4, 0);
+  ctx.closePath(); ctx.fill();
+
+  // Gloed
+  ctx.shadowBlur = 30 + Math.sin(t_k*5)*8;
+  ctx.shadowColor = '#ff8800';
+  ctx.fillStyle = 'rgba(255,200,50,0.3)';
+  ctx.beginPath(); ctx.arc(0, -8, 12, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Vonkjes
+  if(!window._kampvuurSparks) window._kampvuurSparks = [];
+  if(Math.random() < 0.3){
+    window._kampvuurSparks.push({x:(Math.random()-0.5)*8, y:-20-Math.random()*10, vx:(Math.random()-0.5)*1.5, vy:-1-Math.random()*1.5, life:1});
+  }
+  for(const sp of window._kampvuurSparks){
+    sp.x += sp.vx; sp.y += sp.vy; sp.life -= 0.04;
+    const a = Math.max(0, sp.life);
+    ctx.fillStyle = `rgba(255,${150+Math.floor(sp.life*80)},0,${a})`;
+    ctx.beginPath(); ctx.arc(sp.x, sp.y, 1.5, 0, Math.PI*2); ctx.fill();
+  }
+  window._kampvuurSparks = window._kampvuurSparks.filter(sp => sp.life > 0);
+
+  ctx.restore();
+}
+
+// ===== NINJA MALARIA MUG TEKENFUNCTIE =====
+function drawNinjaMug(e){
+  const t2 = Date.now() * 0.004;
+  const pulse = 1 + Math.sin(t2 * 2) * 0.06;
+  const sz = e.size || 80;
+
+  ctx.save();
+
+  // Schaduwgloed
+  const glowG = ctx.createRadialGradient(0, 0, sz*0.2, 0, 0, sz*0.85);
+  glowG.addColorStop(0, 'rgba(0,0,0,0)');
+  glowG.addColorStop(0.6, 'rgba(50,0,80,0.2)');
+  glowG.addColorStop(1, 'rgba(80,0,120,0.4)');
+  ctx.fillStyle = glowG;
+  ctx.beginPath(); ctx.arc(0, 0, sz*0.85, 0, Math.PI*2); ctx.fill();
+
+  // Zwart ninja lichaam
+  const bodyGrad = ctx.createRadialGradient(-6, -6, 3, 0, 4, sz*0.45*pulse);
+  bodyGrad.addColorStop(0, '#2a2a3a');
+  bodyGrad.addColorStop(0.5, '#111122');
+  bodyGrad.addColorStop(1, '#050508');
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath();
+  ctx.ellipse(0, 4, sz*0.35*pulse, sz*0.48*pulse, 0.08, 0, Math.PI*2);
+  ctx.fill();
+
+  // Paarse vleugels
+  ctx.fillStyle = 'rgba(120,0,180,0.5)';
+  ctx.strokeStyle = 'rgba(180,50,255,0.6)'; ctx.lineWidth = 1.5;
+  const wFlap = Math.sin(t2*8) * 0.3;
+  ctx.save(); ctx.rotate(-0.3 + wFlap);
+  ctx.beginPath(); ctx.ellipse(-sz*0.4, -sz*0.15, sz*0.34, sz*0.17, -0.4, 0, Math.PI*2);
+  ctx.fill(); ctx.stroke(); ctx.restore();
+  ctx.save(); ctx.rotate(0.3 - wFlap);
+  ctx.beginPath(); ctx.ellipse(sz*0.4, -sz*0.15, sz*0.34, sz*0.17, 0.4, 0, Math.PI*2);
+  ctx.fill(); ctx.stroke(); ctx.restore();
+
+  // Hoofd
+  ctx.fillStyle = '#111122';
+  ctx.beginPath(); ctx.arc(0, -sz*0.4, sz*0.19, 0, Math.PI*2); ctx.fill();
+
+  // Ninja masker (bandana)
+  ctx.fillStyle = '#1a0030';
+  ctx.beginPath();
+  ctx.rect(-sz*0.18, -sz*0.46, sz*0.36, sz*0.1);
+  ctx.fill();
+  // Masker knoop links & rechts
+  ctx.fillStyle = '#4a0080';
+  ctx.beginPath(); ctx.arc(-sz*0.18, -sz*0.41, sz*0.03, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(sz*0.18, -sz*0.41, sz*0.03, 0, Math.PI*2); ctx.fill();
+
+  // Ogen — rood gloeiend
+  ctx.shadowBlur = 14; ctx.shadowColor = '#ff0000';
+  ctx.fillStyle = '#ff0044';
+  ctx.beginPath(); ctx.arc(-sz*0.07, -sz*0.43, sz*0.045, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(sz*0.07, -sz*0.43, sz*0.045, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Ninja shuriken (sterachtig wapen)
+  ctx.save();
+  ctx.translate(sz*0.3, 0);
+  ctx.rotate(t2 * 4);
+  ctx.fillStyle = '#888899';
+  for(let i = 0; i < 4; i++){
+    ctx.save(); ctx.rotate(i * Math.PI / 2);
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-sz*0.04, -sz*0.11); ctx.lineTo(sz*0.04, -sz*0.11); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
+
+  // Zuigsnuit
+  ctx.strokeStyle = '#333344'; ctx.lineWidth = sz*0.035; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(0, -sz*0.22); ctx.lineTo(0, -sz*0.03); ctx.stroke();
+
+  ctx.restore();
+}
+
 function drawPath(){
   const pathsToDraw = gamePaths.length ? gamePaths : [path];
   if(gameMode==='tsjaadplus'){ drawTsjaadPlusBg(); return; }
@@ -3285,8 +3545,83 @@ function drawPath(){
       ctx.stroke();
       ctx.setLineDash([]);
     }
+  } else if(gameMode==='kampeer'){
+    // ===== KAMPEER MODUS: woestijn nacht met kampvuur =====
+    const t_k = Date.now() * 0.001;
+
+    // Nachtelijke woestijn achtergrond
+    const nightGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    nightGrad.addColorStop(0, '#05040f');
+    nightGrad.addColorStop(0.4, '#0a0818');
+    nightGrad.addColorStop(0.8, '#080614');
+    nightGrad.addColorStop(1, '#030208');
+    ctx.fillStyle = nightGrad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Sterren
+    if(!window._kampeerStars){
+      window._kampeerStars = [];
+      for(let i = 0; i < 200; i++){
+        window._kampeerStars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height*0.75, s:0.4+Math.random()*1.8, p:Math.random()*Math.PI*2, b:0.3+Math.random()*0.7});
+      }
+    }
+    for(const st of window._kampeerStars){
+      const alpha = st.b * (0.5 + Math.sin(t_k*1.5+st.p)*0.5);
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.beginPath(); ctx.arc(st.x, st.y, st.s, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Woestijn zand silhouet onderkant
+    ctx.fillStyle = '#1a1005';
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    ctx.lineTo(0, canvas.height * 0.82);
+    for(let dx = 0; dx <= canvas.width; dx += 60){
+      const dy = Math.sin(dx * 0.008 + 1.5) * 18 + Math.sin(dx * 0.02) * 8;
+      ctx.lineTo(dx, canvas.height * 0.82 + dy);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.closePath(); ctx.fill();
+
+    // Kampvuur lichtschijn (radiale glow over heel canvas)
+    const fireFlicker = 0.85 + Math.sin(t_k * 7.3) * 0.08 + Math.sin(t_k * 13.7) * 0.04;
+    const lightGrad = ctx.createRadialGradient(KAMPVUUR_CX, KAMPVUUR_CY, 0, KAMPVUUR_CX, KAMPVUUR_CY, kampvuurRadius * 1.4);
+    lightGrad.addColorStop(0, `rgba(255,180,60,${0.28 * fireFlicker})`);
+    lightGrad.addColorStop(0.35, `rgba(255,120,20,${0.18 * fireFlicker})`);
+    lightGrad.addColorStop(0.7, `rgba(200,80,10,${0.08 * fireFlicker})`);
+    lightGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = lightGrad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Zacht grondlicht rondom vuur
+    const groundLight = ctx.createRadialGradient(KAMPVUUR_CX, KAMPVUUR_CY+10, 0, KAMPVUUR_CX, KAMPVUUR_CY+10, kampvuurRadius * 0.6);
+    groundLight.addColorStop(0, `rgba(255,150,40,${0.15 * fireFlicker})`);
+    groundLight.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = groundLight;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Lichtgrens visueel (stippellijn)
+    ctx.save();
+    ctx.strokeStyle = `rgba(255,150,50,${0.25 + Math.sin(t_k*3)*0.08})`;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([10, 8]);
+    ctx.beginPath();
+    ctx.arc(KAMPVUUR_CX, KAMPVUUR_CY, kampvuurRadius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // Kampvuur zelf tekenen (boven het pad, zodat het er mooi bovenop staat)
+    drawKampvuur(KAMPVUUR_CX, KAMPVUUR_CY, t_k);
+
+    // Pad — donkere aarden weg zichtbaar onder vuurlicht
+    for(const dp of pathsToDraw){
+      ctx.strokeStyle = '#1a0e00'; ctx.lineWidth = 32; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(dp[0].x, dp[0].y); for(const p of dp) ctx.lineTo(p.x, p.y); ctx.stroke();
+      ctx.strokeStyle = `rgba(60,35,5,0.8)`; ctx.lineWidth = 22;
+      ctx.beginPath(); ctx.moveTo(dp[0].x, dp[0].y); for(const p of dp) ctx.lineTo(p.x, p.y); ctx.stroke();
+    }
   } else {
-    // Desert theme background
     const grad=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
     grad.addColorStop(0,'#c8a060'); grad.addColorStop(0.4,'#d4aa70'); grad.addColorStop(0.7,'#c09050'); grad.addColorStop(1,'#b07840');
     ctx.fillStyle=grad; ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -3350,6 +3685,7 @@ function drawEnemy(e){
     'infected_bat':      'vogel',
     'infected_spider':   'neushoorn',
     'super_robot_malaria_mug': 'mutatedmug',
+    'ninja_mug': 'ninja_mug',
   };
   const drawType = infectedTypeMap[e.type] || e.type;
 
@@ -3369,6 +3705,8 @@ function drawEnemy(e){
   else if(drawType === 'zwangeremug') drawZwangereMug(e);
   // ===== SCHEURBEUK MUG (EilandModus baas) =====
   else if(drawType === 'scheurbeuk_mug') drawScheurbeukMug(e);
+  // ===== NINJA MALARIA MUG (KampeerModus baas) =====
+  else if(drawType === 'ninja_mug') drawNinjaMug(e);
 
   ctx.globalAlpha=1;
   drawMutationEffects(e);
