@@ -1,16 +1,15 @@
-WELCOME TO CHAD TD! 🐪 🌵 
+WELKOM BIJ TSJAAD TD! 🐪 🌵 
 
-CHOOSE FROM 10 DIFFERENT LEVELS ⚔
+KIES UIT MEER DAN 15 LEVELS EN SPECIALE MISSIES!!!⚔
 
-FIGHT WITH 10 UNIQUE TROOPS ⛑
+VECHT MET 11 UNIEKE TROEPEN!!! ⛑
 
-THE ANIMALS HAVE GONE INSANE! CAN YOU SAVE CHAD? OR IS THE PLAGUE TO STRONG?🦟
+DE DIEREN ZIJN OP HOL GESLAGEN! KAN JIJ DE PLAAG IN TSJAAD STOPPEN?🦟
 
-PLAY NOW!!! CLICK THIS LINK FOR THE PC VERSION: https://kiwinator89.github.io/Tsjaad-TD/
+SPEEL NU!!!! KLIK DEZE LINK: https://kiwinator89.github.io/Tsjaad-TD/
 
-🎥OFFICIAL TRAILER: https://www.youtube.com/watch?v=BF4e5hSMvkw
+🎥OFFICIELE TRAILER: https://www.youtube.com/watch?v=BF4e5hSMvkw
 
 ![image alt](https://github.com/Kiwinator89/Tsjaad-TD/blob/22f2bb0b8569702b770673a1cef714c8e090ef7b/upscaled.png)
 
-This game was made in the Netherlands. Go to the settings menu to change your language.
-The songs in this game are composed by Tim Haywood and can be taken down upon request.
+
