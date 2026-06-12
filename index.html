@@ -2583,6 +2583,8 @@ function update(){
         }
         // Kampeer Modus: torens kunnen alleen vijanden raken die in het licht van het kampvuur staan
         if(gameMode==='kampeer'){
+          // Veilige check: zorg ervoor dat e.x, e.y en kampvuurRadius valid zijn
+          if(typeof e.x !== 'number' || typeof e.y !== 'number' || isNaN(e.x) || isNaN(e.y) || !kampvuurRadius) continue;
           if(Math.hypot(e.x-KAMPVUUR_CX,e.y-KAMPVUUR_CY) > kampvuurRadius + e.size) continue;
         }
         if(Math.hypot(e.x-tw.x,e.y-tw.y) < effRange + e.size){
@@ -3612,9 +3614,6 @@ function drawPath(){
     ctx.setLineDash([]);
     ctx.restore();
 
-    // Kampvuur zelf tekenen (boven het pad, zodat het er mooi bovenop staat)
-    drawKampvuur(KAMPVUUR_CX, KAMPVUUR_CY, t_k);
-
     // Pad — donkere aarden weg zichtbaar onder vuurlicht
     for(const dp of pathsToDraw){
       ctx.strokeStyle = '#1a0e00'; ctx.lineWidth = 32; ctx.lineCap = 'round';
@@ -3622,6 +3621,9 @@ function drawPath(){
       ctx.strokeStyle = `rgba(60,35,5,0.8)`; ctx.lineWidth = 22;
       ctx.beginPath(); ctx.moveTo(dp[0].x, dp[0].y); for(const p of dp) ctx.lineTo(p.x, p.y); ctx.stroke();
     }
+
+    // Kampvuur zelf tekenen (NAAR het pad voor juiste laagvolgorde)
+    drawKampvuur(KAMPVUUR_CX, KAMPVUUR_CY, t_k);
   } else {
     const grad=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
     grad.addColorStop(0,'#c8a060'); grad.addColorStop(0.4,'#d4aa70'); grad.addColorStop(0.7,'#c09050'); grad.addColorStop(1,'#b07840');
