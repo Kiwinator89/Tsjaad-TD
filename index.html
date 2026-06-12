@@ -79,6 +79,23 @@
   .util-btn.active { background: rgba(0,200,80,0.15); border-color: rgba(0,200,80,0.4); color: rgba(0,220,100,0.9); }
   #settingsBtn:hover { transform: rotate(45deg) scale(1.15); background: rgba(139,69,19,0.7); }
   @keyframes settingsPulse { 0%,100%{box-shadow:0 4px 15px rgba(0,0,0,0.4);} 50%{box-shadow:0 4px 25px rgba(218,165,32,0.5);} }
+  /* ===== HELD SELECTIE SCHERM ===== */
+  #heroSelectScreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a0d00 0%, #3d2500 50%, #1a0d00 100%); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 900; }
+  #heroSelectScreen.show { display: flex; }
+  .hero-select-container { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; max-width: 1200px; padding: 40px; }
+  .hero-card { background: linear-gradient(135deg, #2a1a00 0%, #3d2800 100%); border: 5px solid #8b4513; border-radius: 20px; padding: 40px 30px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 10px 40px rgba(0,0,0,0.7); position: relative; overflow: hidden; }
+  .hero-card:hover { transform: scale(1.08); box-shadow: 0 15px 60px rgba(218,165,32,0.5); border-color: #daa520; }
+  .hero-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(218,165,32,0.1) 0%, transparent 70%); animation: heroGlow 3s ease-in-out infinite; }
+  @keyframes heroGlow { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
+  .hero-name { font-size: 32px; font-weight: bold; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.6); margin: 10px 0; letter-spacing: 2px; position: relative; z-index: 2; }
+  .hero-emoji { font-size: 80px; margin: 20px 0; display: block; position: relative; z-index: 2; }
+  .hero-desc { font-size: 14px; color: #cd853f; margin: 15px 0; line-height: 1.6; position: relative; z-index: 2; }
+  .hero-levels { margin: 20px 0; position: relative; z-index: 2; }
+  .hero-level { background: rgba(0,0,0,0.5); border-left: 4px solid #ff9800; padding: 12px 15px; margin: 8px 0; text-align: left; border-radius: 8px; font-size: 12px; }
+  .hero-level-num { color: #ffd700; font-weight: bold; margin-right: 8px; }
+  .hero-level-text { color: #daa520; }
+  @media (max-width: 1200px) { .hero-select-container { grid-template-columns: 1fr; gap: 40px; } }
+  #heroSelectTitle { font-size: 48px; margin-bottom: 40px; color: #ffd700; text-shadow: 0 0 30px rgba(255,215,0,0.6); letter-spacing: 3px; }
   #settingsOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(6px); }
   #settingsOverlay.open { display: flex; }
   #settingsPanel { background: linear-gradient(160deg, #2a1a00 0%, #3d2800 40%, #1a0d00 100%); border: 4px solid #8b4513; border-radius: 24px; padding: 40px 45px; min-width: 460px; max-width: 95vw; box-shadow: 0 0 60px rgba(218,165,32,0.3), 0 20px 60px rgba(0,0,0,0.8); position: relative; }
@@ -245,6 +262,38 @@
 </div>
 
 <!-- MAIN MENU -->
+<div id="heroSelectScreen">
+  <h1 id="heroSelectTitle">⚔️ KIES JE HELD ⚔️</h1>
+  <div class="hero-select-container">
+    <div class="hero-card" onclick="selectHero('tsjaadinator')">
+      <span class="hero-emoji">🔥</span>
+      <div class="hero-name">Tsjaadinator Discipel</div>
+      <div class="hero-desc">De leerling van de grote Tsjaadinator. Valt aan als een zwakkere variant en helpt andere Tsjaadinators door upgrades goedkoper te maken.</div>
+      <div class="hero-levels">
+        <div class="hero-level"><span class="hero-level-num">Lvl 1:</span><span class="hero-level-text">Zwakke Aanval</span></div>
+        <div class="hero-level"><span class="hero-level-num">Lvl 2:</span><span class="hero-level-text">Branding Aanval (15 dmg/sec)</span></div>
+        <div class="hero-level"><span class="hero-level-num">Lvl 3:</span><span class="hero-level-text">Alle Tsjaadinators -30% kosten</span></div>
+        <div class="hero-level"><span class="hero-level-num">Lvl 4:</span><span class="hero-level-text">Alle Tsjaadinators +20% sneller</span></div>
+        <div class="hero-level"><span class="hero-level-num">Lvl 5:</span><span class="hero-level-text">Gratis Tsjaadinator elke ronde</span></div>
+      </div>
+      <div style="color: #ff9800; font-weight: bold; margin-top: 15px; font-size: 13px;">📈 Level elke 5 rondes</div>
+    </div>
+    <div class="hero-card" onclick="selectHero('sekteleider')">
+      <span class="hero-emoji">🔵</span>
+      <div class="hero-name">Sekteleider</div>
+      <div class="hero-desc">Mysterieuze gids die blauwe vuurballen werpt. Boosted je torens naarmate je meer levens verliest en vergroot je goud instroom.</div>
+      <div class="hero-levels">
+        <div class="hero-level"><span class="hero-level-num">Lvl 1:</span><span class="hero-level-text">Blauwe Vuurballen (+30% speed, +100% geld)</span></div>
+        <div class="hero-level"><span class="hero-level-num">Lvl 2:</span><span class="hero-level-text">Per life verloren: -5% cooldown</span></div>
+        <div class="hero-level"><span class="hero-level-num">Lvl 3:</span><span class="hero-level-text">Vijanden terugduwen (15px)</span></div>
+        <div class="hero-level"><span class="hero-level-num">Lvl 4:</span><span class="hero-level-text">Vijanden +20% HP, +60% geld</span></div>
+        <div class="hero-level"><span class="hero-level-num">Lvl 5:</span><span class="hero-level-text">Volgende Paragon -40% goedkoper</span></div>
+      </div>
+      <div style="color: #0099ff; font-weight: bold; margin-top: 15px; font-size: 13px;">📈 Level elke 4 rondes</div>
+    </div>
+  </div>
+</div>
+
 <div id="titleScreen">
   <h1>🏜️ TSJAAD TD 🐪</h1>
   <div class="subtitle" id="title-subtitle">⚔️ VECHT VOOR TSJAAD!!! ⚔️</div>
@@ -413,6 +462,8 @@
   <button onclick="selectTower('hut')" id="tower-hut">🛖 De Hut (€800)</button>
   <button id="katoenBtn" onclick="selectTower('katoen')">🌾 Katoen Plantage (€950)</button>
   <button onclick="selectTower('tsjaadinator')" id="tower-tsjaad">⚡ Tsjaadinator (€2500)</button>
+  <button onclick="selectTower('discipel')" id="tower-discipel" style="display:none;">🔥 Discipel (€600)</button>
+  <button onclick="selectTower('sekteleider')" id="tower-sekteleider" style="display:none;">🔵 Sekteleider (€700)</button>
   <button onclick="selectTower('sniper')" id="tower-sniper">🎯 Sniper (€3000)</button>
   <!-- Boot toren: alleen zichtbaar in EilandModus -->
   <button onclick="selectTower('boot')" id="tower-boot">⛵ Boot Platform (€1000)</button>
@@ -1025,6 +1076,88 @@ let autoRoundCountdown = 0;
 
 let path = []; // first path (backward compat)
 let money=500, lives=20, round=1;
+
+// ===== HELD SELECTIE SYSTEEM =====
+let selectedHero = null;
+let heroLevel = 1;
+let heroLevelUpRound = 0;
+
+const heroes = {
+  tsjaadinator: {
+    name: 'Tsjaadinator Discipel',
+    emoji: '🔥',
+    description: 'De leerling van de grote Tsjaadinator. Valt aan als een zwakkere variant en helpt andere Tsjaadinators.',
+    color: '#ff6f00',
+    levelUpInterval: 5, // Level elke 5 rondes
+    levels: {
+      1: {
+        title: 'Zwakke Aanval',
+        text: 'Valt aan als een lvl1 Tsjaadinator (zwakkere variant).',
+        bonus: 'Damage: 1x'
+      },
+      2: {
+        title: 'Branding Aanval',
+        text: 'Zet vijanden in de fik bij aanval. Vijanden branden voor extra schade.',
+        bonus: 'Brandy: 15 dmg/sec'
+      },
+      3: {
+        title: 'Goedkoper Helpen',
+        text: 'Alle Tsjaadinators in radius (300px) kosten 30% minder geld om te plaatsen.',
+        bonus: 'Upgrade: -30% kosten'
+      },
+      4: {
+        title: 'Snellere Orde',
+        text: 'Alle Tsjaadinators in radius vallen 20% sneller aan.',
+        bonus: 'Attack Speed: +20%'
+      },
+      5: {
+        title: 'Gratis Tsjaadinator',
+        text: 'Krijg elke ronde gratis een extra Tsjaadinator om te plaatsen.',
+        bonus: 'Ronde: +1 gratis toren'
+      }
+    }
+  },
+  sekteleider: {
+    name: 'Sekteleider',
+    emoji: '🔵',
+    description: 'Mysterieuze gids die blauwe vuurballen werpt. Boosted andere torens en geeft veel geld.',
+    color: '#0066ff',
+    levelUpInterval: 4, // Level elke 4 rondes
+    levels: {
+      1: {
+        title: 'Blauwe Vuurbal',
+        text: 'Gooit blauwe vuurballen op vijanden. Geraakt vijand beweegt 30% sneller maar geeft 2x geld op dood.',
+        bonus: 'Speed: +30%, Gold: +100%'
+      },
+      2: {
+        title: 'Wraker',
+        text: 'Voor elk leven die je verliest vallen ALL torens op de map permanent 5% sneller aan.',
+        bonus: 'Per life: -5% attack cooldown'
+      },
+      3: {
+        title: 'Terugduwen',
+        text: 'Elke vijand (behalve bosses) die geraakt wordt wordt een klein beetje terug geduwd.',
+        bonus: 'Knockback: 15 pixels'
+      },
+      4: {
+        title: 'Sterke Vijand',
+        text: 'Vijanden die geraakt worden hebben 20% meer health maar geven 60% meer geld op dood.',
+        bonus: 'HP: +20%, Gold: +60%'
+      },
+      5: {
+        title: 'Paragon Korting',
+        text: 'De volgende Paragon die je koopt is 40% goedkoper!',
+        bonus: 'Paragon: -40% eerste kost'
+      }
+    }
+  }
+};
+
+function showHeroSelection(mode) {
+  document.getElementById('heroSelectScreen').classList.add('show');
+  // Sla mode op voor later
+  window._nextGameMode = mode;
+}
 let selectedTower=null;
 let enemies=[], towers=[], projectiles=[], explosions=[], bananas=[], landmines=[];
 let spawning=false, spawnLeft=0, spawnTimer=0;
@@ -1203,7 +1336,68 @@ function startGame(mode) {
   startTimer();
   document.getElementById('utilBtns').style.display = 'flex';
 
+  // Show/hide hero-specific towers
+  const discipelBtn = document.getElementById('tower-discipel');
+  const sekteleiderBtn = document.getElementById('tower-sekteleider');
+  if (discipelBtn) {
+    discipelBtn.style.display = (selectedHero === 'tsjaadinator') ? 'block' : 'none';
+  }
+  if (sekteleiderBtn) {
+    sekteleiderBtn.style.display = (selectedHero === 'sekteleider') ? 'block' : 'none';
+  }
+
   loop();
+}
+
+// ===== HERO SYSTEEM =====
+function updateHeroLevel() {
+  if (!selectedHero) return;
+  const hero = heroes[selectedHero];
+  if (!hero) return;
+  
+  heroLevelUpRound++;
+  if (heroLevelUpRound >= hero.levelUpInterval && heroLevel < 5) {
+    heroLevel++;
+    heroLevelUpRound = 0;
+    const levelData = hero.levels[heroLevel];
+    showRoundMsg(`⭐ ${hero.name} LEVEL ${heroLevel}! ${levelData.title}`);
+  }
+}
+
+function applyHeroBonus(tower, allTowers) {
+  if (!selectedHero || heroLevel < 1) return;
+  
+  if (selectedHero === 'tsjaadinator') {
+    // Tsjaadinator Discipel bonussen
+    if (heroLevel >= 3) {
+      // Lvl 3: Alle Tsjaadinators -30% kosten
+      if (tower.key === 'tsjaadinator') {
+        tower.cost = Math.floor(tower.cost * 0.7);
+      }
+    }
+    if (heroLevel >= 4) {
+      // Lvl 4: Alle Tsjaadinators +20% sneller
+      if (tower.key === 'tsjaadinator') {
+        tower.rate = Math.max(1, Math.floor(tower.rate * 0.8)); // Lower = faster
+      }
+    }
+  }
+  
+  if (selectedHero === 'sekteleider' && heroLevel >= 2) {
+    // Lvl 2: Per life verloren: -5% cooldown ALL towers
+    const lossCount = 20 - lives;
+    if (lossCount > 0) {
+      const speedBoost = 1 - (lossCount * 0.05);
+      tower.rate = Math.max(1, Math.floor(tower.rate * speedBoost));
+    }
+  }
+}
+
+function getHeroDisplay() {
+  if (!selectedHero) return '';
+  const hero = heroes[selectedHero];
+  const levelData = hero.levels[heroLevel];
+  return `${hero.emoji} ${hero.name} LV.${heroLevel}: ${levelData.title}`;
 }
 
 // ===== TOWERS =====
@@ -1220,6 +1414,8 @@ const towerTypes={
   geweer:{range:240,rate:12,dmg:3.8,speed:7,cost:550,ultCost:5000},
   sniper:{range:550,rate:300,dmg:300,speed:10,cost:3000,ultCost:28000},
   tsjaadinator:{range:180,rate:4,dmg:4.8,speed:8,cost:2500,ultCost:15000,secretCost:500000},
+  discipel:{range:180,rate:12,dmg:1.2,speed:8,cost:600,ultCost:4000,isDiscipel:true},
+  sekteleider:{range:200,rate:60,dmg:8,speed:7,cost:700,ultCost:5000,isSekteleider:true},
   atoom:{range:180,rate:100,dmg:15,speed:8,cost:600,bomb:true,ultCost:4500},
   katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
   aap:{range:120,rate:70,dmg:1.4,speed:0,cost:400,ultCost:2500,monkey:true},
@@ -1927,6 +2123,10 @@ canvas.onclick=e=>{
   if(selectedTower==='fakkel'){ newTower.fireChance=1.0; }
   if(selectedTower==='atoom'){ newTower.fireBonusMultiplier=1.20; }
   if(selectedTower==='hut'){ newTower.hut=true; newTower.hutTickTimer=0; newTower.hutEnemyRewardBonus=0; }
+  
+  // Apply hero bonuses to this tower
+  applyHeroBonus(newTower, towers);
+  
   towers.push(newTower);
   playSound('placement', 0.6);
 };
@@ -2365,6 +2565,8 @@ function makeEnemy(t2){
 // ===== WIN & LOSS =====
 function winGame(){
   gameWon=true;
+  selectedHero = null;  // Reset held
+  heroLevel = 1;
   stopMusic();
   stopTimer();
   document.getElementById('finalRound').textContent=round;
@@ -2384,6 +2586,8 @@ function winGame(){
 }
 function loseGame(){
   gameWon=true;
+  selectedHero = null;  // Reset held
+  heroLevel = 1;
   stopMusic();
   stopTimer();
   if(gameMode === 'tsjaadstory'){
@@ -2473,6 +2677,8 @@ function update(){
       } else if(round<maxRound) round++;
       // Virus modus: verwijder duurste toren elke 5 rondes
       if(gameMode==='virus' && round>1 && (round-1)%5===0) virusRemoveMostExpensiveTower(round-1);
+      // Hero leveling
+      if(selectedHero) updateHeroLevel();
     }
   }
 
@@ -4853,6 +5059,28 @@ function drawCritTexts(){
     ctx.restore();
   }
 }
+
+function selectHero(heroKey) {
+  selectedHero = heroKey;
+  heroLevel = 1;
+  heroLevelUpRound = 0;
+  document.getElementById('heroSelectScreen').classList.remove('show');
+  const mode = window._nextGameMode;
+  document.getElementById('titleScreen').style.display = 'none';
+  document.getElementById('settingsBtn').style.display = 'none';
+  startGame(mode);
+}
+
+// Setup mode button listeners
+document.addEventListener('DOMContentLoaded', function() {
+  // Mode buttons in play menu
+  document.querySelectorAll('[data-mode]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const mode = this.getAttribute('data-mode');
+      showHeroSelection(mode);
+    });
+  });
+});
 
 function loop(){ update(); draw(); if(hoveredTower){ updateTooltip(hoveredTower, lastMouseClientX, lastMouseClientY); } if(!gameWon) requestAnimationFrame(loop); }
 
