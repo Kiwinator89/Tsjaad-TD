@@ -84,6 +84,16 @@
   #heroSelectScreen.show { display: flex; }
   .hero-select-container { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; max-width: 1200px; padding: 40px; }
   .hero-card { background: linear-gradient(135deg, #2a1a00 0%, #3d2800 100%); border: 5px solid #8b4513; border-radius: 20px; padding: 40px 30px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 10px 40px rgba(0,0,0,0.7); position: relative; overflow: hidden; }
+  .hero-sprite { width: 120px; height: 120px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 100px; filter: drop-shadow(0 0 15px rgba(218,165,32,0.6)); }
+  .hero-level-display { display: flex; gap: 8px; margin-top: 15px; justify-content: center; flex-wrap: wrap; }
+  .hero-level-sprite { width: 45px; height: 45px; border: 2px solid #8b4513; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 28px; background: rgba(0,0,0,0.3); transition: all 0.2s; }
+  .hero-level-sprite:hover { transform: scale(1.1); background: rgba(218,165,32,0.2); }
+  
+  /* ===== XP BALK STIJL ===== */
+  .tower-tooltip-xp { margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid #ffd700; border-radius: 4px; }
+  .tower-tooltip-xp-label { font-size: 11px; color: #ffd700; font-weight: bold; margin-bottom: 4px; }
+  .xp-bar-container { width: 100%; height: 12px; background: rgba(0,0,0,0.6); border: 1px solid #666; border-radius: 3px; overflow: hidden; }
+  .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #ff9800, #ffd700); transition: width 0.3s ease; box-shadow: 0 0 8px rgba(255,215,0,0.6); }
   .hero-card:hover { transform: scale(1.08); box-shadow: 0 15px 60px rgba(218,165,32,0.5); border-color: #daa520; }
   .hero-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(218,165,32,0.1) 0%, transparent 70%); animation: heroGlow 3s ease-in-out infinite; }
   @keyframes heroGlow { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
@@ -266,30 +276,30 @@
   <h1 id="heroSelectTitle">⚔️ KIES JE HELD ⚔️</h1>
   <div class="hero-select-container">
     <div class="hero-card" onclick="selectHero('tsjaadinator')">
-      <span class="hero-emoji">🔥</span>
+      <div class="hero-sprite">🔥</div>
       <div class="hero-name">Tsjaadinator Discipel</div>
       <div class="hero-desc">De leerling van de grote Tsjaadinator. Valt aan als een zwakkere variant en helpt andere Tsjaadinators door upgrades goedkoper te maken.</div>
-      <div class="hero-levels">
-        <div class="hero-level"><span class="hero-level-num">Lvl 1:</span><span class="hero-level-text">Zwakke Aanval</span></div>
-        <div class="hero-level"><span class="hero-level-num">Lvl 2:</span><span class="hero-level-text">Branding Aanval (15 dmg/sec)</span></div>
-        <div class="hero-level"><span class="hero-level-num">Lvl 3:</span><span class="hero-level-text">Alle Tsjaadinators -30% kosten</span></div>
-        <div class="hero-level"><span class="hero-level-num">Lvl 4:</span><span class="hero-level-text">Alle Tsjaadinators +20% sneller</span></div>
-        <div class="hero-level"><span class="hero-level-num">Lvl 5:</span><span class="hero-level-text">Gratis Tsjaadinator elke ronde</span></div>
+      <div class="hero-level-display">
+        <div class="hero-level-sprite" title="Lvl 1: Zwakke Aanval">🔥</div>
+        <div class="hero-level-sprite" title="Lvl 2: Branding Aanval">🔥🔥</div>
+        <div class="hero-level-sprite" title="Lvl 3: Goedkoper">⚡🔥</div>
+        <div class="hero-level-sprite" title="Lvl 4: Sneller">⚡⚡🔥</div>
+        <div class="hero-level-sprite" title="Lvl 5: Gratis">✨🔥✨</div>
       </div>
-      <div style="color: #ff9800; font-weight: bold; margin-top: 15px; font-size: 13px;">📈 Level elke 5 rondes</div>
+      <div style="color: #ff9800; font-weight: bold; margin-top: 15px; font-size: 13px;">📈 Verdien XP elke ronde</div>
     </div>
     <div class="hero-card" onclick="selectHero('sekteleider')">
-      <span class="hero-emoji">🔵</span>
+      <div class="hero-sprite">🔵</div>
       <div class="hero-name">Sekteleider</div>
       <div class="hero-desc">Mysterieuze gids die blauwe vuurballen werpt. Boosted je torens naarmate je meer levens verliest en vergroot je goud instroom.</div>
-      <div class="hero-levels">
-        <div class="hero-level"><span class="hero-level-num">Lvl 1:</span><span class="hero-level-text">Blauwe Vuurballen (+30% speed, +100% geld)</span></div>
-        <div class="hero-level"><span class="hero-level-num">Lvl 2:</span><span class="hero-level-text">Per life verloren: -5% cooldown</span></div>
-        <div class="hero-level"><span class="hero-level-num">Lvl 3:</span><span class="hero-level-text">Vijanden terugduwen (15px)</span></div>
-        <div class="hero-level"><span class="hero-level-num">Lvl 4:</span><span class="hero-level-text">Vijanden +20% HP, +60% geld</span></div>
-        <div class="hero-level"><span class="hero-level-num">Lvl 5:</span><span class="hero-level-text">Volgende Paragon -40% goedkoper</span></div>
+      <div class="hero-level-display">
+        <div class="hero-level-sprite" title="Lvl 1: Blauwe Vuurballen">🔵</div>
+        <div class="hero-level-sprite" title="Lvl 2: Wraker">🔵🌀</div>
+        <div class="hero-level-sprite" title="Lvl 3: Terugduwen">🔵💨</div>
+        <div class="hero-level-sprite" title="Lvl 4: Sterke Vijand">🔵💪</div>
+        <div class="hero-level-sprite" title="Lvl 5: Paragon Korting">👑🔵</div>
       </div>
-      <div style="color: #0099ff; font-weight: bold; margin-top: 15px; font-size: 13px;">📈 Level elke 4 rondes</div>
+      <div style="color: #0099ff; font-weight: bold; margin-top: 15px; font-size: 13px;">📈 Verdien XP elke ronde</div>
     </div>
   </div>
 </div>
@@ -447,6 +457,10 @@
     <div id="ui-money-label">💰 Geld: <strong><span id="money">500</span></strong></div>
     <div id="ui-lives-label">❤️ Levens: <strong><span id="lives">20</span></strong></div>
     <div id="ui-round-label">🌊 Ronde: <strong><span id="round">1</span><span id="roundMax">/30</span></strong></div>
+  </div>
+  <div id="heroInfoSection" style="margin:10px 0; padding:8px; background:rgba(139,69,19,0.3); border:2px solid #8b4513; border-radius:6px; display:none;">
+    <div id="heroInfo" style="font-size:13px; color:#ffd700; font-weight:bold; margin-bottom:6px;"></div>
+    <div id="heroXPBar"></div>
   </div>
   <div id="roundMsg" class="small"></div>
   <div id="autoRoundMsg" class="small" style="color:#ff6b35; font-weight:bold;"></div>
@@ -1081,73 +1095,99 @@ let money=500, lives=20, round=1;
 let selectedHero = null;
 let heroLevel = 1;
 let heroLevelUpRound = 0;
+let heroXP = 0;
+let heroXPPerRound = 20;
 
 const heroes = {
   tsjaadinator: {
     name: 'Tsjaadinator Discipel',
-    emoji: '🔥',
+    sprite: '🔥',
+    projectile: '💥',
     description: 'De leerling van de grote Tsjaadinator. Valt aan als een zwakkere variant en helpt andere Tsjaadinators.',
     color: '#ff6f00',
-    levelUpInterval: 5, // Level elke 5 rondes
+    levelUpInterval: 5,
+    xpPerRound: 20,
     levels: {
       1: {
         title: 'Zwakke Aanval',
+        sprite: '🔥',
+        projectile: '💥',
         text: 'Valt aan als een lvl1 Tsjaadinator (zwakkere variant).',
-        bonus: 'Damage: 1x'
+        xpNeeded: 100
       },
       2: {
         title: 'Branding Aanval',
+        sprite: '🔥🔥',
+        projectile: '🌪️',
         text: 'Zet vijanden in de fik bij aanval. Vijanden branden voor extra schade.',
-        bonus: 'Brandy: 15 dmg/sec'
+        xpNeeded: 250
       },
       3: {
         title: 'Goedkoper Helpen',
+        sprite: '⚡🔥',
+        projectile: '⚡',
         text: 'Alle Tsjaadinators in radius (300px) kosten 30% minder geld om te plaatsen.',
-        bonus: 'Upgrade: -30% kosten'
+        xpNeeded: 450
       },
       4: {
         title: 'Snellere Orde',
+        sprite: '⚡⚡🔥',
+        projectile: '💫',
         text: 'Alle Tsjaadinators in radius vallen 20% sneller aan.',
-        bonus: 'Attack Speed: +20%'
+        xpNeeded: 700
       },
       5: {
         title: 'Gratis Tsjaadinator',
+        sprite: '✨🔥✨',
+        projectile: '🔆',
         text: 'Krijg elke ronde gratis een extra Tsjaadinator om te plaatsen.',
-        bonus: 'Ronde: +1 gratis toren'
+        xpNeeded: 1000
       }
     }
   },
   sekteleider: {
     name: 'Sekteleider',
-    emoji: '🔵',
+    sprite: '🔵',
+    projectile: '🟦',
     description: 'Mysterieuze gids die blauwe vuurballen werpt. Boosted andere torens en geeft veel geld.',
     color: '#0066ff',
-    levelUpInterval: 4, // Level elke 4 rondes
+    levelUpInterval: 4,
+    xpPerRound: 20,
     levels: {
       1: {
         title: 'Blauwe Vuurbal',
+        sprite: '🔵',
+        projectile: '🔷',
         text: 'Gooit blauwe vuurballen op vijanden. Geraakt vijand beweegt 30% sneller maar geeft 2x geld op dood.',
-        bonus: 'Speed: +30%, Gold: +100%'
+        xpNeeded: 100
       },
       2: {
         title: 'Wraker',
+        sprite: '🔵🌀',
+        projectile: '🌀',
         text: 'Voor elk leven die je verliest vallen ALL torens op de map permanent 5% sneller aan.',
-        bonus: 'Per life: -5% attack cooldown'
+        xpNeeded: 250
       },
       3: {
         title: 'Terugduwen',
+        sprite: '🔵💨',
+        projectile: '💨',
         text: 'Elke vijand (behalve bosses) die geraakt wordt wordt een klein beetje terug geduwd.',
-        bonus: 'Knockback: 15 pixels'
+        xpNeeded: 450
       },
       4: {
         title: 'Sterke Vijand',
+        sprite: '🔵💪',
+        projectile: '💪',
         text: 'Vijanden die geraakt worden hebben 20% meer health maar geven 60% meer geld op dood.',
-        bonus: 'HP: +20%, Gold: +60%'
+        xpNeeded: 700
       },
       5: {
         title: 'Paragon Korting',
+        sprite: '👑🔵',
+        projectile: '👑',
         text: 'De volgende Paragon die je koopt is 40% goedkoper!',
-        bonus: 'Paragon: -40% eerste kost'
+        xpNeeded: 1000
       }
     }
   }
@@ -1355,12 +1395,20 @@ function updateHeroLevel() {
   const hero = heroes[selectedHero];
   if (!hero) return;
   
-  heroLevelUpRound++;
-  if (heroLevelUpRound >= hero.levelUpInterval && heroLevel < 5) {
-    heroLevel++;
-    heroLevelUpRound = 0;
-    const levelData = hero.levels[heroLevel];
-    showRoundMsg(`⭐ ${hero.name} LEVEL ${heroLevel}! ${levelData.title}`);
+  // Voeg XP toe aan het eind van de ronde
+  heroXP += hero.xpPerRound || 20;
+  
+  // Controleer of we kunnen levelen
+  while (heroLevel < 5 && hero.levels[heroLevel]) {
+    const nextLevelXP = hero.levels[heroLevel].xpNeeded;
+    if (heroXP >= nextLevelXP) {
+      heroXP -= nextLevelXP;
+      heroLevel++;
+      const levelData = hero.levels[heroLevel];
+      showRoundMsg(`⭐ ${hero.name} LEVEL ${heroLevel}! ${levelData.title}`);
+    } else {
+      break;
+    }
   }
 }
 
@@ -1397,7 +1445,42 @@ function getHeroDisplay() {
   if (!selectedHero) return '';
   const hero = heroes[selectedHero];
   const levelData = hero.levels[heroLevel];
-  return `${hero.emoji} ${hero.name} LV.${heroLevel}: ${levelData.title}`;
+  const nextLevelData = hero.levels[heroLevel + 1];
+  const nextLevelXP = nextLevelData ? nextLevelData.xpNeeded : 0;
+  
+  // Bereken XP progress voor huidige level
+  let currentLevelStartXP = 0;
+  for (let i = 1; i < heroLevel; i++) {
+    currentLevelStartXP += hero.levels[i].xpNeeded;
+  }
+  
+  const xpInCurrentLevel = heroXP;
+  const xpNeededForNextLevel = nextLevelXP || 0;
+  const xpProgress = nextLevelXP > 0 ? (xpInCurrentLevel / xpNeededForNextLevel * 100) : 100;
+  
+  const sprite = levelData.sprite || hero.sprite;
+  const projectile = levelData.projectile || hero.projectile;
+  
+  const xpBarHTML = nextLevelData ? `
+    <div class="tower-tooltip-xp">
+      <div class="tower-tooltip-xp-label">📈 XP: ${Math.floor(xpInCurrentLevel)}/${nextLevelXP}</div>
+      <div class="xp-bar-container">
+        <div class="xp-bar-fill" style="width: ${xpProgress}%"></div>
+      </div>
+    </div>
+  ` : '';
+  
+  return `${sprite} ${hero.name} LV.${heroLevel}: ${levelData.title} | Projectiel: ${projectile}${xpBarHTML}`;
+}
+
+function getHeroXPBar() {
+  if (!selectedHero || heroLevel >= 5) return '';
+  const hero = heroes[selectedHero];
+  const nextLevelData = hero.levels[heroLevel + 1];
+  if (!nextLevelData) return '';
+  
+  const xpProgress = (heroXP / nextLevelData.xpNeeded) * 100;
+  return `<div class="tower-tooltip-xp"><div class="tower-tooltip-xp-label">📈 XP: ${Math.floor(heroXP)}/${nextLevelData.xpNeeded}</div><div class="xp-bar-container"><div class="xp-bar-fill" style="width: ${xpProgress}%"></div></div></div>`;
 }
 
 // ===== TOWERS =====
@@ -1814,8 +1897,14 @@ function updateTooltip(tw, cx, cy){
     const canAfford = money >= cost;
     const hutUpgradeDescriptions = ['💰 Torens in radius +20% kill reward','💵 +10g/s per vijand in radius','🔩 Torens in radius raken metalen vijanden'];
     const hutDesc = tw.key==='hut' ? hutUpgradeDescriptions[tw.level] : '';
-    html += `<div class="tt-upgrade-header" style="color:${canAfford?'#4fc3f7':'#f44'}">⬆️ Upgrade Lvl ${tw.level+1} — €${cost}</div>`;
-    if(hutDesc) html += `<div style="font-size:9px;color:#aaffcc;margin-top:2px;">${hutDesc}</div>`;
+    
+    // Geen upgrade info als held actief is
+    if(!selectedHero){
+      html += `<div class="tt-upgrade-header" style="color:${canAfford?'#4fc3f7':'#f44'}">⬆️ Upgrade Lvl ${tw.level+1} — €${cost}</div>`;
+      if(hutDesc) html += `<div style="font-size:9px;color:#aaffcc;margin-top:2px;">${hutDesc}</div>`;
+    } else {
+      html += `<div style="font-size:10px;color:#ffaa00;padding:8px;text-align:center;font-weight:bold;">⭐ Held Modus — Geen upgrades beschikbaar</div>`;
+    }
   } else if(!tw.ultimate){
     let cost = tw.key==='hut' ? HUT_ULT_COST : cfg.ultCost;
     const hasKatoenPara=towers.some(t=>t.key==='katoen'&&t.paragon&&Math.hypot(t.x-tw.x,t.y-tw.y)<=getTowerRange(t));
@@ -2336,6 +2425,27 @@ function startRound(){
   if(spawning||gameWon) return;
   playSound('round', 0.7);
   document.getElementById('round').textContent=round;
+  
+  // Update hero info
+  if(selectedHero) {
+    const heroInfo = document.getElementById('heroInfo');
+    const heroXPBar = document.getElementById('heroXPBar');
+    const heroSection = document.getElementById('heroInfoSection');
+    const hero = heroes[selectedHero];
+    if(heroInfo && hero) {
+      const levelData = hero.levels[heroLevel];
+      const nextLevelData = hero.levels[heroLevel + 1];
+      const levelSprite = levelData.sprite || hero.sprite;
+      const projectileEmoji = levelData.projectile || hero.projectile;
+      heroInfo.textContent = `${levelSprite} ${hero.name} Lvl.${heroLevel}: ${levelData.title}`;
+      if(nextLevelData && heroXPBar) {
+        const xpProgress = (heroXP / nextLevelData.xpNeeded) * 100;
+        heroXPBar.innerHTML = `<div class="tower-tooltip-xp-label">📈 XP: ${Math.floor(heroXP)}/${nextLevelData.xpNeeded}</div><div class="xp-bar-container"><div class="xp-bar-fill" style="width: ${xpProgress}%"></div></div>`;
+      }
+      heroSection.style.display = 'block';
+    }
+  }
+  
   for(const tw of towers){
     if(tw.key==='plaagdokter'&&tw.paragon){
       const cooldown=Math.max(1,5-Math.floor(tw.paragonLevel/20));
@@ -5064,6 +5174,8 @@ function selectHero(heroKey) {
   selectedHero = heroKey;
   heroLevel = 1;
   heroLevelUpRound = 0;
+  heroXP = 0;
+  heroXPPerRound = heroes[heroKey].xpPerRound || 20;
   document.getElementById('heroSelectScreen').classList.remove('show');
   const mode = window._nextGameMode;
   document.getElementById('titleScreen').style.display = 'none';
