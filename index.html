@@ -52,9 +52,6 @@
   .modeBtn.lichtsnelheid { background: linear-gradient(135deg, #00ffff 0%, #0088ff 50%, #0000ff 100%); color: #fff; text-shadow: 0 0 15px #00ffff; animation: speedPulse 0.6s ease-in-out infinite; border-color: #00ffff; }
 /* ===== EILAND MODUS STIJL ===== */
 @keyframes eilandPulse { 0%,100%{box-shadow:0 10px 40px rgba(0,153,255,0.5);transform:scale(1);}50%{box-shadow:0 10px 70px rgba(0,204,255,0.9),0 0 60px rgba(0,153,255,0.6);transform:scale(1.05);} }
-/* ===== KAMPEER MODUS STIJL ===== */
-@keyframes kampeerPulse { 0%,100%{box-shadow:0 10px 40px rgba(255,120,0,0.5),0 0 30px rgba(255,80,0,0.3);transform:scale(1);}50%{box-shadow:0 10px 70px rgba(255,160,0,0.9),0 0 60px rgba(255,100,0,0.7),inset 0 0 20px rgba(255,180,50,0.15);transform:scale(1.05);} }
-.modeBtn.kampeer { background:linear-gradient(135deg,#0a0a1a 0%,#1a0d00 30%,#2a1500 60%,#3d1f00 100%); color:#ffcc66; text-shadow:0 0 15px #ff6600,0 0 30px #ff3300; animation:kampeerPulse 2s ease-in-out infinite; border-color:#ff8800; border-width:5px; }
 /* Boot knop in UI zijbalk - alleen zichtbaar in EilandModus */
 #tower-boot { display: none; background: linear-gradient(135deg, #002266, #0044aa); border-color: #0099ff; color: #aaddff; }
   .modeBtn.virus { background: linear-gradient(135deg, #001a00 0%, #003300 40%, #00ff44 100%); color: #00ff44; text-shadow: 0 0 15px #00ff44, 0 0 30px #00cc33; animation: virusPulse 1.5s ease-in-out infinite; border-color: #00ff44; border-width: 5px; }
@@ -79,33 +76,6 @@
   .util-btn.active { background: rgba(0,200,80,0.15); border-color: rgba(0,200,80,0.4); color: rgba(0,220,100,0.9); }
   #settingsBtn:hover { transform: rotate(45deg) scale(1.15); background: rgba(139,69,19,0.7); }
   @keyframes settingsPulse { 0%,100%{box-shadow:0 4px 15px rgba(0,0,0,0.4);} 50%{box-shadow:0 4px 25px rgba(218,165,32,0.5);} }
-  /* ===== HELD SELECTIE SCHERM ===== */
-  #heroSelectScreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a0d00 0%, #3d2500 50%, #1a0d00 100%); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 900; }
-  #heroSelectScreen.show { display: flex; }
-  .hero-select-container { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; max-width: 1200px; padding: 40px; }
-  .hero-card { background: linear-gradient(135deg, #2a1a00 0%, #3d2800 100%); border: 5px solid #8b4513; border-radius: 20px; padding: 40px 30px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 10px 40px rgba(0,0,0,0.7); position: relative; overflow: hidden; }
-  .hero-sprite { width: 120px; height: 120px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 100px; filter: drop-shadow(0 0 15px rgba(218,165,32,0.6)); }
-  .hero-level-display { display: flex; gap: 8px; margin-top: 15px; justify-content: center; flex-wrap: wrap; }
-  .hero-level-sprite { width: 45px; height: 45px; border: 2px solid #8b4513; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 28px; background: rgba(0,0,0,0.3); transition: all 0.2s; }
-  .hero-level-sprite:hover { transform: scale(1.1); background: rgba(218,165,32,0.2); }
-  
-  /* ===== XP BALK STIJL ===== */
-  .tower-tooltip-xp { margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid #ffd700; border-radius: 4px; }
-  .tower-tooltip-xp-label { font-size: 11px; color: #ffd700; font-weight: bold; margin-bottom: 4px; }
-  .xp-bar-container { width: 100%; height: 12px; background: rgba(0,0,0,0.6); border: 1px solid #666; border-radius: 3px; overflow: hidden; }
-  .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #ff9800, #ffd700); transition: width 0.3s ease; box-shadow: 0 0 8px rgba(255,215,0,0.6); }
-  .hero-card:hover { transform: scale(1.08); box-shadow: 0 15px 60px rgba(218,165,32,0.5); border-color: #daa520; }
-  .hero-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(218,165,32,0.1) 0%, transparent 70%); animation: heroGlow 3s ease-in-out infinite; }
-  @keyframes heroGlow { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
-  .hero-name { font-size: 32px; font-weight: bold; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.6); margin: 10px 0; letter-spacing: 2px; position: relative; z-index: 2; }
-  .hero-emoji { font-size: 80px; margin: 20px 0; display: block; position: relative; z-index: 2; }
-  .hero-desc { font-size: 14px; color: #cd853f; margin: 15px 0; line-height: 1.6; position: relative; z-index: 2; }
-  .hero-levels { margin: 20px 0; position: relative; z-index: 2; }
-  .hero-level { background: rgba(0,0,0,0.5); border-left: 4px solid #ff9800; padding: 12px 15px; margin: 8px 0; text-align: left; border-radius: 8px; font-size: 12px; }
-  .hero-level-num { color: #ffd700; font-weight: bold; margin-right: 8px; }
-  .hero-level-text { color: #daa520; }
-  @media (max-width: 1200px) { .hero-select-container { grid-template-columns: 1fr; gap: 40px; } }
-  #heroSelectTitle { font-size: 48px; margin-bottom: 40px; color: #ffd700; text-shadow: 0 0 30px rgba(255,215,0,0.6); letter-spacing: 3px; }
   #settingsOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(6px); }
   #settingsOverlay.open { display: flex; }
   #settingsPanel { background: linear-gradient(160deg, #2a1a00 0%, #3d2800 40%, #1a0d00 100%); border: 4px solid #8b4513; border-radius: 24px; padding: 40px 45px; min-width: 460px; max-width: 95vw; box-shadow: 0 0 60px rgba(218,165,32,0.3), 0 20px 60px rgba(0,0,0,0.8); position: relative; }
@@ -272,38 +242,6 @@
 </div>
 
 <!-- MAIN MENU -->
-<div id="heroSelectScreen">
-  <h1 id="heroSelectTitle">⚔️ KIES JE HELD ⚔️</h1>
-  <div class="hero-select-container">
-    <div class="hero-card" onclick="selectHero('tsjaadinator')">
-      <div class="hero-sprite">🔥</div>
-      <div class="hero-name">Tsjaadinator Discipel</div>
-      <div class="hero-desc">De leerling van de grote Tsjaadinator. Valt aan als een zwakkere variant en helpt andere Tsjaadinators door upgrades goedkoper te maken.</div>
-      <div class="hero-level-display">
-        <div class="hero-level-sprite" title="Lvl 1: Zwakke Aanval">🔥</div>
-        <div class="hero-level-sprite" title="Lvl 2: Branding Aanval">🔥🔥</div>
-        <div class="hero-level-sprite" title="Lvl 3: Goedkoper">⚡🔥</div>
-        <div class="hero-level-sprite" title="Lvl 4: Sneller">⚡⚡🔥</div>
-        <div class="hero-level-sprite" title="Lvl 5: Gratis">✨🔥✨</div>
-      </div>
-      <div style="color: #ff9800; font-weight: bold; margin-top: 15px; font-size: 13px;">📈 Verdien XP elke ronde</div>
-    </div>
-    <div class="hero-card" onclick="selectHero('sekteleider')">
-      <div class="hero-sprite">🔵</div>
-      <div class="hero-name">Sekteleider</div>
-      <div class="hero-desc">Mysterieuze gids die blauwe vuurballen werpt. Boosted je torens naarmate je meer levens verliest en vergroot je goud instroom.</div>
-      <div class="hero-level-display">
-        <div class="hero-level-sprite" title="Lvl 1: Blauwe Vuurballen">🔵</div>
-        <div class="hero-level-sprite" title="Lvl 2: Wraker">🔵🌀</div>
-        <div class="hero-level-sprite" title="Lvl 3: Terugduwen">🔵💨</div>
-        <div class="hero-level-sprite" title="Lvl 4: Sterke Vijand">🔵💪</div>
-        <div class="hero-level-sprite" title="Lvl 5: Paragon Korting">👑🔵</div>
-      </div>
-      <div style="color: #0099ff; font-weight: bold; margin-top: 15px; font-size: 13px;">📈 Verdien XP elke ronde</div>
-    </div>
-  </div>
-</div>
-
 <div id="titleScreen">
   <h1>🏜️ TSJAAD TD 🐪</h1>
   <div class="subtitle" id="title-subtitle">⚔️ VECHT VOOR TSJAAD!!! ⚔️</div>
@@ -354,10 +292,6 @@
       <!-- ===== EILAND MODUS KNOP ===== -->
       <button class="modeBtn eiland special-mission-btn" onclick="startEilandModus()" style="width:90%; max-width:700px; padding:40px 20px; font-size:26px; background:linear-gradient(135deg,#001a4d 0%,#003399 30%,#0055cc 60%,#0099ff 100%); color:#aaddff; border-color:#00ccff; border-width:5px; animation:eilandPulse 2s ease-in-out infinite;">
         🏝️ EILAND MODUS<br><span style="font-size:14px; opacity:0.8; font-weight:normal;">Verdedig een klein eiland omringd door water · Bouw boten als platforms!</span>
-      </button>
-      <!-- ===== KAMPEER MODUS KNOP ===== -->
-      <button class="modeBtn kampeer special-mission-btn" onclick="startKampeerModus()" style="width:90%; max-width:700px; padding:40px 20px; font-size:26px;">
-        🔥 KAMPEER MODUS<br><span style="font-size:14px; opacity:0.8; font-weight:normal;">Woestijn in de nacht · Breid het kampvuur uit voor meer licht · Ninja Malaria Mug eindbaas!</span>
       </button>
     </div>
   </div>
@@ -458,10 +392,6 @@
     <div id="ui-lives-label">❤️ Levens: <strong><span id="lives">20</span></strong></div>
     <div id="ui-round-label">🌊 Ronde: <strong><span id="round">1</span><span id="roundMax">/30</span></strong></div>
   </div>
-  <div id="heroInfoSection" style="margin:10px 0; padding:8px; background:rgba(139,69,19,0.3); border:2px solid #8b4513; border-radius:6px; display:none;">
-    <div id="heroInfo" style="font-size:13px; color:#ffd700; font-weight:bold; margin-bottom:6px;"></div>
-    <div id="heroXPBar"></div>
-  </div>
   <div id="roundMsg" class="small"></div>
   <div id="autoRoundMsg" class="small" style="color:#ff6b35; font-weight:bold;"></div>
   <div id="virusWarnEl" class="small" style="color:#00ff44;font-weight:bold;text-shadow:0 0 8px #00ff44;display:none;"></div>
@@ -476,11 +406,9 @@
   <button onclick="selectTower('hut')" id="tower-hut">🛖 De Hut (€800)</button>
   <button id="katoenBtn" onclick="selectTower('katoen')">🌾 Katoen Plantage (€950)</button>
   <button onclick="selectTower('tsjaadinator')" id="tower-tsjaad">⚡ Tsjaadinator (€2500)</button>
-  <button onclick="selectTower('discipel')" id="tower-discipel" style="display:none;">🔥 Discipel (€600)</button>
-  <button onclick="selectTower('sekteleider')" id="tower-sekteleider" style="display:none;">🔵 Sekteleider (€700)</button>
   <button onclick="selectTower('sniper')" id="tower-sniper">🎯 Sniper (€3000)</button>
   <!-- Boot toren: alleen zichtbaar in EilandModus -->
-  <button onclick="selectTower('boot')" id="tower-boot">⛵ Boot Platform (€1000)</button>
+  <button onclick="selectTower('boot')" id="tower-boot">⛵ Boot Platform (€3000)</button>
   <hr style="margin:10px 0; border-color:#444;">
   <button id="startRoundBtn" onclick="startRound()" style="background:#4CAF50; border-color:#45a049;">▶️ Start Ronde</button>
   <button id="autoStartBtn" onclick="toggleAutoStart()" style="background:#1a3a1a; border-color:#2a5a2a; color:#6dbf6d; margin-top:4px;">⏩ Auto-Start: UIT</button>
@@ -675,15 +603,12 @@ const eilandPath = [
   {x:1220,y:350}   // uitgang rechts
 ];
 
-// Kampeer Modus pad — woestijn nacht, vijanden komen van links en rechts naar het midden
-const kampeerPath = [
-  {x:-20,y:350},{x:200,y:350},{x:200,y:200},{x:420,y:200},{x:420,y:480},{x:600,y:480},{x:600,y:350},{x:780,y:350},{x:780,y:150},{x:1020,y:150},{x:1020,y:420},{x:1220,y:420}
-];
+// Eiland: rechthoek in het midden van de canvas (1200x700).
 // Torens mogen ALLEEN hier geplaatst worden (tenzij boot-platform).
-const EILAND_X = 410;   // linkerrand eiland
-const EILAND_Y = 225;   // bovenrand eiland
-const EILAND_W = 380;   // breedte eiland
-const EILAND_H = 200;   // hoogte eiland
+const EILAND_X = 280;   // linkerrand eiland
+const EILAND_Y = 170;   // bovenrand eiland
+const EILAND_W = 640;   // breedte eiland
+const EILAND_H = 280;   // hoogte eiland
 
 // Boot-platforms: array van {x, y, radius} die als geldig bouwterrein tellen op water
 let bootPlatforms = [];
@@ -760,23 +685,8 @@ const scheurbeukMugType = {
   isScheurbeuk: true           // vlag voor speciale renderlogica
 };
 
-// ===== NINJA MALARIA MUG BAAS (exclusief voor KampeerModus, ronde 30) =====
-const ninjaMalariaMugType = {
-  name:'🥷 Ninja Malaria Mug',
-  hp: 80000, speed: 1.2, size: 80, reward: 2000, boss: true,
-  type: 'ninja_mug', isNinjaMug: true
-};
-
-// ===== KAMPVUUR (KampeerModus) =====
-let kampvuurRadius = 180;       // lichtradius van kampvuur (pixels)
-let kampvuurLevel  = 0;         // aantal uitbreidingen
-const KAMPVUUR_CX  = 600;       // canvas midden x
-const KAMPVUUR_CY  = 350;       // canvas midden y
-const KAMPVUUR_BASE_COST = 500; // eerste uitbreiding
-const KAMPVUUR_COST_STEP = 200; // elke volgende uitbreiding +200
-function getKampvuurUpgradeCost() {
-  return KAMPVUUR_BASE_COST + kampvuurLevel * KAMPVUUR_COST_STEP;
-}
+// ===== EILAND MODUS =====
+let eilandModusAudio = null;
 
 function startEilandModus() {
   // Speel het EilandModus intro-geluid één keer af
@@ -836,58 +746,6 @@ function startEilandModus() {
   islandAudio.loop = true; islandAudio.volume = 0.5;
   islandAudio.play().catch(() => {});
   currentTheme = islandAudio; musicPlaying = true;
-
-  startTimer();
-  document.getElementById('utilBtns').style.display = 'flex';
-  loop();
-}
-
-// ===== KAMPEER MODUS =====
-let kampeerModusAudio = null;
-
-function startKampeerModus() {
-  document.getElementById('titleScreen').style.display = 'none';
-  document.getElementById('settingsBtn').style.display = 'none';
-  document.getElementById('ui').style.display = 'block';
-
-  gameMode = 'kampeer';
-  path = kampeerPath;
-  gamePaths = [kampeerPath];
-
-  kampvuurRadius = 180;
-  kampvuurLevel  = 0;
-
-  enemies = []; towers = []; projectiles = []; explosions = [];
-  bananas = []; landmines = [];
-  money = 600; lives = 20; round = 1; totalMoneyEarned = 0;
-  autoStartRounds = false; autoRoundCountdown = 0;
-  paragonActive = false; paragonTower = null; hutFreeTowerPending = null;
-
-  const autoBtn = document.getElementById('autoStartBtn');
-  if (autoBtn) { autoBtn.textContent = '⏩ Auto-Start: UIT'; autoBtn.style.background = '#1a3a1a'; autoBtn.style.borderColor = '#2a5a2a'; autoBtn.style.color = '#6dbf6d'; }
-
-  document.getElementById('startRoundBtn').style.display = 'block';
-  document.getElementById('katoenBtn').disabled = false;
-  document.getElementById('katoenBtn').classList.remove('crossed-out');
-  document.getElementById('autoRoundMsg').textContent = '';
-  document.getElementById('roundMax').textContent = '/30';
-  document.getElementById('lives').textContent = lives;
-  document.getElementById('money').textContent = money;
-
-  const bootBtn = document.getElementById('tower-boot');
-  if (bootBtn) bootBtn.style.display = 'none';
-  bootPlatforms = [];
-
-  document.getElementById('gameTitle').innerHTML = '<span style="color:#ff8800">🔥 KAMPEER MODUS</span>';
-  gameSpeedMult = 1; enemySpeedMult = 1;
-  const virusWarnEl = document.getElementById('virusWarnEl');
-  if (virusWarnEl) virusWarnEl.style.display = 'none';
-
-  stopMusic();
-  kampeerModusAudio = new Audio(BASE_AUDIO + 'Kamperen.mp3');
-  kampeerModusAudio.loop = true; kampeerModusAudio.volume = 0.6;
-  kampeerModusAudio.play().catch(() => {});
-  currentTheme = kampeerModusAudio; musicPlaying = true;
 
   startTimer();
   document.getElementById('utilBtns').style.display = 'flex';
@@ -1090,114 +948,6 @@ let autoRoundCountdown = 0;
 
 let path = []; // first path (backward compat)
 let money=500, lives=20, round=1;
-
-// ===== HELD SELECTIE SYSTEEM =====
-let selectedHero = null;
-let heroLevel = 1;
-let heroLevelUpRound = 0;
-let heroXP = 0;
-let heroXPPerRound = 20;
-
-const heroes = {
-  tsjaadinator: {
-    name: 'Tsjaadinator Discipel',
-    sprite: '🔥',
-    projectile: '💥',
-    description: 'De leerling van de grote Tsjaadinator. Valt aan als een zwakkere variant en helpt andere Tsjaadinators.',
-    color: '#ff6f00',
-    levelUpInterval: 5,
-    xpPerRound: 20,
-    levels: {
-      1: {
-        title: 'Zwakke Aanval',
-        sprite: '🔥',
-        projectile: '💥',
-        text: 'Valt aan als een lvl1 Tsjaadinator (zwakkere variant).',
-        xpNeeded: 100
-      },
-      2: {
-        title: 'Branding Aanval',
-        sprite: '🔥🔥',
-        projectile: '🌪️',
-        text: 'Zet vijanden in de fik bij aanval. Vijanden branden voor extra schade.',
-        xpNeeded: 250
-      },
-      3: {
-        title: 'Goedkoper Helpen',
-        sprite: '⚡🔥',
-        projectile: '⚡',
-        text: 'Alle Tsjaadinators in radius (300px) kosten 30% minder geld om te plaatsen.',
-        xpNeeded: 450
-      },
-      4: {
-        title: 'Snellere Orde',
-        sprite: '⚡⚡🔥',
-        projectile: '💫',
-        text: 'Alle Tsjaadinators in radius vallen 20% sneller aan.',
-        xpNeeded: 700
-      },
-      5: {
-        title: 'Gratis Tsjaadinator',
-        sprite: '✨🔥✨',
-        projectile: '🔆',
-        text: 'Krijg elke ronde gratis een extra Tsjaadinator om te plaatsen.',
-        xpNeeded: 1000
-      }
-    }
-  },
-  sekteleider: {
-    name: 'Sekteleider',
-    sprite: '🔵',
-    projectile: '🟦',
-    description: 'Mysterieuze gids die blauwe vuurballen werpt. Boosted andere torens en geeft veel geld.',
-    color: '#0066ff',
-    levelUpInterval: 4,
-    xpPerRound: 20,
-    levels: {
-      1: {
-        title: 'Blauwe Vuurbal',
-        sprite: '🔵',
-        projectile: '🔷',
-        text: 'Gooit blauwe vuurballen op vijanden. Geraakt vijand beweegt 30% sneller maar geeft 2x geld op dood.',
-        xpNeeded: 100
-      },
-      2: {
-        title: 'Wraker',
-        sprite: '🔵🌀',
-        projectile: '🌀',
-        text: 'Voor elk leven die je verliest vallen ALL torens op de map permanent 5% sneller aan.',
-        xpNeeded: 250
-      },
-      3: {
-        title: 'Terugduwen',
-        sprite: '🔵💨',
-        projectile: '💨',
-        text: 'Elke vijand (behalve bosses) die geraakt wordt wordt een klein beetje terug geduwd.',
-        xpNeeded: 450
-      },
-      4: {
-        title: 'Sterke Vijand',
-        sprite: '🔵💪',
-        projectile: '💪',
-        text: 'Vijanden die geraakt worden hebben 20% meer health maar geven 60% meer geld op dood.',
-        xpNeeded: 700
-      },
-      5: {
-        title: 'Paragon Korting',
-        sprite: '👑🔵',
-        projectile: '👑',
-        text: 'De volgende Paragon die je koopt is 40% goedkoper!',
-        xpNeeded: 1000
-      }
-    }
-  }
-};
-
-function showHeroSelection(mode) {
-  document.getElementById('heroSelectScreen').classList.add('show');
-  // Sla mode op voor later
-  window._nextGameMode = mode;
-}
 let selectedTower=null;
 let enemies=[], towers=[], projectiles=[], explosions=[], bananas=[], landmines=[];
 let spawning=false, spawnLeft=0, spawnTimer=0;
@@ -1298,8 +1048,7 @@ function startGame(mode) {
     speed: racePath, armoede: armoedePath, boss: bossPath,
     mutatie: mutatiePath, dubbelhealth: dubbelHealthPath,
     tsjaadmodus: tsjaadPath, tsjaadplus: tsjaadPlusPath,
-    lichtsnelheid: lichtsnelheidPath, virus: virusPath,
-    kampeer: kampeerPath
+    lichtsnelheid: lichtsnelheidPath, virus: virusPath
   };
   path = modePaths[mode] || standardPath;
   gamePaths = [path];
@@ -1376,111 +1125,7 @@ function startGame(mode) {
   startTimer();
   document.getElementById('utilBtns').style.display = 'flex';
 
-  // Show/hide hero-specific towers
-  const discipelBtn = document.getElementById('tower-discipel');
-  const sekteleiderBtn = document.getElementById('tower-sekteleider');
-  if (discipelBtn) {
-    discipelBtn.style.display = (selectedHero === 'tsjaadinator') ? 'block' : 'none';
-  }
-  if (sekteleiderBtn) {
-    sekteleiderBtn.style.display = (selectedHero === 'sekteleider') ? 'block' : 'none';
-  }
-
   loop();
-}
-
-// ===== HERO SYSTEEM =====
-function updateHeroLevel() {
-  if (!selectedHero) return;
-  const hero = heroes[selectedHero];
-  if (!hero) return;
-  
-  // Voeg XP toe aan het eind van de ronde
-  heroXP += hero.xpPerRound || 20;
-  
-  // Controleer of we kunnen levelen
-  while (heroLevel < 5 && hero.levels[heroLevel]) {
-    const nextLevelXP = hero.levels[heroLevel].xpNeeded;
-    if (heroXP >= nextLevelXP) {
-      heroXP -= nextLevelXP;
-      heroLevel++;
-      const levelData = hero.levels[heroLevel];
-      showRoundMsg(`⭐ ${hero.name} LEVEL ${heroLevel}! ${levelData.title}`);
-    } else {
-      break;
-    }
-  }
-}
-
-function applyHeroBonus(tower, allTowers) {
-  if (!selectedHero || heroLevel < 1) return;
-  
-  if (selectedHero === 'tsjaadinator') {
-    // Tsjaadinator Discipel bonussen
-    if (heroLevel >= 3) {
-      // Lvl 3: Alle Tsjaadinators -30% kosten
-      if (tower.key === 'tsjaadinator') {
-        tower.cost = Math.floor(tower.cost * 0.7);
-      }
-    }
-    if (heroLevel >= 4) {
-      // Lvl 4: Alle Tsjaadinators +20% sneller
-      if (tower.key === 'tsjaadinator') {
-        tower.rate = Math.max(1, Math.floor(tower.rate * 0.8)); // Lower = faster
-      }
-    }
-  }
-  
-  if (selectedHero === 'sekteleider' && heroLevel >= 2) {
-    // Lvl 2: Per life verloren: -5% cooldown ALL towers
-    const lossCount = 20 - lives;
-    if (lossCount > 0) {
-      const speedBoost = 1 - (lossCount * 0.05);
-      tower.rate = Math.max(1, Math.floor(tower.rate * speedBoost));
-    }
-  }
-}
-
-function getHeroDisplay() {
-  if (!selectedHero) return '';
-  const hero = heroes[selectedHero];
-  const levelData = hero.levels[heroLevel];
-  const nextLevelData = hero.levels[heroLevel + 1];
-  const nextLevelXP = nextLevelData ? nextLevelData.xpNeeded : 0;
-  
-  // Bereken XP progress voor huidige level
-  let currentLevelStartXP = 0;
-  for (let i = 1; i < heroLevel; i++) {
-    currentLevelStartXP += hero.levels[i].xpNeeded;
-  }
-  
-  const xpInCurrentLevel = heroXP;
-  const xpNeededForNextLevel = nextLevelXP || 0;
-  const xpProgress = nextLevelXP > 0 ? (xpInCurrentLevel / xpNeededForNextLevel * 100) : 100;
-  
-  const sprite = levelData.sprite || hero.sprite;
-  const projectile = levelData.projectile || hero.projectile;
-  
-  const xpBarHTML = nextLevelData ? `
-    <div class="tower-tooltip-xp">
-      <div class="tower-tooltip-xp-label">📈 XP: ${Math.floor(xpInCurrentLevel)}/${nextLevelXP}</div>
-      <div class="xp-bar-container">
-        <div class="xp-bar-fill" style="width: ${xpProgress}%"></div>
-      </div>
-    </div>
-  ` : '';
-  
-  return `${sprite} ${hero.name} LV.${heroLevel}: ${levelData.title} | Projectiel: ${projectile}${xpBarHTML}`;
-}
-
-function getHeroXPBar() {
-  if (!selectedHero || heroLevel >= 5) return '';
-  const hero = heroes[selectedHero];
-  const nextLevelData = hero.levels[heroLevel + 1];
-  if (!nextLevelData) return '';
-  
-  const xpProgress = (heroXP / nextLevelData.xpNeeded) * 100;
-  return `<div class="tower-tooltip-xp"><div class="tower-tooltip-xp-label">📈 XP: ${Math.floor(heroXP)}/${nextLevelData.xpNeeded}</div><div class="xp-bar-container"><div class="xp-bar-fill" style="width: ${xpProgress}%"></div></div></div>`;
 }
 
 // ===== TOWERS =====
@@ -1497,15 +1142,13 @@ const towerTypes={
   geweer:{range:240,rate:12,dmg:3.8,speed:7,cost:550,ultCost:5000},
   sniper:{range:550,rate:300,dmg:300,speed:10,cost:3000,ultCost:28000},
   tsjaadinator:{range:180,rate:4,dmg:4.8,speed:8,cost:2500,ultCost:15000,secretCost:500000},
-  discipel:{range:180,rate:12,dmg:1.2,speed:8,cost:600,ultCost:4000,isDiscipel:true},
-  sekteleider:{range:200,rate:60,dmg:8,speed:7,cost:700,ultCost:5000,isSekteleider:true},
   atoom:{range:180,rate:100,dmg:15,speed:8,cost:600,bomb:true,ultCost:4500},
   katoen:{range:0,rate:9999,dmg:0,speed:0,cost:950,farm:true,ultCost:4000},
-  aap:{range:120,rate:70,dmg:1.4,speed:0,cost:400,ultCost:2500,monkey:true},
+  aap:{range:120,rate:70,dmg:0.8,speed:0,cost:400,ultCost:2500,monkey:true},
   fakkel:{range:95,rate:50,dmg:2,speed:8,cost:150,ultCost:4000,fire:true},
   hut:{range:110,rate:9999,dmg:0,speed:0,cost:800,hut:true,ultCost:5000},
   // Boot: water-platform, geen aanval, alleen in EilandModus
-  boot:{range:0,rate:9999,dmg:0,speed:0,cost:1000,farm:false,isBoot:true,ultCost:99999}
+  boot:{range:0,rate:9999,dmg:0,speed:0,cost:3000,farm:false,isBoot:true,ultCost:99999}
 };
 
 function getTowerRange(tw) {
@@ -1597,11 +1240,6 @@ canvas.onmousemove = e => {
   if(hoveredTower){
     updateTooltip(hoveredTower, e.clientX, e.clientY);
     tooltipEl.style.display='block';
-  } else if(gameMode==='kampeer' && Math.hypot(mouseX-KAMPVUUR_CX, mouseY-KAMPVUUR_CY) < 30){
-    const cost = getKampvuurUpgradeCost();
-    tooltipEl.innerHTML = `<div class="tt-name">🔥 Kampvuur</div><div class="tt-level">Niveau ${kampvuurLevel} · Lichtradius: ${Math.round(kampvuurRadius)}px</div><hr class="tt-divider"><div class="tt-upgrade-header">Breid kampvuur uit — €${cost} (+40 radius)</div><div class="tt-sell" style="color:#ffcc44">Klik om uit te breiden!</div>`;
-    tooltipEl.style.display='block';
-    updateTooltipPosition(e.clientX, e.clientY);
   } else {
     tooltipEl.style.display='none';
   }
@@ -1730,16 +1368,19 @@ function updateTooltip(tw, cx, cy){
 
   let html = '';
 
-  // Boot platform: simpele tekst, geen tooltip
+  // Boot platform: speciale tooltip
   if(tw.key === 'boot'){
-    html += `<div style="font-size:13px;color:#aaddff;line-height:1.6;padding:6px 0;">⛵ Boot platform is de beste vriend van al de inwoners in het Tsjaad meer! Plaats hem en je troepen kunnen op water staan.</div>`;
+    html += `<div class="tt-stats-title">⛵ Boot Platform</div>`;
+    html += `<div class="tt-stat-row"><span class="tt-stat-label">🏗️ Platform radius</span><span class="tt-stat-val">${tw.platformRadius || 45}px</span></div>`;
+    html += `<div class="tt-stat-row"><span class="tt-stat-label">⚔️ Aanval</span><span class="tt-stat-val">Geen</span></div>`;
+    html += `<div style="font-size:10px;color:#88ddff;margin-top:4px;">🌊 Creëert een bouwplatform op het water.<br>Plaats hier torens om het eiland te verdedigen!</div>`;
     html += `<hr class="tt-divider">`;
     html += `<div class="tt-upgrade-header max" style="color:#888">⛵ Kan niet geüpgraded worden</div>`;
     document.getElementById('tt-stats-section').innerHTML = html;
     const sellVal2 = Math.floor(getTowerTotalInvestedCost(tw) * 0.8);
     document.getElementById('tt-sell').textContent = `🗑️ [Backspace] Verkopen: €${sellVal2}`;
     let tx2 = cx + 18, ty2 = cy - 10;
-    const ttW2 = 280, ttH2 = 160;
+    const ttW2 = 280, ttH2 = 200;
     if(tx2 + ttW2 > window.innerWidth) tx2 = cx - ttW2 - 10;
     if(ty2 + ttH2 > window.innerHeight) ty2 = cy - ttH2 + 10;
     if(ty2 < 0) ty2 = 5;
@@ -1897,14 +1538,8 @@ function updateTooltip(tw, cx, cy){
     const canAfford = money >= cost;
     const hutUpgradeDescriptions = ['💰 Torens in radius +20% kill reward','💵 +10g/s per vijand in radius','🔩 Torens in radius raken metalen vijanden'];
     const hutDesc = tw.key==='hut' ? hutUpgradeDescriptions[tw.level] : '';
-    
-    // Geen upgrade info als held actief is
-    if(!selectedHero){
-      html += `<div class="tt-upgrade-header" style="color:${canAfford?'#4fc3f7':'#f44'}">⬆️ Upgrade Lvl ${tw.level+1} — €${cost}</div>`;
-      if(hutDesc) html += `<div style="font-size:9px;color:#aaffcc;margin-top:2px;">${hutDesc}</div>`;
-    } else {
-      html += `<div style="font-size:10px;color:#ffaa00;padding:8px;text-align:center;font-weight:bold;">⭐ Held Modus — Geen upgrades beschikbaar</div>`;
-    }
+    html += `<div class="tt-upgrade-header" style="color:${canAfford?'#4fc3f7':'#f44'}">⬆️ Upgrade Lvl ${tw.level+1} — €${cost}</div>`;
+    if(hutDesc) html += `<div style="font-size:9px;color:#aaffcc;margin-top:2px;">${hutDesc}</div>`;
   } else if(!tw.ultimate){
     let cost = tw.key==='hut' ? HUT_ULT_COST : cfg.ultCost;
     const hasKatoenPara=towers.some(t=>t.key==='katoen'&&t.paragon&&Math.hypot(t.x-tw.x,t.y-tw.y)<=getTowerRange(t));
@@ -1966,16 +1601,7 @@ function updateTooltip(tw, cx, cy){
   tooltipEl.style.top = ty + 'px';
 }
 
-function updateTooltipPosition(cx, cy){
-  let tx = cx + 18, ty = cy - 10;
-  const ttW = 280, ttH = 160;
-  if(tx + ttW > window.innerWidth) tx = cx - ttW - 10;
-  if(ty + ttH > window.innerHeight) ty = cy - ttH + 10;
-  if(ty < 0) ty = 5;
-  tooltipEl.style.left = tx + 'px';
-  tooltipEl.style.top = ty + 'px';
-}
-document.addEventListener('keydown', function(e){
+document.addEventListener('keydown', e => {
   if(e.key === 'Backspace' && hoveredTower && !gameWon){
     e.preventDefault();
     sellTower(hoveredTower);
@@ -2093,26 +1719,6 @@ canvas.onclick=e=>{
   if(gameWon) return;
   const r=canvas.getBoundingClientRect();
   const x=e.clientX-r.left, y=e.clientY-r.top;
-
-  // Kampeer Modus: klik op kampvuur om uit te breiden
-  if(gameMode==='kampeer'){
-    const distToFire = Math.hypot(x - KAMPVUUR_CX, y - KAMPVUUR_CY);
-    if(distToFire < 30){
-      const cost = getKampvuurUpgradeCost();
-      if(money >= cost){
-        money -= cost;
-        kampvuurRadius += 40;
-        kampvuurLevel++;
-        document.getElementById('money').textContent = money;
-        showRoundMsg('🔥 Kampvuur uitgebreid! Radius: ' + Math.round(kampvuurRadius) + 'px · Volgende: €' + getKampvuurUpgradeCost());
-        playSound('upgrade', 0.6);
-      } else {
-        showRoundMsg('💸 Niet genoeg geld! Kampvuur uitbreiden kost €' + cost);
-      }
-      return;
-    }
-  }
-
   for(const tw of towers){ const towerSize=18*(1+tw.level*0.05); if(Math.hypot(tw.x-x,tw.y-y)<towerSize){ handleUpgrade(tw); return; } }
 
   // Hut free tower placement
@@ -2186,7 +1792,7 @@ canvas.onclick=e=>{
     bootPlatforms.push({x, y, radius: platformRadius});
     const bootTower={
       x, y, key:'boot', cool:0, dmg:0, rate:9999, level:0,
-      ultimate:false, upText:0, farm:false, slow:false,
+      ultimate:false, upText:60, farm:false, slow:false,
       monkey:false, fire:false, monkeyTimer:0, boosted:false,
       boostEndTime:0, nukeTimer:0, investedCost:cfg.cost,
       speerRangeBoostUntil:0, totalDamage:0,
@@ -2212,10 +1818,6 @@ canvas.onclick=e=>{
   if(selectedTower==='fakkel'){ newTower.fireChance=1.0; }
   if(selectedTower==='atoom'){ newTower.fireBonusMultiplier=1.20; }
   if(selectedTower==='hut'){ newTower.hut=true; newTower.hutTickTimer=0; newTower.hutEnemyRewardBonus=0; }
-  
-  // Apply hero bonuses to this tower
-  applyHeroBonus(newTower, towers);
-  
   towers.push(newTower);
   playSound('placement', 0.6);
 };
@@ -2425,27 +2027,6 @@ function startRound(){
   if(spawning||gameWon) return;
   playSound('round', 0.7);
   document.getElementById('round').textContent=round;
-  
-  // Update hero info
-  if(selectedHero) {
-    const heroInfo = document.getElementById('heroInfo');
-    const heroXPBar = document.getElementById('heroXPBar');
-    const heroSection = document.getElementById('heroInfoSection');
-    const hero = heroes[selectedHero];
-    if(heroInfo && hero) {
-      const levelData = hero.levels[heroLevel];
-      const nextLevelData = hero.levels[heroLevel + 1];
-      const levelSprite = levelData.sprite || hero.sprite;
-      const projectileEmoji = levelData.projectile || hero.projectile;
-      heroInfo.textContent = `${levelSprite} ${hero.name} Lvl.${heroLevel}: ${levelData.title}`;
-      if(nextLevelData && heroXPBar) {
-        const xpProgress = (heroXP / nextLevelData.xpNeeded) * 100;
-        heroXPBar.innerHTML = `<div class="tower-tooltip-xp-label">📈 XP: ${Math.floor(heroXP)}/${nextLevelData.xpNeeded}</div><div class="xp-bar-container"><div class="xp-bar-fill" style="width: ${xpProgress}%"></div></div>`;
-      }
-      heroSection.style.display = 'block';
-    }
-  }
-  
   for(const tw of towers){
     if(tw.key==='plaagdokter'&&tw.paragon){
       const cooldown=Math.max(1,5-Math.floor(tw.paragonLevel/20));
@@ -2505,14 +2086,13 @@ function startRound(){
   else if(gameMode==='virus') baseEnemies=Math.floor(5+round*2);
   // EilandModus: vergelijkbaar met standaard maar iets meer vijanden (de ruimte is beperkt)
   else if(gameMode==='eiland') baseEnemies=Math.floor(5+round*2);
-  else if(gameMode==='kampeer') baseEnemies=Math.floor(5+round*1.8);
   spawnLeft=baseEnemies; spawning=true; spawnTimer=0;
   if(autoStartRounds) autoRoundCountdown=0;
 }
 
 function getMaxRound(){
   if(gameMode==='malariazwerm') return 1;
-  if(gameMode==='standard'||gameMode==='speed'||gameMode==='armoede'||gameMode==='dubbelhealth'||gameMode==='lichtsnelheid'||gameMode==='virus'||gameMode==='eiland'||gameMode==='kampeer') return 30;
+  if(gameMode==='standard'||gameMode==='speed'||gameMode==='armoede'||gameMode==='dubbelhealth'||gameMode==='lichtsnelheid'||gameMode==='virus'||gameMode==='eiland') return 30;
   if(gameMode==='hard'||gameMode==='tsjaadmodus') return 50;
   if(gameMode==='boss') return 1;
   if(gameMode==='mutatie') return 35;
@@ -2572,7 +2152,6 @@ function spawnEnemy(){
     if(gameMode==='mutatie'){ enemies.push(makeEnemy({...zwangereMugBossType})); return; }
     // ===== EILAND MODUS: Scheurbeuk Mug als eindbaas op ronde 30 =====
     if(gameMode==='eiland'){ enemies.push(makeEnemy({...scheurbeukMugType})); return; }
-    if(gameMode==='kampeer'){ enemies.push(makeEnemy({...ninjaMalariaMugType})); return; }
     if(gameMode==='standard'||gameMode==='speed'||gameMode==='lichtsnelheid'||gameMode==='armoede'){ enemies.push(makeEnemy({...bossType})); return; }
   if(gameMode==='virus'){ enemies.push(makeEnemy({...bossType, hp:80000, speed:0.9, size:90, reward:1500})); return; }
     if(gameMode==='hard'){ enemies.push(makeEnemy({...mutatedBossType})); return; }
@@ -2675,8 +2254,6 @@ function makeEnemy(t2){
 // ===== WIN & LOSS =====
 function winGame(){
   gameWon=true;
-  selectedHero = null;  // Reset held
-  heroLevel = 1;
   stopMusic();
   stopTimer();
   document.getElementById('finalRound').textContent=round;
@@ -2696,8 +2273,6 @@ function winGame(){
 }
 function loseGame(){
   gameWon=true;
-  selectedHero = null;  // Reset held
-  heroLevel = 1;
   stopMusic();
   stopTimer();
   if(gameMode === 'tsjaadstory'){
@@ -2787,8 +2362,6 @@ function update(){
       } else if(round<maxRound) round++;
       // Virus modus: verwijder duurste toren elke 5 rondes
       if(gameMode==='virus' && round>1 && (round-1)%5===0) virusRemoveMostExpensiveTower(round-1);
-      // Hero leveling
-      if(selectedHero) updateHeroLevel();
     }
   }
 
@@ -2896,12 +2469,6 @@ function update(){
       for(const e of enemies){
         if(e.mutation==='onzichtbare'||e.mutation2==='onzichtbare'||e.mutation3==='onzichtbare'){
           if(Math.hypot(e.x-tw.x,e.y-tw.y) > effRange + e.size) continue;
-        }
-        // Kampeer Modus: torens kunnen alleen vijanden raken die in het licht van het kampvuur staan
-        if(gameMode==='kampeer'){
-          // Veilige check: zorg ervoor dat e.x, e.y en kampvuurRadius valid zijn
-          if(typeof e.x !== 'number' || typeof e.y !== 'number' || isNaN(e.x) || isNaN(e.y) || !kampvuurRadius) continue;
-          if(Math.hypot(e.x-KAMPVUUR_CX,e.y-KAMPVUUR_CY) > kampvuurRadius + e.size) continue;
         }
         if(Math.hypot(e.x-tw.x,e.y-tw.y) < effRange + e.size){
           if(!target || e.i > target.i || (e.i===target.i&&e.hp<target.hp)) target = e;
@@ -3504,149 +3071,6 @@ function drawTsjaadPlusBg(){
   }
 }
 
-// ===== KAMPVUUR TEKENFUNCTIE =====
-function drawKampvuur(cx, cy, t_k){
-  ctx.save();
-  ctx.translate(cx, cy + 8);
-
-  // Stenen kring
-  ctx.fillStyle = '#3a2a10';
-  for(let i = 0; i < 8; i++){
-    const a = (i / 8) * Math.PI * 2;
-    ctx.beginPath();
-    ctx.ellipse(Math.cos(a)*14, Math.sin(a)*7, 5, 4, a, 0, Math.PI*2);
-    ctx.fill();
-  }
-
-  // Houtblokken
-  ctx.strokeStyle = '#5a2a08'; ctx.lineWidth = 5;
-  ctx.beginPath(); ctx.moveTo(-12, 4); ctx.lineTo(12, 4); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(-9, -2); ctx.lineTo(9, 8); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(9, -2); ctx.lineTo(-9, 8); ctx.stroke();
-
-  // Vlam animatie
-  const f1 = Math.sin(t_k * 6.3) * 0.2 + 1;
-  const f2 = Math.sin(t_k * 8.1 + 1) * 0.15 + 1;
-  const f3 = Math.sin(t_k * 11 + 2) * 0.18 + 1;
-
-  // Buitenste vlam (oranje)
-  ctx.fillStyle = 'rgba(255,100,10,0.8)';
-  ctx.beginPath();
-  ctx.moveTo(-10, 0); ctx.quadraticCurveTo(-12*f1, -18*f1, 0, -28*f1); ctx.quadraticCurveTo(12*f1, -18*f1, 10, 0);
-  ctx.closePath(); ctx.fill();
-
-  // Middelste vlam (geel-oranje)
-  ctx.fillStyle = 'rgba(255,180,20,0.9)';
-  ctx.beginPath();
-  ctx.moveTo(-7, 0); ctx.quadraticCurveTo(-5*f2, -16*f2, 0, -22*f2); ctx.quadraticCurveTo(5*f2, -16*f2, 7, 0);
-  ctx.closePath(); ctx.fill();
-
-  // Kern vlam (geel-wit)
-  ctx.fillStyle = 'rgba(255,240,100,0.95)';
-  ctx.beginPath();
-  ctx.moveTo(-4, 0); ctx.quadraticCurveTo(-2*f3, -10*f3, 0, -14*f3); ctx.quadraticCurveTo(2*f3, -10*f3, 4, 0);
-  ctx.closePath(); ctx.fill();
-
-  // Gloed
-  ctx.shadowBlur = 30 + Math.sin(t_k*5)*8;
-  ctx.shadowColor = '#ff8800';
-  ctx.fillStyle = 'rgba(255,200,50,0.3)';
-  ctx.beginPath(); ctx.arc(0, -8, 12, 0, Math.PI*2); ctx.fill();
-  ctx.shadowBlur = 0;
-
-  // Vonkjes
-  if(!window._kampvuurSparks) window._kampvuurSparks = [];
-  if(Math.random() < 0.3){
-    window._kampvuurSparks.push({x:(Math.random()-0.5)*8, y:-20-Math.random()*10, vx:(Math.random()-0.5)*1.5, vy:-1-Math.random()*1.5, life:1});
-  }
-  for(const sp of window._kampvuurSparks){
-    sp.x += sp.vx; sp.y += sp.vy; sp.life -= 0.04;
-    const a = Math.max(0, sp.life);
-    ctx.fillStyle = `rgba(255,${150+Math.floor(sp.life*80)},0,${a})`;
-    ctx.beginPath(); ctx.arc(sp.x, sp.y, 1.5, 0, Math.PI*2); ctx.fill();
-  }
-  window._kampvuurSparks = window._kampvuurSparks.filter(sp => sp.life > 0);
-
-  ctx.restore();
-}
-
-// ===== NINJA MALARIA MUG TEKENFUNCTIE =====
-function drawNinjaMug(e){
-  const t2 = Date.now() * 0.004;
-  const pulse = 1 + Math.sin(t2 * 2) * 0.06;
-  const sz = e.size || 80;
-
-  ctx.save();
-
-  // Schaduwgloed
-  const glowG = ctx.createRadialGradient(0, 0, sz*0.2, 0, 0, sz*0.85);
-  glowG.addColorStop(0, 'rgba(0,0,0,0)');
-  glowG.addColorStop(0.6, 'rgba(50,0,80,0.2)');
-  glowG.addColorStop(1, 'rgba(80,0,120,0.4)');
-  ctx.fillStyle = glowG;
-  ctx.beginPath(); ctx.arc(0, 0, sz*0.85, 0, Math.PI*2); ctx.fill();
-
-  // Zwart ninja lichaam
-  const bodyGrad = ctx.createRadialGradient(-6, -6, 3, 0, 4, sz*0.45*pulse);
-  bodyGrad.addColorStop(0, '#2a2a3a');
-  bodyGrad.addColorStop(0.5, '#111122');
-  bodyGrad.addColorStop(1, '#050508');
-  ctx.fillStyle = bodyGrad;
-  ctx.beginPath();
-  ctx.ellipse(0, 4, sz*0.35*pulse, sz*0.48*pulse, 0.08, 0, Math.PI*2);
-  ctx.fill();
-
-  // Paarse vleugels
-  ctx.fillStyle = 'rgba(120,0,180,0.5)';
-  ctx.strokeStyle = 'rgba(180,50,255,0.6)'; ctx.lineWidth = 1.5;
-  const wFlap = Math.sin(t2*8) * 0.3;
-  ctx.save(); ctx.rotate(-0.3 + wFlap);
-  ctx.beginPath(); ctx.ellipse(-sz*0.4, -sz*0.15, sz*0.34, sz*0.17, -0.4, 0, Math.PI*2);
-  ctx.fill(); ctx.stroke(); ctx.restore();
-  ctx.save(); ctx.rotate(0.3 - wFlap);
-  ctx.beginPath(); ctx.ellipse(sz*0.4, -sz*0.15, sz*0.34, sz*0.17, 0.4, 0, Math.PI*2);
-  ctx.fill(); ctx.stroke(); ctx.restore();
-
-  // Hoofd
-  ctx.fillStyle = '#111122';
-  ctx.beginPath(); ctx.arc(0, -sz*0.4, sz*0.19, 0, Math.PI*2); ctx.fill();
-
-  // Ninja masker (bandana)
-  ctx.fillStyle = '#1a0030';
-  ctx.beginPath();
-  ctx.rect(-sz*0.18, -sz*0.46, sz*0.36, sz*0.1);
-  ctx.fill();
-  // Masker knoop links & rechts
-  ctx.fillStyle = '#4a0080';
-  ctx.beginPath(); ctx.arc(-sz*0.18, -sz*0.41, sz*0.03, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(sz*0.18, -sz*0.41, sz*0.03, 0, Math.PI*2); ctx.fill();
-
-  // Ogen — rood gloeiend
-  ctx.shadowBlur = 14; ctx.shadowColor = '#ff0000';
-  ctx.fillStyle = '#ff0044';
-  ctx.beginPath(); ctx.arc(-sz*0.07, -sz*0.43, sz*0.045, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(sz*0.07, -sz*0.43, sz*0.045, 0, Math.PI*2); ctx.fill();
-  ctx.shadowBlur = 0;
-
-  // Ninja shuriken (sterachtig wapen)
-  ctx.save();
-  ctx.translate(sz*0.3, 0);
-  ctx.rotate(t2 * 4);
-  ctx.fillStyle = '#888899';
-  for(let i = 0; i < 4; i++){
-    ctx.save(); ctx.rotate(i * Math.PI / 2);
-    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-sz*0.04, -sz*0.11); ctx.lineTo(sz*0.04, -sz*0.11); ctx.closePath(); ctx.fill();
-    ctx.restore();
-  }
-  ctx.restore();
-
-  // Zuigsnuit
-  ctx.strokeStyle = '#333344'; ctx.lineWidth = sz*0.035; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(0, -sz*0.22); ctx.lineTo(0, -sz*0.03); ctx.stroke();
-
-  ctx.restore();
-}
-
 function drawPath(){
   const pathsToDraw = gamePaths.length ? gamePaths : [path];
   if(gameMode==='tsjaadplus'){ drawTsjaadPlusBg(); return; }
@@ -3845,9 +3269,9 @@ function drawPath(){
       }
       ctx.restore();
     }
-    drawPalm(EILAND_X + 55, EILAND_Y + EILAND_H - 30, 40);
-    drawPalm(EILAND_X + EILAND_W - 65, EILAND_Y + EILAND_H - 28, 38);
-    drawPalm(EILAND_X + EILAND_W * 0.5, EILAND_Y + 35, 35);
+    drawPalm(EILAND_X + 80, EILAND_Y + EILAND_H - 40, 55);
+    drawPalm(EILAND_X + EILAND_W - 90, EILAND_Y + EILAND_H - 35, 50);
+    drawPalm(EILAND_X + EILAND_W * 0.5, EILAND_Y + 50, 45);
 
     // Pad tekenen (vijanden zwemmen op het water — geanimeerde zwem-stroom)
     for(const dp of pathsToDraw){
@@ -3864,83 +3288,8 @@ function drawPath(){
       ctx.stroke();
       ctx.setLineDash([]);
     }
-  } else if(gameMode==='kampeer'){
-    // ===== KAMPEER MODUS: woestijn nacht met kampvuur =====
-    const t_k = Date.now() * 0.001;
-
-    // Nachtelijke woestijn achtergrond
-    const nightGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    nightGrad.addColorStop(0, '#05040f');
-    nightGrad.addColorStop(0.4, '#0a0818');
-    nightGrad.addColorStop(0.8, '#080614');
-    nightGrad.addColorStop(1, '#030208');
-    ctx.fillStyle = nightGrad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Sterren
-    if(!window._kampeerStars){
-      window._kampeerStars = [];
-      for(let i = 0; i < 200; i++){
-        window._kampeerStars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height*0.75, s:0.4+Math.random()*1.8, p:Math.random()*Math.PI*2, b:0.3+Math.random()*0.7});
-      }
-    }
-    for(const st of window._kampeerStars){
-      const alpha = st.b * (0.5 + Math.sin(t_k*1.5+st.p)*0.5);
-      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-      ctx.beginPath(); ctx.arc(st.x, st.y, st.s, 0, Math.PI*2); ctx.fill();
-    }
-
-    // Woestijn zand silhouet onderkant
-    ctx.fillStyle = '#1a1005';
-    ctx.beginPath();
-    ctx.moveTo(0, canvas.height);
-    ctx.lineTo(0, canvas.height * 0.82);
-    for(let dx = 0; dx <= canvas.width; dx += 60){
-      const dy = Math.sin(dx * 0.008 + 1.5) * 18 + Math.sin(dx * 0.02) * 8;
-      ctx.lineTo(dx, canvas.height * 0.82 + dy);
-    }
-    ctx.lineTo(canvas.width, canvas.height);
-    ctx.closePath(); ctx.fill();
-
-    // Kampvuur lichtschijn (radiale glow over heel canvas)
-    const fireFlicker = 0.85 + Math.sin(t_k * 7.3) * 0.08 + Math.sin(t_k * 13.7) * 0.04;
-    const lightGrad = ctx.createRadialGradient(KAMPVUUR_CX, KAMPVUUR_CY, 0, KAMPVUUR_CX, KAMPVUUR_CY, kampvuurRadius * 1.4);
-    lightGrad.addColorStop(0, `rgba(255,180,60,${0.28 * fireFlicker})`);
-    lightGrad.addColorStop(0.35, `rgba(255,120,20,${0.18 * fireFlicker})`);
-    lightGrad.addColorStop(0.7, `rgba(200,80,10,${0.08 * fireFlicker})`);
-    lightGrad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = lightGrad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Zacht grondlicht rondom vuur
-    const groundLight = ctx.createRadialGradient(KAMPVUUR_CX, KAMPVUUR_CY+10, 0, KAMPVUUR_CX, KAMPVUUR_CY+10, kampvuurRadius * 0.6);
-    groundLight.addColorStop(0, `rgba(255,150,40,${0.15 * fireFlicker})`);
-    groundLight.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = groundLight;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Lichtgrens visueel (stippellijn)
-    ctx.save();
-    ctx.strokeStyle = `rgba(255,150,50,${0.25 + Math.sin(t_k*3)*0.08})`;
-    ctx.lineWidth = 2;
-    ctx.setLineDash([10, 8]);
-    ctx.beginPath();
-    ctx.arc(KAMPVUUR_CX, KAMPVUUR_CY, kampvuurRadius, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.restore();
-
-    // Pad — donkere aarden weg zichtbaar onder vuurlicht
-    for(const dp of pathsToDraw){
-      ctx.strokeStyle = '#1a0e00'; ctx.lineWidth = 32; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(dp[0].x, dp[0].y); for(const p of dp) ctx.lineTo(p.x, p.y); ctx.stroke();
-      ctx.strokeStyle = `rgba(60,35,5,0.8)`; ctx.lineWidth = 22;
-      ctx.beginPath(); ctx.moveTo(dp[0].x, dp[0].y); for(const p of dp) ctx.lineTo(p.x, p.y); ctx.stroke();
-    }
-
-    // Kampvuur zelf tekenen (NAAR het pad voor juiste laagvolgorde)
-    drawKampvuur(KAMPVUUR_CX, KAMPVUUR_CY, t_k);
   } else {
+    // Desert theme background
     const grad=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
     grad.addColorStop(0,'#c8a060'); grad.addColorStop(0.4,'#d4aa70'); grad.addColorStop(0.7,'#c09050'); grad.addColorStop(1,'#b07840');
     ctx.fillStyle=grad; ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -4004,7 +3353,6 @@ function drawEnemy(e){
     'infected_bat':      'vogel',
     'infected_spider':   'neushoorn',
     'super_robot_malaria_mug': 'mutatedmug',
-    'ninja_mug': 'ninja_mug',
   };
   const drawType = infectedTypeMap[e.type] || e.type;
 
@@ -4024,8 +3372,6 @@ function drawEnemy(e){
   else if(drawType === 'zwangeremug') drawZwangereMug(e);
   // ===== SCHEURBEUK MUG (EilandModus baas) =====
   else if(drawType === 'scheurbeuk_mug') drawScheurbeukMug(e);
-  // ===== NINJA MALARIA MUG (KampeerModus baas) =====
-  else if(drawType === 'ninja_mug') drawNinjaMug(e);
 
   ctx.globalAlpha=1;
   drawMutationEffects(e);
@@ -5169,30 +4515,6 @@ function drawCritTexts(){
     ctx.restore();
   }
 }
-
-function selectHero(heroKey) {
-  selectedHero = heroKey;
-  heroLevel = 1;
-  heroLevelUpRound = 0;
-  heroXP = 0;
-  heroXPPerRound = heroes[heroKey].xpPerRound || 20;
-  document.getElementById('heroSelectScreen').classList.remove('show');
-  const mode = window._nextGameMode;
-  document.getElementById('titleScreen').style.display = 'none';
-  document.getElementById('settingsBtn').style.display = 'none';
-  startGame(mode);
-}
-
-// Setup mode button listeners
-document.addEventListener('DOMContentLoaded', function() {
-  // Mode buttons in play menu
-  document.querySelectorAll('[data-mode]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const mode = this.getAttribute('data-mode');
-      showHeroSelection(mode);
-    });
-  });
-});
 
 function loop(){ update(); draw(); if(hoveredTower){ updateTooltip(hoveredTower, lastMouseClientX, lastMouseClientY); } if(!gameWon) requestAnimationFrame(loop); }
 
